@@ -30,7 +30,7 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [banner, setBanner] = useState(null);
 
-  useEffect(() => { document.title = 'CloudKitchen - Order Food Online'; }, []);
+  useEffect(() => { document.title = `${t('app_name')} - Order Food Online`; }, []);
 
   useEffect(() => {
     const fetchData = async () => {

@@ -1,13 +1,15 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { HiOutlineChevronLeft } from 'react-icons/hi2';
+import useAppStore from '../store/useAppStore';
 
 function TopNav({ title, showBack = true, rightAction = null }) {
   const navigate = useNavigate();
+  const appName = useAppStore((s) => s.appName);
 
   useEffect(() => {
-    document.title = `${title} - CloudKitchen`;
-  }, [title]);
+    document.title = `${title} - ${appName}`;
+  }, [title, appName]);
 
   return (
     <header className="sticky top-0 z-50 bg-primary">

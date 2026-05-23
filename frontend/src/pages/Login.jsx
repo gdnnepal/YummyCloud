@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 import { HiOutlineChevronLeft, HiOutlineEye, HiOutlineEyeSlash } from 'react-icons/hi2';
 import useAuthStore from '../store/useAuthStore';
+import useAppStore from '../store/useAppStore';
 import api from '../services/api';
 import { setOneSignalExternalUserId } from '../utils/onesignal';
 
