@@ -17,12 +17,7 @@ useAppStore.getState().fetchSettings().then(() => {
   i18n.addResource('ne', 'translation', { app_name: name });
 });
 
-// Register Service Worker for PWA (OneSignal handles push SW separately)
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/OneSignalSDKWorker.js', { scope: '/' }).catch(() => {});
-  });
-}
+// OneSignal handles its own service worker registration for push notifications
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
