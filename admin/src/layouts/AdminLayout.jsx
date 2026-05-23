@@ -68,6 +68,9 @@ function AdminLayout() {
           ))}
         </nav>
         <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-100">
+          <NavLink to="/change-password" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ${isActive ? 'text-primary bg-primary/10' : 'text-gray-600 hover:bg-gray-100'} mb-1`}>
+            <HiOutlineCog6Tooth className="w-5 h-5" /> Change Password
+          </NavLink>
           <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 w-full">
             <HiOutlineArrowRightOnRectangle className="w-5 h-5" />
             Logout

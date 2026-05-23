@@ -14,6 +14,7 @@ import Sales from './pages/Sales';
 import DeliveryPartners from './pages/DeliveryPartners';
 import Settings from './pages/Settings';
 import Reviews from './pages/Reviews';
+import ChangePassword from './pages/ChangePassword';
 
 function ProtectedRoute({ children }) {
   const auth = JSON.parse(localStorage.getItem('admin-auth') || 'null');
@@ -40,6 +41,7 @@ function App() {
           <Route path="delivery-partners" element={<DeliveryPartners />} />
           <Route path="settings" element={<Settings />} />
           <Route path="reviews" element={<Reviews />} />
+          <Route path="change-password" element={<ChangePassword />} />
         </Route>
       </Routes>
     </BrowserRouter>

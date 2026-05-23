@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import OrderDetail from './pages/OrderDetail';
 import History from './pages/History';
+import ChangePassword from './pages/ChangePassword';
 
 function ProtectedRoute({ children }) {
   const auth = JSON.parse(localStorage.getItem('rider-auth') || 'null');
@@ -18,6 +19,7 @@ function App() {
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/orders/:id" element={<ProtectedRoute><OrderDetail /></ProtectedRoute>} />
         <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
+        <Route path="/change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

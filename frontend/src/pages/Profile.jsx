@@ -7,6 +7,7 @@ import {
   HiOutlineGlobeAlt,
   HiOutlineArrowRightOnRectangle,
   HiOutlineChevronRight,
+  HiOutlineCog6Tooth,
 } from 'react-icons/hi2';
 import TopNav from '../components/TopNav';
 import useAuthStore from '../store/useAuthStore';
@@ -57,6 +58,7 @@ function Profile() {
     { icon: HiOutlineClipboardDocumentList, label: t('order_history'), to: '/orders' },
     { icon: HiOutlineMapPin, label: t('saved_addresses'), to: '/addresses' },
     { icon: HiOutlineWallet, label: t('wallet'), to: '/wallet' },
+    { icon: HiOutlineCog6Tooth, label: 'Change Password', to: '/change-password' },
   ];
 
   return (

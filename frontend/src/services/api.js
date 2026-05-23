@@ -217,6 +217,13 @@ class ApiService {
     });
   }
 
+  changePassword(currentPassword, newPassword) {
+    return this.request('/profile/password', {
+      method: 'PUT',
+      body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+    });
+  }
+
   // Messages
   getMessages() {
     return this.request('/messages');

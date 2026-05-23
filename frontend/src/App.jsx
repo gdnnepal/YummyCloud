@@ -18,6 +18,7 @@ import Addresses from './pages/Addresses';
 import Wallet from './pages/Wallet';
 import Messages from './pages/Messages';
 import NotFound from './pages/NotFound';
+import ChangePassword from './pages/ChangePassword';
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
           <Route path="/addresses" element={<Addresses />} />
           <Route path="/wallet" element={<Wallet />} />
           <Route path="/messages" element={<Messages />} />
+          <Route path="/change-password" element={<ChangePassword />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

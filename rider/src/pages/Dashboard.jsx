@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { HiOutlineMapPin, HiOutlineClock, HiOutlineArrowRightOnRectangle, HiOutlineClipboardDocumentList, HiOutlineBanknotes, HiOutlineCube } from 'react-icons/hi2';
+import { HiOutlineMapPin, HiOutlineClock, HiOutlineArrowRightOnRectangle, HiOutlineClipboardDocumentList, HiOutlineBanknotes, HiOutlineCube, HiOutlineCog6Tooth } from 'react-icons/hi2';
 import api from '../services/api';
 
 function Dashboard() {
@@ -45,9 +45,14 @@ function Dashboard() {
             <p className="text-xs opacity-80">Hello 👋</p>
             <h1 className="text-lg font-bold">{user.name || 'Rider'}</h1>
           </div>
-          <button onClick={handleLogout} className="w-9 h-9 bg-white/15 rounded-full flex items-center justify-center">
-            <HiOutlineArrowRightOnRectangle className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <Link to="/change-password" className="w-9 h-9 bg-white/15 rounded-full flex items-center justify-center">
+              <HiOutlineCog6Tooth className="w-5 h-5" />
+            </Link>
+            <button onClick={handleLogout} className="w-9 h-9 bg-white/15 rounded-full flex items-center justify-center">
+              <HiOutlineArrowRightOnRectangle className="w-5 h-5" />
+            </button>
+          </div>
         </div>
         {/* Stats */}
         {stats && (
