@@ -3,31 +3,39 @@
 namespace App\Services;
 
 use App\Models\Setting;
+use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class NotificationService
 {
-    private function getWebpushrToken(): ?string
-    {
-        return Setting::get('webpushr_token') ?: config('services.webpushr.token');
-    }
-
-    private function getWebpushrKey(): ?string
+    private function getKey(): ?string
     {
         return Setting::get('webpushr_key') ?: config('services.webpushr.key');
     }
 
+    private function getToken(): ?string
+    {
+        return Setting::get('webpushr_token') ?: config('services.webpushr.token');
+    }
+
     /**
-     * Send push notification to a specific user via Webpushr
+     * Send push notification to a specific user via Webpushr SID
      */
     public function sendToUser(int $userId, string $title, string $message, array $data = []): bool
     {
-        $token = $this->getWebpushrToken();
-        $key = $this->getWebpushrKey();
+        $key = $this->getKey();
+        $token = $this->getToken();
 
-        if (!$token || !$key) {
+        if (!$key || !$token) {
             Log::info('Webpushr: Skipping notification (no keys configured)', ['title' => $title]);
+            return false;
+        }
+
+        // Get user's webpushr_sid
+        $user = User::find($userId);
+        if (!$user || !$user->webpushr_sid) {
+            Log::info('Webpushr: User has no SID', ['user_id' => $userId]);
             return false;
         }
 
@@ -36,14 +44,14 @@ class NotificationService
                 'title' => $title,
                 'message' => $message,
                 'target_url' => config('app.frontend_url', 'https://nispakshya.com') . '/orders',
-                'attribute' => ['user_id' => strval($userId)],
+                'sid' => $user->webpushr_sid,
             ];
 
             $response = Http::withHeaders([
-                'webpushrToken' => $token,
                 'webpushrKey' => $key,
+                'webpushrAuthToken' => $token,
                 'Content-Type' => 'application/json',
-            ])->post('https://api.webpushr.com/v1/notification/send/attribute', $payload);
+            ])->post('https://api.webpushr.com/v1/notification/send/sid', $payload);
 
             if ($response->successful()) {
                 Log::info('Webpushr: Notification sent', ['title' => $title, 'user_id' => $userId]);
@@ -59,15 +67,15 @@ class NotificationService
     }
 
     /**
-     * Send push notification to all users via Webpushr
+     * Send push notification to all subscribers via Webpushr
      */
     public function sendToAll(string $title, string $message, array $data = []): bool
     {
-        $token = $this->getWebpushrToken();
-        $key = $this->getWebpushrKey();
+        $key = $this->getKey();
+        $token = $this->getToken();
 
-        if (!$token || !$key) {
-            Log::info('Webpushr: Skipping notification (no keys configured)', ['title' => $title]);
+        if (!$key || !$token) {
+            Log::info('Webpushr: Skipping broadcast (no keys configured)', ['title' => $title]);
             return false;
         }
 
@@ -76,12 +84,11 @@ class NotificationService
                 'title' => $title,
                 'message' => $message,
                 'target_url' => config('app.frontend_url', 'https://nispakshya.com'),
-                'segment' => 'everyone',
             ];
 
             $response = Http::withHeaders([
-                'webpushrToken' => $token,
                 'webpushrKey' => $key,
+                'webpushrAuthToken' => $token,
                 'Content-Type' => 'application/json',
             ])->post('https://api.webpushr.com/v1/notification/send/all', $payload);
 

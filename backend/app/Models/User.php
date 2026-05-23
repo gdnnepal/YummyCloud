@@ -18,6 +18,7 @@ class User extends Authenticatable
         'password',
         'role',
         'is_verified',
+        'webpushr_sid',
     ];
 
     protected $hidden = [

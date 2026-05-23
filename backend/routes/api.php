@@ -45,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::put('/profile', [AuthController::class, 'updateProfile']);
     Route::put('/profile/password', [AuthController::class, 'changePassword']);
+    Route::post('/profile/push-token', [AuthController::class, 'savePushToken']);
 
     // Addresses
     Route::get('/addresses', [AddressController::class, 'index']);

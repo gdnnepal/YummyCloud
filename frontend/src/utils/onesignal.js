@@ -3,19 +3,32 @@
 
 export function initOneSignal() {
   // Webpushr auto-initializes via the script in index.html
-  // No additional init needed
 }
 
 export function setOneSignalExternalUserId(userId) {
-  // Set Webpushr subscriber attribute (user_id) for targeted notifications
+  // Get Webpushr subscriber ID and send to backend
   if (typeof window.webpushr !== 'undefined') {
-    window.webpushr('set_attribute', { 'user_id': String(userId) });
+    window.webpushr('fetch_id', function(sid) {
+      if (sid) {
+        // Send sid to backend to associate with user
+        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+        const authData = JSON.parse(localStorage.getItem('auth-storage') || '{}');
+        const token = authData?.state?.token;
+        if (token) {
+          fetch(`${API_BASE_URL}/profile/push-token`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({ webpushr_sid: sid }),
+          }).catch(() => {});
+        }
+      }
+    });
   }
 }
 
 export function removeOneSignalExternalUserId() {
-  // Clear Webpushr subscriber attribute on logout
-  if (typeof window.webpushr !== 'undefined') {
-    window.webpushr('set_attribute', { 'user_id': '' });
-  }
+  // Nothing to clear on logout - sid stays with the browser
 }

@@ -219,4 +219,11 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Password changed successfully.']);
     }
+
+    public function savePushToken(Request $request)
+    {
+        $request->validate(['webpushr_sid' => 'required|string']);
+        $request->user()->update(['webpushr_sid' => $request->webpushr_sid]);
+        return response()->json(['message' => 'Push token saved.']);
+    }
 }
