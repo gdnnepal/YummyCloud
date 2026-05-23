@@ -1,52 +1,51 @@
-// Webpushr push notification utility
-// The Webpushr SDK is loaded via index.html script tag
+const ONESIGNAL_APP_ID = import.meta.env.VITE_ONESIGNAL_APP_ID;
 
 export function initOneSignal() {
-  // Webpushr auto-initializes via the script in index.html
+  if (!ONESIGNAL_APP_ID || ONESIGNAL_APP_ID === 'your-onesignal-app-id-here') {
+    console.log('OneSignal: No app ID configured');
+    return;
+  }
+
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  window.OneSignalDeferred.push(async function (OneSignal) {
+    await OneSignal.init({
+      appId: ONESIGNAL_APP_ID,
+      allowLocalhostAsSecureOrigin: true,
+    });
+
+    const permission = OneSignal.Notifications.permission;
+    if (!permission) {
+      try {
+        await OneSignal.Notifications.requestPermission();
+      } catch (e) {
+        console.log('OneSignal: Permission request failed or dismissed', e);
+      }
+    }
+  });
 }
 
 export function setOneSignalExternalUserId(userId) {
-  // Get Webpushr subscriber ID and send to backend
-  _sendSidToBackend();
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  window.OneSignalDeferred.push(async function (OneSignal) {
+    try {
+      await OneSignal.login(String(userId));
+      const permission = OneSignal.Notifications.permission;
+      if (!permission) {
+        await OneSignal.Notifications.requestPermission();
+      }
+    } catch (e) {
+      console.log('OneSignal: login/permission error', e);
+    }
+  });
 }
 
 export function removeOneSignalExternalUserId() {
-  // Nothing to clear on logout - sid stays with the browser
-}
-
-// Try to fetch and save SID - called on login and on app load
-export function syncWebpushrSid() {
-  _sendSidToBackend();
-}
-
-function _sendSidToBackend() {
-  // Wait for webpushr SDK to be ready
-  const tryFetch = () => {
-    if (typeof window.webpushr !== 'undefined') {
-      window.webpushr('fetch_id', function(sid) {
-        if (sid) {
-          const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-          let token = null;
-          try {
-            const authData = JSON.parse(localStorage.getItem('auth-storage') || '{}');
-            token = authData?.state?.token;
-          } catch {}
-          if (token) {
-            fetch(`${API_BASE_URL}/profile/push-token`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-              },
-              body: JSON.stringify({ webpushr_sid: sid }),
-            }).catch(() => {});
-          }
-        }
-      });
-    } else {
-      // SDK not loaded yet, retry in 2 seconds
-      setTimeout(tryFetch, 2000);
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  window.OneSignalDeferred.push(async function (OneSignal) {
+    try {
+      await OneSignal.logout();
+    } catch (e) {
+      console.log('OneSignal: logout error', e);
     }
-  };
-  setTimeout(tryFetch, 1500);
+  });
 }

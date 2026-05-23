@@ -1,6 +1,3 @@
-// Import Webpushr service worker for push notifications
-importScripts('https://cdn.webpushr.com/sw-server.min.js');
-
 const CACHE_NAME = 'cloudkitchen-v1';
 
 // Install - cache shell
