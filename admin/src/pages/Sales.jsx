@@ -58,9 +58,12 @@ function Sales() {
 
       {/* Filters */}
       <form onSubmit={handleFilter} className="flex flex-wrap gap-3 items-end mb-6">
-        <div className="relative mt-4">
-          <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-          <input type="text" value={orderSearch} onChange={(e) => { setOrderSearch(e.target.value); setPage(1); }} placeholder="Order ID..." className="border border-gray-200 rounded-lg pl-8 pr-3 py-1.5 text-xs w-36 outline-none focus:border-primary bg-white" />
+        <div>
+          <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Search</label>
+          <div className="relative">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            <input type="text" value={orderSearch} onChange={(e) => { setOrderSearch(e.target.value); setPage(1); }} placeholder="Order ID..." className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 bg-white" />
+          </div>
         </div>
         <DateInput value={dateFrom} onChange={setDateFrom} label="From" />
         <DateInput value={dateTo} onChange={setDateTo} label="To" />
