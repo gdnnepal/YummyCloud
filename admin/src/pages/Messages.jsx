@@ -110,7 +110,7 @@ function Messages() {
                         <div className="absolute left-0 right-0 top-full border border-gray-200 rounded-lg mt-1 max-h-48 overflow-y-auto bg-white shadow-lg z-10">
                           <button
                             type="button"
-                            onClick={() => selectUser('all')}
+                            onMouseDown={() => selectUser('all')}
                             className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary/5 font-medium text-primary border-b border-gray-100 flex items-center gap-2"
                           >
                             <HiOutlineUsers className="w-4 h-4" />
@@ -120,7 +120,7 @@ function Messages() {
                             <button
                               key={u.id}
                               type="button"
-                              onClick={() => selectUser(u.id)}
+                              onMouseDown={() => selectUser(u.id)}
                               className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center justify-between border-b border-gray-50 last:border-0"
                             >
                               <span className="font-medium text-gray-700">{u.name}</span>
