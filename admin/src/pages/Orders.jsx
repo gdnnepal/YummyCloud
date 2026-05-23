@@ -19,6 +19,7 @@ function Orders() {
   const [customerSearch, setCustomerSearch] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [customers, setCustomers] = useState([]);
+  const [orderSearch, setOrderSearch] = useState('');
 
   useEffect(() => {
     api.getUsers().then((res) => setCustomers(res.users || [])).catch(console.error);
@@ -60,8 +61,11 @@ function Orders() {
       .finally(() => { if (!silent) setLoading(false); });
   };
 
-  const totalPages = Math.ceil(orders.length / PER_PAGE);
-  const paginatedOrders = orders.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const filteredOrders = orderSearch
+    ? orders.filter((o) => o.order_number.toLowerCase().includes(orderSearch.toLowerCase()))
+    : orders;
+  const totalPages = Math.ceil(filteredOrders.length / PER_PAGE);
+  const paginatedOrders = filteredOrders.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   const [updatingId, setUpdatingId] = useState(null);
 
@@ -77,6 +81,9 @@ function Orders() {
   return (
     <div>
       <h1 className="text-xl font-bold text-gray-800 mb-4">Orders</h1>
+      <div className="mb-3">
+        <input type="text" value={orderSearch} onChange={(e) => { setOrderSearch(e.target.value); setPage(1); }} placeholder="Search by Order ID..." className="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full max-w-xs outline-none focus:border-primary" />
+      </div>
       <div className="flex flex-wrap gap-2 mb-4 items-center">
         {['all', 'confirmed', 'preparing', 'on_the_way', 'delivered', 'cancelled'].map((s) => (
           <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap capitalize ${filter === s ? 'bg-primary text-white' : 'bg-white border border-gray-200 text-gray-600'}`}>

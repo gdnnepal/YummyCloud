@@ -37,9 +37,14 @@ function Sales() {
     fetchReport();
   };
 
+  const [orderSearch, setOrderSearch] = useState('');
+
   const orders = data?.orders || [];
-  const totalPages = Math.ceil(orders.length / PER_PAGE);
-  const paginatedOrders = orders.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const filteredSalesOrders = orderSearch
+    ? orders.filter((o) => o.order_number.toLowerCase().includes(orderSearch.toLowerCase()))
+    : orders;
+  const totalPages = Math.ceil(filteredSalesOrders.length / PER_PAGE);
+  const paginatedOrders = filteredSalesOrders.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   const formatDateTime = (d) =>
     new Date(d).toLocaleString('en-US', {
@@ -50,6 +55,9 @@ function Sales() {
   return (
     <div>
       <h1 className="text-xl font-bold text-gray-800 mb-4">Sales Report</h1>
+      <div className="mb-3">
+        <input type="text" value={orderSearch} onChange={(e) => { setOrderSearch(e.target.value); setPage(1); }} placeholder="Search by Order ID..." className="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full max-w-xs outline-none focus:border-primary" />
+      </div>
 
       {/* Filters */}
       <form onSubmit={handleFilter} className="flex flex-wrap gap-3 items-end mb-6">
