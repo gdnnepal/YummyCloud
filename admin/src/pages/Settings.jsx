@@ -15,11 +15,6 @@ const settingsConfig = [
   { key: 'welcome_bonus', label: 'Welcome Bonus (Rs.)', type: 'number', group: 'Wallet' },
   { key: 'qr_payment_info', label: 'QR Payment Instructions', type: 'text', group: 'Payment' },
   { key: 'qr_image', label: 'QR Code Image', type: 'file', group: 'Payment' },
-  { key: 'sms_api_key', label: 'SMS API Key', type: 'password', group: 'SMS' },
-  { key: 'sms_campaign', label: 'SMS Campaign', type: 'text', group: 'SMS' },
-  { key: 'sms_route_id', label: 'SMS Route ID', type: 'text', group: 'SMS' },
-  { key: 'onesignal_app_id', label: 'OneSignal App ID', type: 'text', group: 'Notifications' },
-  { key: 'onesignal_rest_api_key', label: 'OneSignal REST API Key', type: 'password', group: 'Notifications' },
 ];
 
 function Settings() {
