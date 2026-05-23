@@ -1,0 +1,21 @@
+{
+  "name": "CloudKitchen",
+  "short_name": "CloudKitchen",
+  "description": "Order delicious food from CloudKitchen",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#e23744",
+  "orientation": "portrait",
+  "categories": ["food", "shopping"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
