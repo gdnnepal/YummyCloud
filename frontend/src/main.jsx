@@ -17,10 +17,10 @@ useAppStore.getState().fetchSettings().then(() => {
   i18n.addResource('ne', 'translation', { app_name: name });
 });
 
-// Register Service Worker for PWA
+// Register Service Worker for PWA (OneSignal handles push SW separately)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
+    navigator.serviceWorker.register('/OneSignalSDKWorker.js', { scope: '/' }).catch(() => {});
   });
 }
 
