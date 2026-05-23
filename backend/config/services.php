@@ -35,4 +35,9 @@ return [
         'rest_api_key' => env('ONESIGNAL_REST_API_KEY'),
     ],
 
+    'webpushr' => [
+        'key' => env('WEBPUSHR_KEY'),
+        'token' => env('WEBPUSHR_TOKEN'),
+    ],
+
 ];
