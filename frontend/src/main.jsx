@@ -3,12 +3,8 @@ import { createRoot } from 'react-dom/client';
 import './i18n';
 import './index.css';
 import App from './App.jsx';
-import { initOneSignal } from './utils/onesignal';
 import useAppStore from './store/useAppStore';
 import i18n from './i18n';
-
-// Initialize OneSignal
-initOneSignal();
 
 // Fetch app settings and update i18n app_name
 useAppStore.getState().fetchSettings().then(() => {
