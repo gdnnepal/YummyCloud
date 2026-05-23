@@ -2,11 +2,6 @@
 node_modules/
 vendor/
 
-# Build outputs
-frontend/dist/
-admin/dist/
-rider/dist/
-
 # Environment files
 .env
 backend/.env
