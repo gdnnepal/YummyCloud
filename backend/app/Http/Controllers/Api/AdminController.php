@@ -225,7 +225,44 @@ class AdminController extends Controller
         return response()->json(['message' => 'Refund processed.', 'refund' => $refund]);
     }
 
-    // Delivery Partners
+    // Wallet Management
+    public function getUserWallet(Request $request, $userId)
+    {
+        $user = User::findOrFail($userId);
+        $wallet = $user->wallet;
+        if (!$wallet) {
+            $wallet = \App\Models\Wallet::create(['user_id' => $userId, 'balance' => 0]);
+        }
+        $transactions = $wallet->transactions()->latest()->take(20)->get();
+        return response()->json([
+            'user' => $user->only(['id', 'name', 'phone']),
+            'balance' => $wallet->balance,
+            'transactions' => $transactions,
+        ]);
+    }
+
+    public function adjustWallet(Request $request, $userId)
+    {
+        $request->validate([
+            'type' => 'required|in:credit,debit',
+            'amount' => 'required|numeric|min:1',
+            'note' => 'required|string|max:255',
+        ]);
+        $user = User::findOrFail($userId);
+        $wallet = $user->wallet;
+        if (!$wallet) {
+            $wallet = \App\Models\Wallet::create(['user_id' => $userId, 'balance' => 0]);
+        }
+        if ($request->type === 'credit') {
+            $wallet->credit($request->amount, 'Admin Credit', $request->note);
+        } else {
+            if ($wallet->balance < $request->amount) {
+                return response()->json(['message' => 'Insufficient wallet balance.'], 422);
+            }
+            $wallet->debit($request->amount, 'Admin Debit', $request->note);
+        }
+        return response()->json(['message' => 'Wallet updated.', 'balance' => $wallet->fresh()->balance]);
+    }
     public function deliveryPartners() { return response()->json(['partners' => User::where('role', 'delivery_partner')->get(['id', 'name', 'phone', 'is_verified', 'created_at'])]); }
 
     public function createDeliveryPartner(Request $request)

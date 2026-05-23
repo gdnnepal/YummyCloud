@@ -125,22 +125,9 @@ function Menu() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span
-                      className={`w-3.5 h-3.5 border-2 rounded-sm flex items-center justify-center ${
-                        item.is_veg ? 'border-green-600' : 'border-red-600'
-                      }`}
-                    >
-                      <span
-                        className={`block w-1.5 h-1.5 rounded-full ${
-                          item.is_veg ? 'bg-green-600' : 'bg-red-600'
-                        }`}
-                      />
-                    </span>
-                    <h3 className="font-medium text-gray-800 text-sm truncate">
-                      {isNepali ? item.name_ne || item.name : item.name}
-                    </h3>
-                  </div>
+                  <h3 className="font-medium text-gray-800 text-sm truncate">
+                    {isNepali ? item.name_ne || item.name : item.name}
+                  </h3>
                   <div className="flex items-center justify-between mt-2">
                     <span className="font-bold text-gray-800 text-sm">
                       Rs. {Number(item.price)}

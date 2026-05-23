@@ -15,6 +15,7 @@ import DeliveryPartners from './pages/DeliveryPartners';
 import Settings from './pages/Settings';
 import Reviews from './pages/Reviews';
 import ChangePassword from './pages/ChangePassword';
+import Wallets from './pages/Wallets';
 
 function ProtectedRoute({ children }) {
   const auth = JSON.parse(localStorage.getItem('admin-auth') || 'null');
@@ -42,6 +43,7 @@ function App() {
           <Route path="settings" element={<Settings />} />
           <Route path="reviews" element={<Reviews />} />
           <Route path="change-password" element={<ChangePassword />} />
+          <Route path="wallets" element={<Wallets />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { HiOutlineHome, HiOutlineClipboardDocumentList, HiOutlineSquares2X2, HiOutlineTag, HiOutlineUsers, HiOutlineChatBubbleLeft, HiOutlineBanknotes, HiOutlineArrowRightOnRectangle, HiOutlineBars3, HiOutlineChartBar, HiOutlineTruck, HiOutlineCog6Tooth, HiOutlineStar } from 'react-icons/hi2';
+import { HiOutlineHome, HiOutlineClipboardDocumentList, HiOutlineSquares2X2, HiOutlineTag, HiOutlineUsers, HiOutlineChatBubbleLeft, HiOutlineBanknotes, HiOutlineArrowRightOnRectangle, HiOutlineBars3, HiOutlineChartBar, HiOutlineTruck, HiOutlineCog6Tooth, HiOutlineStar, HiOutlineWallet } from 'react-icons/hi2';
 import { useState, useEffect } from 'react';
 
 const navItems = [
@@ -9,6 +9,7 @@ const navItems = [
   { to: '/categories', icon: HiOutlineSquares2X2, label: 'Categories' },
   { to: '/coupons', icon: HiOutlineTag, label: 'Coupons' },
   { to: '/users', icon: HiOutlineUsers, label: 'Customers' },
+  { to: '/wallets', icon: HiOutlineWallet, label: 'Wallets' },
   { to: '/delivery-partners', icon: HiOutlineTruck, label: 'Delivery Partners' },
   { to: '/messages', icon: HiOutlineChatBubbleLeft, label: 'Messages' },
   { to: '/refunds', icon: HiOutlineBanknotes, label: 'Refunds' },

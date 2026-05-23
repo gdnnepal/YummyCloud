@@ -101,6 +101,8 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
     Route::put('/menu-items/{id}/toggle', [AdminController::class, 'toggleMenuItem']);
 
     Route::get('/users', [AdminController::class, 'users']);
+    Route::get('/users/{id}/wallet', [AdminController::class, 'getUserWallet']);
+    Route::post('/users/{id}/wallet', [AdminController::class, 'adjustWallet']);
 
     Route::get('/coupons', [AdminController::class, 'coupons']);
     Route::post('/coupons', [AdminController::class, 'createCoupon']);
