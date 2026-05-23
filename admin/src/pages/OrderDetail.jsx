@@ -82,6 +82,7 @@ function OrderDetail() {
           </div>
           <div className="border-t mt-3 pt-3 space-y-1 text-sm">
             <div className="flex justify-between"><span>Subtotal</span><span>Rs. {Number(order.subtotal)}</span></div>
+            {Number(order.delivery_fee) > 0 && <div className="flex justify-between"><span>Delivery Fee</span><span>Rs. {Number(order.delivery_fee)}</span></div>}
             {Number(order.discount) > 0 && <div className="flex justify-between text-green-600"><span>Discount</span><span>-Rs. {Number(order.discount)}</span></div>}
             {Number(order.wallet_deduction) > 0 && <div className="flex justify-between text-green-600"><span>Wallet</span><span>-Rs. {Number(order.wallet_deduction)}</span></div>}
             <div className="flex justify-between font-bold"><span>Total</span><span>Rs. {Number(order.total)}</span></div>
