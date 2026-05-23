@@ -7,6 +7,7 @@ function Messages() {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [search, setSearch] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     api.getUsers()
@@ -36,6 +37,7 @@ function Messages() {
   const selectUser = (userId) => {
     setForm({ ...form, user_id: String(userId) });
     setSearch('');
+    setShowDropdown(false);
   };
 
   const selectedUser = form.user_id === 'all'
@@ -63,12 +65,15 @@ function Messages() {
                 <input
                   type="text"
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => { setSearch(e.target.value); setShowDropdown(true); }}
+                  onFocus={() => setShowDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
                   placeholder="Search by name or phone..."
                   className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-primary"
                 />
                 {/* Dropdown */}
-                <div className="border border-gray-200 rounded-lg mt-1 max-h-40 overflow-y-auto bg-white shadow-sm">
+                {showDropdown && (
+                <div className="absolute left-0 right-0 top-full border border-gray-200 rounded-lg mt-1 max-h-40 overflow-y-auto bg-white shadow-lg z-10">
                   <button
                     type="button"
                     onClick={() => selectUser('all')}
@@ -91,6 +96,7 @@ function Messages() {
                     <p className="px-3 py-2 text-xs text-gray-400">No customers found</p>
                   )}
                 </div>
+                )}
               </div>
             )}
           </div>
