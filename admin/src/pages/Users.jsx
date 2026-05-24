@@ -52,8 +52,10 @@ function Users() {
               <tr>
                 <th className="px-4 py-3 text-left">Name</th>
                 <th className="px-4 py-3 text-left">Phone</th>
-                <th className="px-4 py-3">Orders</th>
-                <th className="px-4 py-3">Total Spent</th>
+                <th className="px-4 py-3">Total</th>
+                <th className="px-4 py-3">Delivered</th>
+                <th className="px-4 py-3">Cancelled</th>
+                <th className="px-4 py-3">Spent</th>
                 <th className="px-4 py-3">Tag</th>
                 <th className="px-4 py-3">Joined</th>
               </tr>
@@ -66,6 +68,8 @@ function Users() {
                     <td className="px-4 py-3 font-medium">{user.name}</td>
                     <td className="px-4 py-3 text-gray-600">{user.phone}</td>
                     <td className="px-4 py-3 text-center font-medium">{user.orders_count || 0}</td>
+                    <td className="px-4 py-3 text-center text-green-600 font-medium">{user.delivered_count || 0}</td>
+                    <td className="px-4 py-3 text-center text-red-500 font-medium">{user.cancelled_count || 0}</td>
                     <td className="px-4 py-3 text-center font-medium text-green-600">Rs. {Number(user.orders_sum_total || 0)}</td>
                     <td className="px-4 py-3 text-center">
                       {tag ? (

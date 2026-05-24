@@ -292,7 +292,11 @@ class AdminController extends Controller
     // Users (customers only)
     public function users() {
         $users = User::where('role', 'customer')
-            ->withCount('orders')
+            ->withCount(['orders', 'orders as delivered_count' => function ($q) {
+                $q->where('status', 'delivered');
+            }, 'orders as cancelled_count' => function ($q) {
+                $q->where('status', 'cancelled');
+            }])
             ->withSum('orders', 'total')
             ->orderByDesc('created_at')
             ->get(['id', 'name', 'phone', 'is_verified', 'created_at']);
