@@ -27,7 +27,7 @@ class OrderController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $order->load(['items', 'rating', 'deliveryPartner:id,name,phone']);
+        $order->load(['items', 'rating', 'logs', 'deliveryPartner:id,name,phone']);
 
         return response()->json(['order' => $order]);
     }

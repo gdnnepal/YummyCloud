@@ -175,6 +175,9 @@ function OrderTracking() {
               <>
                 <p className="text-sm opacity-80">Order Cancelled</p>
                 <h2 className="text-2xl font-bold mt-1">Cancelled</h2>
+                {order.logs?.filter(l => l.status === 'cancelled').map(l => l.note).filter(Boolean).map((note, i) => (
+                  <p key={i} className="text-xs opacity-80 mt-2 bg-white/10 rounded-lg px-3 py-1.5">{note}</p>
+                ))}
               </>
             ) : (
               <>

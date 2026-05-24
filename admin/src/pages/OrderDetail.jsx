@@ -122,11 +122,14 @@ function OrderDetail() {
           <h3 className="font-semibold text-gray-800 mb-3">Actions</h3>
           <div className="flex flex-wrap gap-2 mb-4">
             {statuses.map((s) => {
+              const currentIdx = statuses.indexOf(order.status);
+              const btnIdx = statuses.indexOf(s);
               const isActive = order.status === s;
+              const isPast = btnIdx < currentIdx;
               const isUpdating = updatingStatus === s;
-              const isDisabled = isActive || updatingStatus !== null;
+              const isDisabled = isActive || isPast || updatingStatus !== null;
               return (
-                <button key={s} onClick={() => handleStatusChange(s)} disabled={isDisabled} className={`px-4 py-2 rounded-lg text-xs font-medium capitalize inline-flex items-center gap-1.5 ${isActive ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} disabled:opacity-50`}>
+                <button key={s} onClick={() => handleStatusChange(s)} disabled={isDisabled} className={`px-4 py-2 rounded-lg text-xs font-medium capitalize inline-flex items-center gap-1.5 ${isActive ? 'bg-primary text-white' : isPast ? 'bg-gray-50 text-gray-300 cursor-not-allowed' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} disabled:opacity-50`}>
                   {isUpdating && <span className="w-3 h-3 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />}
                   {s.replace('_', ' ')}
                 </button>

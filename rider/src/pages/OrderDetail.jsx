@@ -126,6 +126,12 @@ function OrderDetail() {
               <p className="text-xs text-amber-700"><strong>Note:</strong> {order.note}</p>
             </div>
           )}
+          {/* Manual order notice */}
+          {(order.note?.includes('admin') || !order.customer_lat) && (
+            <div className="mt-3 p-2.5 bg-blue-50 border border-blue-100 rounded-xl">
+              <p className="text-xs text-blue-700 font-medium">This order was manually created by admin. Exact location may not be available. Please contact customer for address verification.</p>
+            </div>
+          )}
         </div>
       </div>
 
