@@ -122,7 +122,9 @@ function Menu() {
               </div>
               <p className="text-xs text-amber-700 mb-3">You've completed {rewardData.delivered_count} orders! Pick a free item below (delivery fee applies).</p>
               <div className="space-y-2">
-                {rewardData.reward_items.map((item) => (
+                {rewardData.reward_items.map((item) => {
+                  const inCart = useCartStore.getState().items.some(i => i.id === item.id && i.isReward);
+                  return (
                   <div key={item.id} className="flex items-center gap-3 bg-white rounded-xl p-3 border border-amber-100">
                     <div className="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
                       {item.image ? (
@@ -135,14 +137,19 @@ function Menu() {
                       <h4 className="font-medium text-gray-800 text-sm truncate">{isNepali ? item.name_ne || item.name : item.name}</h4>
                       <p className="text-xs text-green-600 font-bold">FREE</p>
                     </div>
-                    <button
-                      onClick={() => addItem({ id: item.id, name: item.name, nameNe: item.name_ne, price: 0, image: item.image, isReward: true })}
-                      className="bg-amber-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium active:scale-90 transition-transform"
-                    >
-                      + CLAIM
-                    </button>
+                    {inCart ? (
+                      <span className="bg-green-100 text-green-700 text-xs px-3 py-1.5 rounded-lg font-medium">✓ Added</span>
+                    ) : (
+                      <button
+                        onClick={() => addItem({ id: item.id, name: item.name, nameNe: item.name_ne, price: 0, image: item.image, isReward: true })}
+                        className="bg-amber-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium active:scale-90 transition-transform"
+                      >
+                        + CLAIM
+                      </button>
+                    )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ) : rewardData.orders_until_reward > 0 ? (

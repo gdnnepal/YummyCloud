@@ -100,9 +100,9 @@ class OrderController extends Controller
         // Apply coupon (only on item subtotal)
         $discount = 0;
 
-        // Check minimum order amount
+        // Check minimum order amount (skip if order contains a reward item)
         $minOrder = (float) \App\Models\Setting::get('min_order_amount', 0);
-        if ($minOrder > 0 && $subtotal < $minOrder) {
+        if ($minOrder > 0 && $subtotal < $minOrder && !$hasRewardItem) {
             return response()->json([
                 'message' => "Minimum order amount is Rs. {$minOrder}. Your cart total is Rs. {$subtotal}.",
             ], 422);
