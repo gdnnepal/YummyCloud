@@ -113,8 +113,9 @@ function Orders() {
                 <th className="px-4 py-3 text-left">Customer</th>
                 <th className="px-4 py-3 text-center">Items</th>
                 <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3 text-right">Item Total</th>
                 <th className="px-4 py-3 text-right">Del. Fee</th>
-                <th className="px-4 py-3 text-right">Total</th>
+                <th className="px-4 py-3 text-right">Grand Total</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -134,8 +135,9 @@ function Orders() {
                       {order.status.replace('_', ' ')}
                     </span>
                   </td>
+                  <td className="px-4 py-3 text-right text-gray-600">Rs. {Number(order.subtotal || 0)}</td>
                   <td className="px-4 py-3 text-right text-gray-500">Rs. {Number(order.delivery_fee || 0)}</td>
-                  <td className="px-4 py-3 text-right font-medium">Rs. {Number(order.total)}</td>
+                  <td className="px-4 py-3 text-right font-bold">Rs. {Number(order.total)}</td>
                 </tr>
               ))}
             </tbody>
