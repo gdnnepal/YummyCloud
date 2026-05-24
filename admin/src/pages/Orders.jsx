@@ -120,7 +120,7 @@ function Orders() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {paginatedOrders.map((order) => (
-                <tr key={order.id} className={`hover:bg-gray-50 cursor-pointer ${order.status === 'confirmed' ? 'bg-red-50' : ''}`}>
+                <tr key={order.id} className={`hover:bg-gray-50 cursor-pointer ${order.status === 'confirmed' ? 'animate-blink-red border-l-4 border-l-red-500' : ''}`}>
                   <td className="px-4 py-3">
                     <Link to={`/orders/${order.id}`} className="font-medium text-primary">#{order.order_number}</Link>
                     <p className="text-[10px] text-gray-400">{new Date(order.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}</p>
