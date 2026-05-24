@@ -75,7 +75,7 @@ function OrderDetail() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-gray-800">Order #{order.order_number}</h1>
-        <span className={`text-xs font-semibold px-3 py-1 rounded-full capitalize ${order.status === 'delivered' ? 'bg-green-100 text-green-700' : order.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>{order.status.replace('_', ' ')}</span>
+        <span className={`text-xs font-semibold px-3 py-1 rounded-full capitalize ${order.status === 'delivered' ? 'bg-green-100 text-green-700' : order.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>{order.status.replaceAll('_', ' ')}</span>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-4">
@@ -136,7 +136,7 @@ function OrderDetail() {
                 <button key={s} onClick={() => handleStatusChange(s)} disabled={isDisabled} className={`px-4 py-2 rounded-lg text-xs font-medium capitalize inline-flex items-center gap-1.5 ${isActive ? 'bg-primary text-white' : isNext ? 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100' : 'bg-gray-50 text-gray-300 cursor-not-allowed'} disabled:opacity-50`}>
                   {isUpdating && <span className="w-3 h-3 border-2 border-green-400 border-t-transparent rounded-full animate-spin" />}
                   {isNext && !isUpdating && '→ '}
-                  {s.replace('_', ' ')}
+                  {s.replaceAll('_', ' ')}
                 </button>
               );
             })}

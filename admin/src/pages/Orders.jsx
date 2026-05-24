@@ -99,7 +99,7 @@ function Orders() {
       <div className="flex flex-wrap gap-2 mb-4">
         {['all', 'confirmed', 'preparing', 'on_the_way', 'delivered', 'cancelled'].map((s) => (
           <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap capitalize ${filter === s ? 'bg-primary text-white' : 'bg-white border border-gray-200 text-gray-600'}`}>
-            {s === 'all' ? 'All' : s.replace('_', ' ')}
+            {s === 'all' ? 'All' : s.replaceAll('_', ' ')}
           </button>
         ))}
       </div>
@@ -132,7 +132,7 @@ function Orders() {
                   <td className="px-4 py-3 text-center text-gray-600">{order.items?.reduce((s, i) => s + i.quantity, 0) || 0}</td>
                   <td className="px-4 py-3 text-center">
                     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize ${statusColors[order.status]}`}>
-                      {order.status.replace('_', ' ')}
+                      {order.status.replaceAll('_', ' ')}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right text-gray-600">Rs. {Number(order.subtotal || 0)}</td>
