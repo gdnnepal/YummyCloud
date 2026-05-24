@@ -25,10 +25,10 @@ function Users() {
   const totalPages = Math.ceil(filteredUsers.length / PER_PAGE);
   const paginatedUsers = filteredUsers.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-  const getTag = (orderCount) => {
-    if (orderCount >= 20) return { label: 'VIP', color: 'bg-amber-100 text-amber-700' };
-    if (orderCount >= 10) return { label: 'Loyal', color: 'bg-purple-100 text-purple-700' };
-    if (orderCount >= 5) return { label: 'Repeat', color: 'bg-blue-100 text-blue-700' };
+  const getTag = (deliveredCount) => {
+    if (deliveredCount >= 20) return { label: 'VIP', color: 'bg-amber-100 text-amber-700' };
+    if (deliveredCount >= 10) return { label: 'Loyal', color: 'bg-purple-100 text-purple-700' };
+    if (deliveredCount >= 5) return { label: 'Repeat', color: 'bg-blue-100 text-blue-700' };
     return null;
   };
 
@@ -62,7 +62,7 @@ function Users() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {paginatedUsers.map((user) => {
-                const tag = getTag(user.orders_count || 0);
+                const tag = getTag(user.delivered_count || 0);
                 return (
                   <tr key={user.id}>
                     <td className="px-4 py-3 font-medium">{user.name}</td>
