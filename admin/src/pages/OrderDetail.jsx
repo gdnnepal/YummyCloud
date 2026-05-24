@@ -94,6 +94,14 @@ function OrderDetail() {
               <div className="flex justify-between items-center"><span className="text-gray-500">Screenshot</span><button onClick={() => setShowScreenshot(true)} className="text-primary text-xs font-medium underline">View Screenshot</button></div>
             )}
             <div className="flex justify-between"><span className="text-gray-500">Address</span><span className="text-right max-w-[200px]">{order.address}</span></div>
+            {order.customer_lat && order.customer_lng && (
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500">Location</span>
+                <a href={`https://www.google.com/maps?q=${order.customer_lat},${order.customer_lng}`} target="_blank" rel="noopener noreferrer" className="text-primary text-xs font-medium underline flex items-center gap-1">
+                  📍 Open in Maps
+                </a>
+              </div>
+            )}
             {order.note && <div className="flex justify-between"><span className="text-gray-500">Note</span><span className="text-right max-w-[200px]">{order.note}</span></div>}
           </div>
         </div>
