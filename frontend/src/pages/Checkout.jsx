@@ -44,8 +44,10 @@ function Checkout() {
   const total = getTotal();
   const discount = appliedCoupon ? appliedCoupon.discount : 0;
   const fee = deliveryFee || 0;
-  const walletDeduction = useWallet ? Math.min(walletBalance, total - discount + fee) : 0;
-  const finalTotal = total - discount + fee - walletDeduction;
+  // Wallet can only cover items after discount, NOT delivery fee
+  const itemsAfterDiscount = Math.max(0, total - discount);
+  const walletDeduction = useWallet ? Math.min(walletBalance, itemsAfterDiscount) : 0;
+  const finalTotal = itemsAfterDiscount - walletDeduction + fee;
 
   useEffect(() => {
     if (items.length === 0 && !orderSuccess) {

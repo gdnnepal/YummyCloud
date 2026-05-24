@@ -70,7 +70,7 @@ class OrderController extends Controller
             ];
         }
 
-        // Apply coupon
+        // Apply coupon (only on item subtotal)
         $discount = 0;
         if ($request->coupon_code) {
             $coupon = Coupon::where('code', $request->coupon_code)->first();
@@ -80,21 +80,23 @@ class OrderController extends Controller
             }
         }
 
-        $total = $subtotal - $discount;
-
-        // Get delivery fee from settings
+        // Delivery fee is always applied, never reduced by coupon or wallet
         $deliveryFee = (float) \App\Models\Setting::get('delivery_fee', 0);
-        $total += $deliveryFee;
 
-        // Wallet deduction
+        // Items after discount (coupon only applies to items, not delivery fee)
+        $itemsAfterDiscount = max(0, $subtotal - $discount);
+
+        // Wallet deduction (only covers items after discount, NOT delivery fee)
         $walletDeduction = 0;
         if (filter_var($request->use_wallet, FILTER_VALIDATE_BOOLEAN)) {
             $wallet = $request->user()->wallet;
             if ($wallet && $wallet->balance > 0) {
-                $walletDeduction = min($wallet->balance, $total);
-                $total -= $walletDeduction;
+                $walletDeduction = min($wallet->balance, $itemsAfterDiscount);
             }
         }
+
+        // Total = items after discount - wallet + delivery fee (always)
+        $total = $itemsAfterDiscount - $walletDeduction + $deliveryFee;
 
         // Handle payment screenshot
         $screenshotPath = null;
