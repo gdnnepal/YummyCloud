@@ -126,6 +126,123 @@ class AdminController extends Controller
         return response()->json(['message' => 'Delivery partner assigned.']);
     }
 
+    // Admin cancel order
+    public function cancelOrder(Request $request, $id)
+    {
+        $order = Order::with('user')->findOrFail($id);
+        $request->validate(['reason' => 'required|string|max:500']);
+
+        if ($order->status === 'cancelled') {
+            return response()->json(['message' => 'Order is already cancelled.'], 422);
+        }
+        if ($order->status === 'delivered') {
+            return response()->json(['message' => 'Cannot cancel a delivered order.'], 422);
+        }
+
+        $order->update(['status' => 'cancelled']);
+
+        \App\Models\OrderLog::create([
+            'order_id' => $order->id,
+            'status' => 'cancelled',
+            'note' => 'Cancelled by admin: ' . $request->reason,
+            'created_at' => now(),
+        ]);
+
+        // Refund wallet deduction if any
+        if ($order->wallet_deduction > 0 && $order->user) {
+            $wallet = $order->user->wallet;
+            if ($wallet) {
+                $wallet->credit($order->wallet_deduction, 'Cancelled Order Refund', "Order #{$order->order_number}");
+            }
+        }
+
+        // Notify customer
+        app(\App\Services\NotificationService::class)->sendToUser(
+            $order->user_id,
+            "Order #{$order->order_number} Cancelled",
+            "Your order has been cancelled. Reason: {$request->reason}",
+            ['type' => 'order_status', 'order_id' => $order->id]
+        );
+
+        return response()->json(['message' => 'Order cancelled.', 'order' => $order->fresh()]);
+    }
+
+    // Admin create order on behalf of customer
+    public function createOrder(Request $request)
+    {
+        $request->validate([
+            'customer_name' => 'required|string',
+            'customer_phone' => 'required|string|size:10',
+            'address' => 'required|string',
+            'items' => 'required|array|min:1',
+            'items.*.id' => 'required|exists:menu_items,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'payment_method' => 'required|in:cod,qr',
+            'note' => 'nullable|string|max:500',
+        ]);
+
+        // Find or create customer
+        $user = User::where('phone', $request->customer_phone)->first();
+        if (!$user) {
+            $user = User::create([
+                'name' => $request->customer_name,
+                'phone' => $request->customer_phone,
+                'password' => bcrypt('password123'),
+                'role' => 'customer',
+                'is_verified' => true,
+            ]);
+            \App\Models\Wallet::create(['user_id' => $user->id, 'balance' => 0]);
+        }
+
+        // Calculate totals
+        $subtotal = 0;
+        $orderItems = [];
+        foreach ($request->items as $item) {
+            $menuItem = \App\Models\MenuItem::findOrFail($item['id']);
+            $itemTotal = $menuItem->price * $item['quantity'];
+            $subtotal += $itemTotal;
+            $orderItems[] = [
+                'menu_item_id' => $menuItem->id,
+                'name' => $menuItem->name,
+                'price' => $menuItem->price,
+                'quantity' => $item['quantity'],
+                'total' => $itemTotal,
+            ];
+        }
+
+        $deliveryFee = (float) \App\Models\Setting::get('delivery_fee', 0);
+        $total = $subtotal + $deliveryFee;
+
+        $order = Order::create([
+            'user_id' => $user->id,
+            'order_number' => Order::generateOrderNumber(),
+            'status' => 'confirmed',
+            'subtotal' => $subtotal,
+            'discount' => 0,
+            'wallet_deduction' => 0,
+            'delivery_fee' => $deliveryFee,
+            'total' => $total,
+            'payment_method' => $request->payment_method,
+            'payment_status' => 'pending',
+            'address' => $request->address,
+            'note' => $request->note ?: 'Order placed by admin (phone call)',
+            'estimated_delivery_at' => now()->addMinutes(30),
+        ]);
+
+        foreach ($orderItems as $item) {
+            $order->items()->create($item);
+        }
+
+        \App\Models\OrderLog::create([
+            'order_id' => $order->id,
+            'status' => 'confirmed',
+            'note' => 'Order created by admin on behalf of customer',
+            'created_at' => now(),
+        ]);
+
+        return response()->json(['message' => 'Order created.', 'order' => $order->load('items')], 201);
+    }
+
     // Categories
     public function categories() { return response()->json(['categories' => Category::orderBy('sort_order')->get()]); }
     public function createCategory(Request $request)

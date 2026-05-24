@@ -79,7 +79,10 @@ function Orders() {
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-gray-800 mb-4">Orders</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-xl font-bold text-gray-800">Orders</h1>
+        <Link to="/orders/create" className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium">+ New Order</Link>
+      </div>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-end mb-4">

@@ -157,9 +157,10 @@ class ApiService {
     return this.request(`/orders/${id}`);
   }
 
-  cancelOrder(id) {
+  cancelOrder(id, reason) {
     return this.request(`/orders/${id}/cancel`, {
       method: 'POST',
+      body: JSON.stringify({ reason }),
     });
   }
 

@@ -88,6 +88,8 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
     Route::get('/orders/{id}', [AdminController::class, 'orderDetail']);
     Route::put('/orders/{id}/status', [AdminController::class, 'updateOrderStatus']);
     Route::put('/orders/{id}/assign', [AdminController::class, 'assignDelivery']);
+    Route::post('/orders/{id}/cancel', [AdminController::class, 'cancelOrder']);
+    Route::post('/orders/create', [AdminController::class, 'createOrder']);
 
     Route::get('/categories', [AdminController::class, 'categories']);
     Route::post('/categories', [AdminController::class, 'createCategory']);

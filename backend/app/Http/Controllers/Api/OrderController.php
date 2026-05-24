@@ -185,7 +185,15 @@ class OrderController extends Controller
             ], 422);
         }
 
+        $reason = $request->reason ?? 'No reason provided';
         $order->update(['status' => 'cancelled']);
+
+        \App\Models\OrderLog::create([
+            'order_id' => $order->id,
+            'status' => 'cancelled',
+            'note' => 'Cancelled by customer: ' . $reason,
+            'created_at' => now(),
+        ]);
 
         $wallet = $request->user()->wallet;
         $refundMessages = [];

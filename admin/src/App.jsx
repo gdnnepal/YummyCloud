@@ -16,6 +16,7 @@ import Settings from './pages/Settings';
 import Reviews from './pages/Reviews';
 import ChangePassword from './pages/ChangePassword';
 import Wallets from './pages/Wallets';
+import CreateOrder from './pages/CreateOrder';
 
 function ProtectedRoute({ children }) {
   const auth = JSON.parse(localStorage.getItem('admin-auth') || 'null');
@@ -31,6 +32,7 @@ function App() {
         <Route path="/" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
           <Route index element={<Dashboard />} />
           <Route path="orders" element={<Orders />} />
+          <Route path="orders/create" element={<CreateOrder />} />
           <Route path="orders/:id" element={<OrderDetail />} />
           <Route path="menu" element={<MenuItems />} />
           <Route path="categories" element={<Categories />} />

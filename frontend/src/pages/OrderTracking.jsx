@@ -33,6 +33,7 @@ function OrderTracking() {
   const [cancelling, setCancelling] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [cancelResult, setCancelResult] = useState(null);
+  const [cancelReason, setCancelReason] = useState('');
   const [riderDistance, setRiderDistance] = useState(null);
   const [supportPhone, setSupportPhone] = useState('');
 
@@ -100,12 +101,14 @@ function OrderTracking() {
   };
 
   const handleCancelOrder = async () => {
+    if (!cancelReason.trim()) { alert('Please provide a reason'); return; }
     setCancelling(true);
     try {
-      const res = await api.cancelOrder(id);
+      const res = await api.cancelOrder(id, cancelReason.trim());
       setOrder((prev) => ({ ...prev, status: 'cancelled' }));
       setCancelResult(res.message);
       setShowCancelConfirm(false);
+      setCancelReason('');
     } catch (err) {
       setCancelResult(err.message || 'Failed to cancel order.');
       setShowCancelConfirm(false);
@@ -463,12 +466,17 @@ function OrderTracking() {
               </div>
               <h3 className="text-lg font-bold text-gray-800">Cancel Order?</h3>
               <p className="text-sm text-gray-500 mt-2">
-                Are you sure you want to cancel this order?
+                Please tell us why you want to cancel:
               </p>
+              <textarea
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                placeholder="e.g. Changed my mind, ordered wrong items..."
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mt-3 h-20 resize-none outline-none focus:border-primary"
+              />
               <div className="bg-gray-50 rounded-lg p-3 mt-3 text-left text-xs text-gray-600 space-y-1">
                 <p>• Wallet amount will be refunded instantly</p>
                 <p>• QR payment refund takes 1 business days</p>
-                <p>• COD orders have no refund needed</p>
               </div>
             </div>
             <div className="flex gap-3 mt-5">
@@ -481,7 +489,7 @@ function OrderTracking() {
               </button>
               <button
                 onClick={handleCancelOrder}
-                disabled={cancelling}
+                disabled={cancelling || !cancelReason.trim()}
                 className="flex-1 py-2.5 rounded-lg text-sm font-medium text-white bg-red-500 active:scale-95 transition-transform disabled:opacity-50"
               >
                 {cancelling ? 'Cancelling...' : 'Yes, Cancel'}

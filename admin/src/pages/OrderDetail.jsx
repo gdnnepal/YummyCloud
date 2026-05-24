@@ -12,6 +12,9 @@ function OrderDetail() {
   const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showScreenshot, setShowScreenshot] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     Promise.all([api.getOrder(id), api.getDeliveryPartners()])
@@ -156,6 +159,53 @@ function OrderDetail() {
               <option value="">Select partner</option>
               {partners.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.phone})</option>)}
             </select>
+          </div>
+        </div>
+      )}
+
+      {/* Cancel Order */}
+      {order.status !== 'cancelled' && order.status !== 'delivered' && (
+        <div className="bg-white rounded-xl border border-red-100 p-4">
+          <button onClick={() => setShowCancelModal(true)} className="text-sm text-red-500 font-medium hover:underline">
+            Cancel this order
+          </button>
+        </div>
+      )}
+
+      {/* Cancel Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => !cancelling && setShowCancelModal(false)} />
+          <div className="relative bg-white rounded-xl p-6 w-full max-w-sm">
+            <h3 className="text-lg font-bold text-gray-800 mb-2">Cancel Order</h3>
+            <p className="text-sm text-gray-500 mb-3">Please provide a reason for cancellation:</p>
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder="e.g. Customer requested, out of stock..."
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm h-24 resize-none outline-none focus:border-primary mb-4"
+            />
+            <div className="flex gap-3">
+              <button onClick={() => setShowCancelModal(false)} disabled={cancelling} className="flex-1 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700">Keep</button>
+              <button
+                onClick={async () => {
+                  if (!cancelReason.trim()) { alert('Please provide a reason'); return; }
+                  setCancelling(true);
+                  try {
+                    await api.request(`/admin/orders/${id}/cancel`, { method: 'POST', body: JSON.stringify({ reason: cancelReason }) });
+                    const res = await api.getOrder(id);
+                    setOrder(res.order);
+                    setShowCancelModal(false);
+                    setCancelReason('');
+                  } catch (err) { alert(err.message); }
+                  finally { setCancelling(false); }
+                }}
+                disabled={cancelling || !cancelReason.trim()}
+                className="flex-1 py-2 rounded-lg text-sm font-medium bg-red-500 text-white disabled:opacity-50"
+              >
+                {cancelling ? 'Cancelling...' : 'Cancel Order'}
+              </button>
+            </div>
           </div>
         </div>
       )}
