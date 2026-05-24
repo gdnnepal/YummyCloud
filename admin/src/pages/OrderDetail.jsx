@@ -14,7 +14,7 @@ function OrderDetail() {
   const [showScreenshot, setShowScreenshot] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
-  const [cancelling, setCancelling] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(null);
 
   useEffect(() => {
     Promise.all([api.getOrder(id), api.getDeliveryPartners()])
@@ -23,18 +23,41 @@ function OrderDetail() {
   }, [id]);
 
   const handleStatusChange = async (status) => {
+    // Block "on_the_way" if no delivery partner assigned
+    if (status === 'on_the_way' && !order.delivery_partner_id) {
+      alert('Please assign a delivery partner before marking as On the Way.');
+      return;
+    }
+    setUpdatingStatus(status);
     try {
+      // If jumping to on_the_way from confirmed, also add preparing
+      if (status === 'on_the_way' && order.status === 'confirmed') {
+        await api.updateOrderStatus(id, 'preparing');
+      }
       await api.updateOrderStatus(id, status);
-      // Refresh order to get updated logs
       const res = await api.getOrder(id);
       setOrder(res.order);
     } catch (err) { alert(err.message); }
+    finally { setUpdatingStatus(null); }
+  };
+
+  const handleCancel = async () => {
+    if (!cancelReason.trim()) { alert('Please provide a reason'); return; }
+    setUpdatingStatus('cancelled');
+    try {
+      await api.request(`/admin/orders/${id}/cancel`, { method: 'POST', body: JSON.stringify({ reason: cancelReason }) });
+      const res = await api.getOrder(id);
+      setOrder(res.order);
+      setShowCancelModal(false);
+      setCancelReason('');
+    } catch (err) { alert(err.message); }
+    finally { setUpdatingStatus(null); }
   };
 
   const handleAssign = async (partnerId) => {
     try {
       await api.assignDelivery(id, partnerId);
-      setOrder((prev) => ({ ...prev, delivery_partner_id: partnerId }));
+      setOrder((prev) => ({ ...prev, delivery_partner_id: parseInt(partnerId) }));
     } catch (err) { alert(err.message); }
   };
 
@@ -71,7 +94,7 @@ function OrderDetail() {
               <div className="flex justify-between items-center"><span className="text-gray-500">Screenshot</span><button onClick={() => setShowScreenshot(true)} className="text-primary text-xs font-medium underline">View Screenshot</button></div>
             )}
             <div className="flex justify-between"><span className="text-gray-500">Address</span><span className="text-right max-w-[200px]">{order.address}</span></div>
-            {order.note && <div className="flex justify-between"><span className="text-gray-500">Note</span><span>{order.note}</span></div>}
+            {order.note && <div className="flex justify-between"><span className="text-gray-500">Note</span><span className="text-right max-w-[200px]">{order.note}</span></div>}
           </div>
         </div>
 
@@ -93,6 +116,39 @@ function OrderDetail() {
         </div>
       </div>
 
+      {/* Actions - Status + Cancel + Assign */}
+      {order.status !== 'cancelled' && order.status !== 'delivered' && (
+        <div className="bg-white rounded-xl border border-gray-100 p-4">
+          <h3 className="font-semibold text-gray-800 mb-3">Actions</h3>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {statuses.map((s) => {
+              const isActive = order.status === s;
+              const isUpdating = updatingStatus === s;
+              const isDisabled = isActive || updatingStatus !== null;
+              return (
+                <button key={s} onClick={() => handleStatusChange(s)} disabled={isDisabled} className={`px-4 py-2 rounded-lg text-xs font-medium capitalize inline-flex items-center gap-1.5 ${isActive ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} disabled:opacity-50`}>
+                  {isUpdating && <span className="w-3 h-3 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />}
+                  {s.replace('_', ' ')}
+                </button>
+              );
+            })}
+            <button onClick={() => setShowCancelModal(true)} disabled={updatingStatus !== null} className="px-4 py-2 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-50 inline-flex items-center gap-1.5">
+              {updatingStatus === 'cancelled' && <span className="w-3 h-3 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />}
+              Cancel
+            </button>
+          </div>
+
+          {/* Delivery Partner */}
+          <div>
+            <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1 block">Delivery Partner {!order.delivery_partner_id && <span className="text-red-400">(required for On the Way)</span>}</label>
+            <select onChange={(e) => handleAssign(e.target.value)} value={order.delivery_partner_id || ''} className="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full max-w-xs outline-none focus:border-primary">
+              <option value="">Select partner</option>
+              {partners.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.phone})</option>)}
+            </select>
+          </div>
+        </div>
+      )}
+
       {/* Order Timeline Log */}
       <div className="bg-white rounded-xl border border-gray-100 p-4">
         <div className="flex items-center justify-between mb-4">
@@ -109,8 +165,8 @@ function OrderDetail() {
             {order.logs.map((log, i) => (
               <div key={log.id} className="flex gap-3">
                 <div className="flex flex-col items-center">
-                  <div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center">
-                    <HiOutlineCheckCircle className="w-4 h-4 text-green-600" />
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center ${log.status === 'cancelled' ? 'bg-red-100' : 'bg-green-100'}`}>
+                    <HiOutlineCheckCircle className={`w-4 h-4 ${log.status === 'cancelled' ? 'text-red-600' : 'text-green-600'}`} />
                   </div>
                   {i < order.logs.length - 1 && <div className="w-0.5 h-6 bg-green-200 my-0.5" />}
                 </div>
@@ -142,43 +198,13 @@ function OrderDetail() {
         </div>
       )}
 
-      {/* Actions */}
-      {order.status !== 'cancelled' && order.status !== 'delivered' && (
-        <div className="bg-white rounded-xl border border-gray-100 p-4">
-          <h3 className="font-semibold text-gray-800 mb-3">Update Status</h3>
-          <div className="flex flex-wrap gap-2">
-            {statuses.map((s) => (
-              <button key={s} onClick={() => handleStatusChange(s)} disabled={order.status === s} className={`px-4 py-2 rounded-lg text-xs font-medium capitalize ${order.status === s ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
-                {s.replace('_', ' ')}
-              </button>
-            ))}
-          </div>
-          <div className="mt-4">
-            <label className="text-xs font-medium text-gray-600 mb-1 block">Assign Delivery Partner</label>
-            <select onChange={(e) => handleAssign(e.target.value)} value={order.delivery_partner_id || ''} className="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full max-w-xs">
-              <option value="">Select partner</option>
-              {partners.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.phone})</option>)}
-            </select>
-          </div>
-        </div>
-      )}
-
-      {/* Cancel Order */}
-      {order.status !== 'cancelled' && order.status !== 'delivered' && (
-        <div className="bg-white rounded-xl border border-red-100 p-4">
-          <button onClick={() => setShowCancelModal(true)} className="text-sm text-red-500 font-medium hover:underline">
-            Cancel this order
-          </button>
-        </div>
-      )}
-
       {/* Cancel Modal */}
       {showCancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-black/50" onClick={() => !cancelling && setShowCancelModal(false)} />
+          <div className="absolute inset-0 bg-black/50" onClick={() => updatingStatus === null && setShowCancelModal(false)} />
           <div className="relative bg-white rounded-xl p-6 w-full max-w-sm">
             <h3 className="text-lg font-bold text-gray-800 mb-2">Cancel Order</h3>
-            <p className="text-sm text-gray-500 mb-3">Please provide a reason for cancellation:</p>
+            <p className="text-sm text-gray-500 mb-3">Please provide a reason:</p>
             <textarea
               value={cancelReason}
               onChange={(e) => setCancelReason(e.target.value)}
@@ -186,24 +212,10 @@ function OrderDetail() {
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm h-24 resize-none outline-none focus:border-primary mb-4"
             />
             <div className="flex gap-3">
-              <button onClick={() => setShowCancelModal(false)} disabled={cancelling} className="flex-1 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700">Keep</button>
-              <button
-                onClick={async () => {
-                  if (!cancelReason.trim()) { alert('Please provide a reason'); return; }
-                  setCancelling(true);
-                  try {
-                    await api.request(`/admin/orders/${id}/cancel`, { method: 'POST', body: JSON.stringify({ reason: cancelReason }) });
-                    const res = await api.getOrder(id);
-                    setOrder(res.order);
-                    setShowCancelModal(false);
-                    setCancelReason('');
-                  } catch (err) { alert(err.message); }
-                  finally { setCancelling(false); }
-                }}
-                disabled={cancelling || !cancelReason.trim()}
-                className="flex-1 py-2 rounded-lg text-sm font-medium bg-red-500 text-white disabled:opacity-50"
-              >
-                {cancelling ? 'Cancelling...' : 'Cancel Order'}
+              <button onClick={() => setShowCancelModal(false)} disabled={updatingStatus !== null} className="flex-1 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700">Keep</button>
+              <button onClick={handleCancel} disabled={updatingStatus !== null || !cancelReason.trim()} className="flex-1 py-2 rounded-lg text-sm font-medium bg-red-500 text-white disabled:opacity-50 inline-flex items-center justify-center gap-1.5">
+                {updatingStatus === 'cancelled' && <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+                {updatingStatus === 'cancelled' ? 'Cancelling...' : 'Cancel Order'}
               </button>
             </div>
           </div>
@@ -215,11 +227,7 @@ function OrderDetail() {
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={() => setShowScreenshot(false)}>
           <div className="absolute inset-0 bg-black/60" />
           <div className="relative max-w-sm w-full">
-            <img
-              src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${order.payment_screenshot}`}
-              alt="Payment Screenshot"
-              className="w-full rounded-xl shadow-2xl"
-            />
+            <img src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${order.payment_screenshot}`} alt="Payment Screenshot" className="w-full rounded-xl shadow-2xl" />
             <button onClick={() => setShowScreenshot(false)} className="absolute -top-3 -right-3 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-600 font-bold">×</button>
           </div>
         </div>
