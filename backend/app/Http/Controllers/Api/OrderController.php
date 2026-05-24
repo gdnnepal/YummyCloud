@@ -70,11 +70,13 @@ class OrderController extends Controller
                 $requiredOrders = (int) \App\Models\Setting::get('reward_orders_required', 5);
                 $deliveredCount = $request->user()->orders()->where('status', 'delivered')->count();
                 $rewardsClaimed = \App\Models\OrderItem::whereHas('order', function ($q) use ($request) {
-                    $q->where('user_id', $request->user()->id)->where('status', 'delivered');
-                })->where('price', 0)->count();
-                $ordersInCycle = $deliveredCount - ($rewardsClaimed * $requiredOrders);
+                    $q->where('user_id', $request->user()->id)->where('status', '!=', 'cancelled');
+                })->where('price', 0)->whereHas('menuItem', function ($q) {
+                    $q->where('is_reward', true);
+                })->count();
+                $nextMilestone = ($rewardsClaimed + 1) * $requiredOrders;
 
-                if ($rewardEnabled && $ordersInCycle >= $requiredOrders) {
+                if ($rewardEnabled && $deliveredCount >= $nextMilestone) {
                     $itemPrice = 0;
                     $hasRewardItem = true;
                 } else {
@@ -168,7 +170,9 @@ class OrderController extends Controller
             'address' => $request->address,
             'customer_lat' => $request->customer_lat,
             'customer_lng' => $request->customer_lng,
-            'note' => $request->note,
+            'note' => $hasRewardItem
+                ? ('🎁 Reward claimed for ' . ((int) \App\Models\Setting::get('reward_orders_required', 5)) . ' orders.' . ($request->note ? ' | ' . $request->note : ''))
+                : $request->note,
             'estimated_delivery_at' => now()->addMinutes(30),
         ]);
 

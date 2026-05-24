@@ -71,14 +71,18 @@ Route::middleware('auth:sanctum')->group(function () {
         $user = $request->user();
         $deliveredCount = $user->orders()->where('status', 'delivered')->count();
 
-        // Count how many rewards already claimed (orders that contain a reward item with price 0)
+        // Count rewards claimed (orders containing a reward item with price 0)
         $rewardsClaimed = \App\Models\OrderItem::whereHas('order', function ($q) use ($user) {
-            $q->where('user_id', $user->id)->where('status', 'delivered');
-        })->where('price', 0)->count();
+            $q->where('user_id', $user->id)->where('status', '!=', 'cancelled');
+        })->where('price', 0)->whereHas('menuItem', function ($q) {
+            $q->where('is_reward', true);
+        })->count();
 
-        $ordersInCurrentCycle = $deliveredCount - ($rewardsClaimed * $requiredOrders);
-        $eligible = $ordersInCurrentCycle >= $requiredOrders;
-        $ordersUntilReward = $eligible ? 0 : $requiredOrders - $ordersInCurrentCycle;
+        // Eligible when delivered count reaches the next milestone
+        // Milestones: 5, 10, 15, 20... = (rewardsClaimed + 1) * requiredOrders
+        $nextMilestone = ($rewardsClaimed + 1) * $requiredOrders;
+        $eligible = $deliveredCount >= $nextMilestone;
+        $ordersUntilReward = $eligible ? 0 : $nextMilestone - $deliveredCount;
 
         $rewardItems = [];
         if ($eligible) {
@@ -94,6 +98,7 @@ Route::middleware('auth:sanctum')->group(function () {
             'orders_until_reward' => max(0, $ordersUntilReward),
             'delivered_count' => $deliveredCount,
             'rewards_claimed' => $rewardsClaimed,
+            'required_orders' => $requiredOrders,
         ]);
     });
 
