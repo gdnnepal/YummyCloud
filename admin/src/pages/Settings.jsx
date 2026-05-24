@@ -19,7 +19,7 @@ const settingsConfig = {
   ],
   orders: [
     { key: 'delivery_fee', label: 'Delivery Fee (Rs.)', type: 'number', placeholder: '50' },
-    { key: 'delivery_fee_mandatory', label: 'Always Charge Delivery Fee', type: 'toggle', hint: 'When ON, delivery fee cannot be covered by wallet or coupons' },
+    { key: 'delivery_fee_mandatory', label: 'Always Charge Delivery Fee', type: 'toggle', defaultValue: 'true', hint: 'When ON, delivery fee cannot be covered by wallet or coupons' },
     { key: 'min_order_amount', label: 'Minimum Order Amount (Rs.)', type: 'number', placeholder: '100' },
     { key: 'estimated_delivery_time', label: 'Estimated Delivery Time', type: 'text', placeholder: '30-45 mins' },
   ],
@@ -144,14 +144,14 @@ function Settings() {
                         <div className="relative">
                           <input
                             type="checkbox"
-                            checked={settings[config.key] === 'true' || settings[config.key] === true}
+                            checked={settings[config.key] === 'true' || settings[config.key] === true || (!settings.hasOwnProperty(config.key) && config.defaultValue === 'true')}
                             onChange={(e) => setSettings({ ...settings, [config.key]: e.target.checked ? 'true' : 'false' })}
                             className="sr-only peer"
                           />
                           <div className="w-11 h-6 bg-gray-200 peer-checked:bg-primary rounded-full transition-colors" />
                           <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm peer-checked:translate-x-5 transition-transform" />
                         </div>
-                        <span className="text-sm text-gray-700">{settings[config.key] === 'true' ? 'Enabled' : 'Disabled'}</span>
+                        <span className="text-sm text-gray-700">{(settings[config.key] === 'true' || settings[config.key] === true || (!settings.hasOwnProperty(config.key) && config.defaultValue === 'true')) ? 'Enabled' : 'Disabled'}</span>
                       </label>
                       {config.hint && <p className="text-[10px] text-gray-400 mt-1.5">{config.hint}</p>}
                     </div>

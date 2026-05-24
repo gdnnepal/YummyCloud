@@ -88,7 +88,10 @@ class OrderController extends Controller
         $walletDeduction = 0;
         if (filter_var($request->use_wallet, FILTER_VALIDATE_BOOLEAN)) {
             $wallet = $request->user()->wallet;
-            if ($wallet && $wallet->balance > 0) {
+            if (!$wallet) {
+                $wallet = \App\Models\Wallet::create(['user_id' => $request->user()->id, 'balance' => 0]);
+            }
+            if ($wallet->balance > 0) {
                 if ($feeMandatory) {
                     // Wallet can only cover items after discount, NOT delivery fee
                     $walletDeduction = min($wallet->balance, max(0, $subtotal - $discount));
@@ -140,12 +143,15 @@ class OrderController extends Controller
 
         // Debit wallet if used
         if ($walletDeduction > 0) {
-            $request->user()->wallet->debit(
-                $walletDeduction,
-                'Order Payment',
-                "Order #{$order->order_number}",
-                $order->id
-            );
+            $userWallet = $request->user()->wallet;
+            if ($userWallet) {
+                $userWallet->debit(
+                    $walletDeduction,
+                    'Order Payment',
+                    "Order #{$order->order_number}",
+                    $order->id
+                );
+            }
         }
 
         // Log order creation
