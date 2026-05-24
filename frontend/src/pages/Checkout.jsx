@@ -126,20 +126,28 @@ function Checkout() {
     if (!selectedAddress) return;
     setLoading(true);
 
-    // Try to get current location for accurate delivery coordinates
+    // Get current GPS location (mandatory)
     let customerLat = selectedAddress.latitude || null;
     let customerLng = selectedAddress.longitude || null;
 
     if (!customerLat && navigator.geolocation) {
       try {
         const pos = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 5000 });
+          navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000 });
         });
         customerLat = pos.coords.latitude;
         customerLng = pos.coords.longitude;
       } catch (e) {
-        // Location not available, proceed without it
+        setLoading(false);
+        alert('Location access is required to place an order. Please enable GPS/Location in your device settings and try again.');
+        return;
       }
+    }
+
+    if (!customerLat || !customerLng) {
+      setLoading(false);
+      alert('Location access is required to place an order. Please enable GPS/Location in your device settings and try again.');
+      return;
     }
 
     try {
