@@ -34,6 +34,8 @@ const settingsConfig = {
   ],
   wallet: [
     { key: 'welcome_bonus', label: 'Welcome Bonus (Rs.)', type: 'number', placeholder: '100' },
+    { key: 'reward_enabled', label: 'Enable Loyalty Rewards', type: 'toggle', defaultValue: 'false', hint: 'Customers get a free reward item after every X delivered orders' },
+    { key: 'reward_orders_required', label: 'Orders Required for Reward', type: 'number', placeholder: '5' },
   ],
 };
 

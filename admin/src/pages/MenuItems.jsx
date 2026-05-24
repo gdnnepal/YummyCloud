@@ -8,7 +8,7 @@ function MenuItems() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState(null);
-  const [form, setForm] = useState({ name: '', name_ne: '', price: '', category_id: '', is_veg: false, is_available: true, is_featured: false, image: null });
+  const [form, setForm] = useState({ name: '', name_ne: '', price: '', category_id: '', is_veg: false, is_available: true, is_featured: false, is_reward: false, image: null });
 
   useEffect(() => {
     Promise.all([api.getMenuItems(), api.getCategories()])
@@ -27,6 +27,7 @@ function MenuItems() {
       formData.append('is_veg', form.is_veg ? '1' : '0');
       formData.append('is_available', form.is_available ? '1' : '0');
       formData.append('is_featured', form.is_featured ? '1' : '0');
+      formData.append('is_reward', form.is_reward ? '1' : '0');
       if (form.image) formData.append('image', form.image);
 
       if (editItem) {
@@ -53,9 +54,9 @@ function MenuItems() {
     } catch (err) { alert(err.message); }
   };
 
-  const resetForm = () => { setShowForm(false); setEditItem(null); setForm({ name: '', name_ne: '', price: '', category_id: '', is_veg: false, is_available: true, is_featured: false, image: null }); };
+  const resetForm = () => { setShowForm(false); setEditItem(null); setForm({ name: '', name_ne: '', price: '', category_id: '', is_veg: false, is_available: true, is_featured: false, is_reward: false, image: null }); };
 
-  const openEdit = (item) => { setEditItem(item); setForm({ name: item.name, name_ne: item.name_ne || '', price: item.price, category_id: item.category_id, is_veg: item.is_veg, is_available: item.is_available, is_featured: item.is_featured, image: null }); setShowForm(true); };
+  const openEdit = (item) => { setEditItem(item); setForm({ name: item.name, name_ne: item.name_ne || '', price: item.price, category_id: item.category_id, is_veg: item.is_veg, is_available: item.is_available, is_featured: item.is_featured, is_reward: item.is_reward || false, image: null }); setShowForm(true); };
 
   return (
     <div>
@@ -83,6 +84,7 @@ function MenuItems() {
               <div className="flex gap-4">
                 <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.is_veg} onChange={(e) => setForm({ ...form, is_veg: e.target.checked })} className="accent-green-600" /> Veg</label>
                 <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.is_featured} onChange={(e) => setForm({ ...form, is_featured: e.target.checked })} className="accent-primary" /> Featured</label>
+                <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.is_reward} onChange={(e) => setForm({ ...form, is_reward: e.target.checked })} className="accent-amber-500" /> Reward Item</label>
                 <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.is_available} onChange={(e) => setForm({ ...form, is_available: e.target.checked })} className="accent-blue-600" /> Available</label>
               </div>
               <div>

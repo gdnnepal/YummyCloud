@@ -28,7 +28,7 @@ Route::get('/categories', [MenuController::class, 'categories']);
 Route::get('/menu', [MenuController::class, 'index']);
 Route::get('/menu/search', [MenuController::class, 'search']);
 Route::get('/settings/public', function () {
-    $keys = ['kitchen_name', 'delivery_fee', 'delivery_fee_mandatory', 'estimated_delivery_time', 'qr_payment_info', 'qr_image', 'kitchen_phone', 'kitchen_address', 'min_order_amount', 'banner_enabled', 'banner_title', 'banner_subtitle', 'support_phone'];
+    $keys = ['kitchen_name', 'delivery_fee', 'delivery_fee_mandatory', 'estimated_delivery_time', 'qr_payment_info', 'qr_image', 'kitchen_phone', 'kitchen_address', 'min_order_amount', 'banner_enabled', 'banner_title', 'banner_subtitle', 'support_phone', 'reward_enabled', 'reward_orders_required'];
     $settings = \App\Models\Setting::whereIn('key', $keys)->pluck('value', 'key');
     return response()->json(['settings' => $settings]);
 });
@@ -59,6 +59,43 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders/{order}', [OrderController::class, 'show']);
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
     Route::post('/orders/{order}/rate', [OrderController::class, 'rate']);
+
+    // Rewards
+    Route::get('/rewards', function (\Illuminate\Http\Request $request) {
+        $rewardEnabled = \App\Models\Setting::get('reward_enabled', 'false') === 'true';
+        if (!$rewardEnabled) {
+            return response()->json(['eligible' => false, 'reward_items' => [], 'orders_until_reward' => 0]);
+        }
+
+        $requiredOrders = (int) \App\Models\Setting::get('reward_orders_required', 5);
+        $user = $request->user();
+        $deliveredCount = $user->orders()->where('status', 'delivered')->count();
+
+        // Count how many rewards already claimed (orders that contain a reward item with price 0)
+        $rewardsClaimed = \App\Models\OrderItem::whereHas('order', function ($q) use ($user) {
+            $q->where('user_id', $user->id)->where('status', 'delivered');
+        })->where('price', 0)->count();
+
+        $ordersInCurrentCycle = $deliveredCount - ($rewardsClaimed * $requiredOrders);
+        $eligible = $ordersInCurrentCycle >= $requiredOrders;
+        $ordersUntilReward = $eligible ? 0 : $requiredOrders - $ordersInCurrentCycle;
+
+        $rewardItems = [];
+        if ($eligible) {
+            $rewardItems = \App\Models\MenuItem::where('is_reward', true)
+                ->where('is_available', true)
+                ->with('category:id,name,name_ne')
+                ->get();
+        }
+
+        return response()->json([
+            'eligible' => $eligible,
+            'reward_items' => $rewardItems,
+            'orders_until_reward' => max(0, $ordersUntilReward),
+            'delivered_count' => $deliveredCount,
+            'rewards_claimed' => $rewardsClaimed,
+        ]);
+    });
 
     // Wallet
     Route::get('/wallet', [WalletController::class, 'index']);

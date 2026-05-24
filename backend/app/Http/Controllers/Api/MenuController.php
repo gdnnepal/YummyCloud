@@ -20,7 +20,9 @@ class MenuController extends Controller
 
     public function index(Request $request)
     {
-        $query = MenuItem::where('is_available', true)->with('category:id,name,name_ne');
+        $query = MenuItem::where('is_available', true)
+            ->where('is_reward', false)
+            ->with('category:id,name,name_ne');
 
         if ($request->has('category') && $request->category) {
             $query->where('category_id', $request->category);

@@ -51,6 +51,7 @@ class OrderController extends Controller
         // Calculate totals
         $subtotal = 0;
         $orderItems = [];
+        $hasRewardItem = false;
 
         foreach ($request->items as $item) {
             $menuItem = MenuItem::findOrFail($item['id']);
@@ -59,12 +60,38 @@ class OrderController extends Controller
                     'message' => "{$menuItem->name} is currently unavailable.",
                 ], 422);
             }
-            $itemTotal = $menuItem->price * $item['quantity'];
+
+            $itemPrice = $menuItem->price;
+
+            // Handle reward item (free, qty 1)
+            if ($menuItem->is_reward && !$hasRewardItem) {
+                // Verify eligibility
+                $rewardEnabled = \App\Models\Setting::get('reward_enabled', 'false') === 'true';
+                $requiredOrders = (int) \App\Models\Setting::get('reward_orders_required', 5);
+                $deliveredCount = $request->user()->orders()->where('status', 'delivered')->count();
+                $rewardsClaimed = \App\Models\OrderItem::whereHas('order', function ($q) use ($request) {
+                    $q->where('user_id', $request->user()->id)->where('status', 'delivered');
+                })->where('price', 0)->count();
+                $ordersInCycle = $deliveredCount - ($rewardsClaimed * $requiredOrders);
+
+                if ($rewardEnabled && $ordersInCycle >= $requiredOrders) {
+                    $itemPrice = 0;
+                    $hasRewardItem = true;
+                } else {
+                    return response()->json(['message' => 'You are not eligible for this reward item.'], 422);
+                }
+            } elseif ($menuItem->is_reward && $hasRewardItem) {
+                return response()->json(['message' => 'Only 1 free reward item per order.'], 422);
+            } elseif ($menuItem->is_reward) {
+                return response()->json(['message' => 'You are not eligible for this reward item.'], 422);
+            }
+
+            $itemTotal = $itemPrice * $item['quantity'];
             $subtotal += $itemTotal;
             $orderItems[] = [
                 'menu_item_id' => $menuItem->id,
                 'name' => $menuItem->name,
-                'price' => $menuItem->price,
+                'price' => $itemPrice,
                 'quantity' => $item['quantity'],
                 'total' => $itemTotal,
             ];

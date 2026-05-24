@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { HiOutlineMagnifyingGlass, HiOutlineAdjustmentsHorizontal } from 'react-icons/hi2';
+import { HiOutlineMagnifyingGlass } from 'react-icons/hi2';
 import TopNav from '../components/TopNav';
 import useCartStore from '../store/useCartStore';
+import useAuthStore from '../store/useAuthStore';
 import api from '../services/api';
 
 function Menu() {
@@ -16,7 +17,9 @@ function Menu() {
   const [categories, setCategories] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [rewardData, setRewardData] = useState(null);
   const addItem = useCartStore((state) => state.addItem);
+  const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -28,7 +31,11 @@ function Menu() {
       }
     };
     fetchCategories();
-  }, []);
+    // Fetch reward eligibility
+    if (isAuthenticated) {
+      api.request('/rewards').then(setRewardData).catch(() => {});
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -103,6 +110,51 @@ function Menu() {
           ))}
         </div>
       </div>
+
+      {/* Reward Section */}
+      {rewardData && (
+        <div className="px-4 mt-3 mb-2">
+          {rewardData.eligible && rewardData.reward_items?.length > 0 ? (
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg">🎁</span>
+                <h3 className="font-bold text-amber-800 text-sm">Loyalty Reward Unlocked!</h3>
+              </div>
+              <p className="text-xs text-amber-700 mb-3">You've completed {rewardData.delivered_count} orders! Pick a free item below (delivery fee applies).</p>
+              <div className="space-y-2">
+                {rewardData.reward_items.map((item) => (
+                  <div key={item.id} className="flex items-center gap-3 bg-white rounded-xl p-3 border border-amber-100">
+                    <div className="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
+                      {item.image ? (
+                        <img src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${item.image}`} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-lg">🎁</span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-gray-800 text-sm truncate">{isNepali ? item.name_ne || item.name : item.name}</h4>
+                      <p className="text-xs text-green-600 font-bold">FREE</p>
+                    </div>
+                    <button
+                      onClick={() => addItem({ id: item.id, name: item.name, nameNe: item.name_ne, price: 0, image: item.image, isReward: true })}
+                      className="bg-amber-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium active:scale-90 transition-transform"
+                    >
+                      + CLAIM
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : rewardData.orders_until_reward > 0 ? (
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3 flex items-center gap-3">
+              <span className="text-lg">🎯</span>
+              <div className="flex-1">
+                <p className="text-xs text-gray-600"><strong>{rewardData.orders_until_reward} more order{rewardData.orders_until_reward > 1 ? 's' : ''}</strong> to unlock a free reward item!</p>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      )}
 
       {/* Menu Items */}
       <div className="px-4 mt-2 space-y-3">

@@ -264,7 +264,7 @@ class AdminController extends Controller
     public function createMenuItem(Request $request)
     {
         $request->validate(['name' => 'required', 'price' => 'required|numeric', 'category_id' => 'required|exists:categories,id']);
-        $data = $request->only('name', 'name_ne', 'price', 'category_id', 'is_veg', 'is_available', 'is_featured');
+        $data = $request->only('name', 'name_ne', 'price', 'category_id', 'is_veg', 'is_available', 'is_featured', 'is_reward');
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('menu-items', 'public');
         }
@@ -274,7 +274,7 @@ class AdminController extends Controller
     public function updateMenuItem(Request $request, $id)
     {
         $item = MenuItem::findOrFail($id);
-        $data = $request->only('name', 'name_ne', 'price', 'category_id', 'is_veg', 'is_available', 'is_featured');
+        $data = $request->only('name', 'name_ne', 'price', 'category_id', 'is_veg', 'is_available', 'is_featured', 'is_reward');
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('menu-items', 'public');
         }
