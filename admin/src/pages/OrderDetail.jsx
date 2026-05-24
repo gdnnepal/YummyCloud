@@ -30,10 +30,6 @@ function OrderDetail() {
     }
     setUpdatingStatus(status);
     try {
-      // If jumping to on_the_way from confirmed, also add preparing
-      if (status === 'on_the_way' && order.status === 'confirmed') {
-        await api.updateOrderStatus(id, 'preparing');
-      }
       await api.updateOrderStatus(id, status);
       const res = await api.getOrder(id);
       setOrder(res.order);
@@ -133,12 +129,13 @@ function OrderDetail() {
               const currentIdx = statuses.indexOf(order.status);
               const btnIdx = statuses.indexOf(s);
               const isActive = order.status === s;
-              const isPast = btnIdx < currentIdx;
+              const isNext = btnIdx === currentIdx + 1;
               const isUpdating = updatingStatus === s;
-              const isDisabled = isActive || isPast || updatingStatus !== null;
+              const isDisabled = !isNext || updatingStatus !== null;
               return (
-                <button key={s} onClick={() => handleStatusChange(s)} disabled={isDisabled} className={`px-4 py-2 rounded-lg text-xs font-medium capitalize inline-flex items-center gap-1.5 ${isActive ? 'bg-primary text-white' : isPast ? 'bg-gray-50 text-gray-300 cursor-not-allowed' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} disabled:opacity-50`}>
-                  {isUpdating && <span className="w-3 h-3 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />}
+                <button key={s} onClick={() => handleStatusChange(s)} disabled={isDisabled} className={`px-4 py-2 rounded-lg text-xs font-medium capitalize inline-flex items-center gap-1.5 ${isActive ? 'bg-primary text-white' : isNext ? 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100' : 'bg-gray-50 text-gray-300 cursor-not-allowed'} disabled:opacity-50`}>
+                  {isUpdating && <span className="w-3 h-3 border-2 border-green-400 border-t-transparent rounded-full animate-spin" />}
+                  {isNext && !isUpdating && '→ '}
                   {s.replace('_', ' ')}
                 </button>
               );
