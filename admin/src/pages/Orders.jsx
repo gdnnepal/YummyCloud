@@ -103,6 +103,28 @@ function Orders() {
           </button>
         ))}
       </div>
+      {/* Summary Stats */}
+      {!loading && filteredOrders.length > 0 && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+          <div className="bg-white rounded-xl border border-gray-100 p-3">
+            <p className="text-[10px] text-gray-500 uppercase">Total Orders</p>
+            <p className="text-lg font-bold text-gray-800">{filteredOrders.length}</p>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-100 p-3">
+            <p className="text-[10px] text-gray-500 uppercase">Total Items</p>
+            <p className="text-lg font-bold text-gray-800">{filteredOrders.reduce((sum, o) => sum + (o.items?.reduce((s, i) => s + i.quantity, 0) || 0), 0)}</p>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-100 p-3">
+            <p className="text-[10px] text-gray-500 uppercase">Delivery Charges</p>
+            <p className="text-lg font-bold text-gray-800">Rs. {filteredOrders.reduce((sum, o) => sum + Number(o.delivery_fee || 0), 0)}</p>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-100 p-3">
+            <p className="text-[10px] text-gray-500 uppercase">Grand Total</p>
+            <p className="text-lg font-bold text-green-600">Rs. {filteredOrders.reduce((sum, o) => sum + Number(o.total || 0), 0)}</p>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
         {loading ? <div className="p-8 text-center text-gray-400">Loading...</div> : orders.length === 0 ? <div className="p-8 text-center text-gray-400">No orders</div> : (
           <>
@@ -124,7 +146,7 @@ function Orders() {
                   </td>
                   <td className="px-4 py-3">
                     <p className="text-gray-700 font-medium">{order.user?.name}</p>
-                    <p className="text-[10px] text-gray-400">{order.user?.phone}</p>
+                    <p className="text-xs text-gray-400">{order.user?.phone}</p>
                   </td>
                   <td className="px-4 py-3 text-center">
                     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize ${statusColors[order.status]}`}>
