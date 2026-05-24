@@ -443,9 +443,12 @@ function Checkout() {
       {/* Place Order Button */}
       <div className="fixed bottom-20 left-0 right-0 px-4 py-3 bg-white/90 backdrop-blur-md border-t border-gray-100">
         <div className="max-w-lg mx-auto">
+          {kitchenSettings.min_order_amount && total < Number(kitchenSettings.min_order_amount) && (
+            <p className="text-xs text-red-500 text-center mb-2">Minimum order amount is Rs. {kitchenSettings.min_order_amount}. Add Rs. {Number(kitchenSettings.min_order_amount) - total} more.</p>
+          )}
           <button
             onClick={handlePlaceOrder}
-            disabled={!selectedAddress || loading}
+            disabled={!selectedAddress || loading || (kitchenSettings.min_order_amount && total < Number(kitchenSettings.min_order_amount))}
             className="w-full bg-primary text-white py-3.5 rounded-2xl font-semibold text-sm disabled:opacity-50 active:scale-[0.98] transition-transform shadow-lg shadow-primary/25"
           >
             {loading ? 'Placing Order...' : `${t('place_order')} • Rs. ${finalTotal}`}

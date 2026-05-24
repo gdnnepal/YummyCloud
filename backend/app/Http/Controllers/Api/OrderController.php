@@ -72,6 +72,15 @@ class OrderController extends Controller
 
         // Apply coupon (only on item subtotal)
         $discount = 0;
+
+        // Check minimum order amount
+        $minOrder = (float) \App\Models\Setting::get('min_order_amount', 0);
+        if ($minOrder > 0 && $subtotal < $minOrder) {
+            return response()->json([
+                'message' => "Minimum order amount is Rs. {$minOrder}. Your cart total is Rs. {$subtotal}.",
+            ], 422);
+        }
+
         if ($request->coupon_code) {
             $coupon = Coupon::where('code', $request->coupon_code)->first();
             if ($coupon && $coupon->isValid($subtotal)) {
