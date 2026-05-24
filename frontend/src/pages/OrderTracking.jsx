@@ -291,7 +291,7 @@ function OrderTracking() {
               </span>
             </button>
             <p className="text-[11px] text-gray-400 text-center mt-1.5">
-              You can cancel within {minutesLeft} min. Wallet refund is instant. QR payment refund takes 2 business days.
+              You can cancel within {minutesLeft} min. Wallet refund is instant. QR payment refund takes 1 business days.
             </p>
           </div>
         ) : null;
@@ -467,7 +467,7 @@ function OrderTracking() {
               </p>
               <div className="bg-gray-50 rounded-lg p-3 mt-3 text-left text-xs text-gray-600 space-y-1">
                 <p>• Wallet amount will be refunded instantly</p>
-                <p>• QR payment refund takes 2 business days</p>
+                <p>• QR payment refund takes 1 business days</p>
                 <p>• COD orders have no refund needed</p>
               </div>
             </div>

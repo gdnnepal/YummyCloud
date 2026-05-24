@@ -44,10 +44,17 @@ function Checkout() {
   const total = getTotal();
   const discount = appliedCoupon ? appliedCoupon.discount : 0;
   const fee = deliveryFee || 0;
-  // Wallet can only cover items after discount, NOT delivery fee
-  const itemsAfterDiscount = Math.max(0, total - discount);
-  const walletDeduction = useWallet ? Math.min(walletBalance, itemsAfterDiscount) : 0;
-  const finalTotal = itemsAfterDiscount - walletDeduction + fee;
+  const feeMandatory = kitchenSettings.delivery_fee_mandatory === 'true';
+  // If delivery fee is mandatory: wallet/coupon only cover items, fee always charged separately
+  // If not mandatory: wallet/coupon can cover everything including fee
+  const walletDeduction = useWallet
+    ? feeMandatory
+      ? Math.min(walletBalance, Math.max(0, total - discount))
+      : Math.min(walletBalance, total - discount + fee)
+    : 0;
+  const finalTotal = feeMandatory
+    ? Math.max(0, total - discount) - walletDeduction + fee
+    : total - discount + fee - walletDeduction;
 
   useEffect(() => {
     if (items.length === 0 && !orderSuccess) {
