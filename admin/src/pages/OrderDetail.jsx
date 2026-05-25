@@ -15,11 +15,20 @@ function OrderDetail() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   const [updatingStatus, setUpdatingStatus] = useState(null);
+  const [storeCoords, setStoreCoords] = useState(null);
 
   useEffect(() => {
     Promise.all([api.getOrder(id), api.getDeliveryPartners()])
       .then(([orderRes, partnerRes]) => { setOrder(orderRes.order); setPartners(partnerRes.partners || []); })
       .catch(console.error).finally(() => setLoading(false));
+    // Fetch store coords for distance calc
+    fetch(`${import.meta.env.VITE_API_URL?.replace('/api', '')}/api/settings/public`)
+      .then(r => r.json())
+      .then(res => {
+        if (res.settings?.store_lat && res.settings?.store_lng) {
+          setStoreCoords({ lat: parseFloat(res.settings.store_lat), lng: parseFloat(res.settings.store_lng) });
+        }
+      }).catch(() => {});
   }, [id]);
 
   const handleStatusChange = async (status) => {
@@ -93,8 +102,17 @@ function OrderDetail() {
             {order.customer_lat && order.customer_lng && (
               <div className="flex justify-between items-center">
                 <span className="text-gray-500">Location</span>
-                <a href={`https://www.google.com/maps?q=${order.customer_lat},${order.customer_lng}`} target="_blank" rel="noopener noreferrer" className="text-primary text-xs font-medium underline flex items-center gap-1">
-                  📍 Open in Maps
+                <a href={`https://www.google.com/maps?q=${order.customer_lat},${order.customer_lng}`} target="_blank" rel="noopener noreferrer" className="text-primary text-xs font-medium underline">
+                  Open in Maps{storeCoords && (() => {
+                    const R = 6371;
+                    const lat1 = storeCoords.lat, lon1 = storeCoords.lng;
+                    const lat2 = parseFloat(order.customer_lat), lon2 = parseFloat(order.customer_lng);
+                    const dLat = (lat2 - lat1) * Math.PI / 180;
+                    const dLon = (lon2 - lon1) * Math.PI / 180;
+                    const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+                    const km = (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1);
+                    return ` (${km} km)`;
+                  })()}
                 </a>
               </div>
             )}
