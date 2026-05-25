@@ -108,7 +108,7 @@ function Dashboard() {
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-bold text-gray-800">#{order.order_number}</span>
                   <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize ${order.status === 'on_the_way' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
-                    {order.status.replace('_', ' ')}
+                    {order.status.replaceAll('_', ' ')}
                   </span>
                 </div>
                 <div className="flex items-start gap-2 text-xs text-gray-600">

@@ -82,7 +82,7 @@ function OrderDetail() {
         <div className="flex-1">
           <h1 className="text-sm font-bold text-gray-800">Order #{order.order_number}</h1>
           <span className={`text-[10px] font-semibold capitalize ${order.status === 'delivered' ? 'text-green-600' : order.status === 'on_the_way' ? 'text-blue-600' : 'text-orange-600'}`}>
-            {order.status.replace('_', ' ')}
+            {order.status.replaceAll('_', ' ')}
           </span>
         </div>
         {order.payment_method === 'cod' && (
