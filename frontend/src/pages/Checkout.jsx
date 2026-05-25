@@ -41,6 +41,7 @@ function Checkout() {
   const [deliveryFee, setDeliveryFee] = useState(null);
   const [kitchenSettings, setKitchenSettings] = useState({});
   const [showOutOfArea, setShowOutOfArea] = useState(false);
+  const [outOfAreaInfo, setOutOfAreaInfo] = useState(null);
 
   const total = getTotal();
   const discount = appliedCoupon ? appliedCoupon.discount : 0;
@@ -204,6 +205,7 @@ function Checkout() {
       const maxDist = parseFloat(kitchenSettings[`geofence_${direction.toLowerCase()}`] || 999);
       if (distance > maxDist) {
         setLoading(false);
+        setOutOfAreaInfo({ distance: distance.toFixed(2), direction, maxDist });
         setShowOutOfArea(true);
         return;
       }
@@ -615,6 +617,13 @@ function Checkout() {
             </div>
             <h3 className="text-lg font-bold text-gray-800">Out of Delivery Area</h3>
             <p className="text-sm text-gray-500 mt-2">Sorry, we don't deliver to your current location. Please try a different address or contact support.</p>
+            {outOfAreaInfo && (
+              <div className="bg-gray-50 rounded-lg p-3 mt-3 text-xs text-gray-600 text-left space-y-1">
+                <p>Direction: <strong>{outOfAreaInfo.direction}</strong></p>
+                <p>Your distance: <strong>{outOfAreaInfo.distance} km</strong></p>
+                <p>Max allowed: <strong>{outOfAreaInfo.maxDist} km</strong></p>
+              </div>
+            )}
             <button onClick={() => setShowOutOfArea(false)} className="mt-5 w-full py-2.5 rounded-xl text-sm font-medium text-white bg-primary active:scale-95 transition-transform">
               OK, Got it
             </button>

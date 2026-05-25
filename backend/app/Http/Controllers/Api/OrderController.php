@@ -118,8 +118,24 @@ class OrderController extends Controller
             }
         }
 
-        // Delivery fee is always applied
+        // Delivery fee - calculate based on distance if presets exist
         $deliveryFee = (float) \App\Models\Setting::get('delivery_fee', 0);
+        $storeLat = \App\Models\Setting::get('store_lat');
+        $storeLng = \App\Models\Setting::get('store_lng');
+        $presets = json_decode(\App\Models\Setting::get('delivery_charge_presets', '[]'), true);
+
+        if ($storeLat && $storeLng && $request->customer_lat && $request->customer_lng && !empty($presets)) {
+            $distance = $this->getDistanceKm(
+                (float) $storeLat, (float) $storeLng,
+                (float) $request->customer_lat, (float) $request->customer_lng
+            );
+            foreach ($presets as $preset) {
+                if ($distance >= (float) $preset['from'] && $distance <= (float) $preset['to']) {
+                    $deliveryFee = (float) $preset['fee'];
+                    break;
+                }
+            }
+        }
         $feeMandatory = \App\Models\Setting::get('delivery_fee_mandatory', 'true') === 'true';
 
         // Wallet deduction
@@ -317,5 +333,14 @@ class OrderController extends Controller
         );
 
         return response()->json(['message' => 'Rating submitted.', 'rating' => $rating]);
+    }
+
+    private function getDistanceKm(float $lat1, float $lon1, float $lat2, float $lon2): float
+    {
+        $R = 6371;
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+        $a = sin($dLat / 2) * sin($dLat / 2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon / 2) * sin($dLon / 2);
+        return $R * 2 * atan2(sqrt($a), sqrt(1 - $a));
     }
 }
