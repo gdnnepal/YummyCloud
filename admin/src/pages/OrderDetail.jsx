@@ -102,7 +102,7 @@ function OrderDetail() {
             {order.customer_lat && order.customer_lng && (
               <div className="flex justify-between items-center">
                 <span className="text-gray-500">Location</span>
-                <a href={`https://www.google.com/maps?q=${order.customer_lat},${order.customer_lng}`} target="_blank" rel="noopener noreferrer" className="text-primary text-xs font-medium underline">
+                <a href={`https://www.google.com/maps/dir/?api=1&origin=${storeCoords.lat},${storeCoords.lng}&destination=${order.customer_lat},${order.customer_lng}`} target="_blank" rel="noopener noreferrer" className="text-primary text-xs font-medium underline">
                   Open in Maps{storeCoords && (() => {
                     const R = 6371;
                     const lat1 = storeCoords.lat, lon1 = storeCoords.lng;
