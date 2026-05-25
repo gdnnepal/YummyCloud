@@ -5,6 +5,7 @@ import api from '../services/api';
 const tabs = [
   { id: 'store', label: 'Store Details', icon: HiOutlineBuildingStorefront },
   { id: 'orders', label: 'Orders & Delivery', icon: HiOutlineTruck },
+  { id: 'delivery_zone', label: 'Delivery Zone', icon: HiOutlineTruck },
   { id: 'payment', label: 'Payment', icon: HiOutlineCreditCard },
   { id: 'promotions', label: 'Promotions', icon: HiOutlineMegaphone },
   { id: 'wallet', label: 'Wallet', icon: HiOutlineWallet },
@@ -18,11 +19,12 @@ const settingsConfig = {
     { key: 'support_phone', label: 'Support Phone (WhatsApp)', type: 'text', placeholder: '9800000000' },
   ],
   orders: [
-    { key: 'delivery_fee', label: 'Delivery Fee (Rs.)', type: 'number', placeholder: '50' },
+    { key: 'delivery_fee', label: 'Default Delivery Fee (Rs.)', type: 'number', placeholder: '50' },
     { key: 'delivery_fee_mandatory', label: 'Always Charge Delivery Fee', type: 'toggle', defaultValue: 'true', hint: 'When ON, delivery fee cannot be covered by wallet or coupons' },
     { key: 'min_order_amount', label: 'Minimum Order Amount (Rs.)', type: 'number', placeholder: '100' },
     { key: 'estimated_delivery_time', label: 'Estimated Delivery Time', type: 'text', placeholder: '30-45 mins' },
   ],
+  delivery_zone: [],
   payment: [
     { key: 'qr_payment_info', label: 'QR Payment Instructions', type: 'text', placeholder: 'Scan to pay via eSewa/Khalti' },
     { key: 'qr_image', label: 'QR Code Image', type: 'file' },
@@ -191,6 +193,84 @@ function Settings() {
 
               {activeTab === 'wallet' && (
                 <p className="text-xs text-gray-400 mt-2">New customers receive this amount as wallet credit upon registration.</p>
+              )}
+
+              {/* Delivery Zone Custom UI */}
+              {activeTab === 'delivery_zone' && (
+                <div className="space-y-6">
+                  {/* Toggle */}
+                  <div>
+                    <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Enable Geo-Fencing</label>
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <div className="relative">
+                        <input type="checkbox" checked={settings.geofence_enabled === 'true'} onChange={(e) => setSettings({ ...settings, geofence_enabled: e.target.checked ? 'true' : 'false' })} className="sr-only peer" />
+                        <div className="w-11 h-6 bg-gray-200 peer-checked:bg-primary rounded-full transition-colors" />
+                        <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm peer-checked:translate-x-5 transition-transform" />
+                      </div>
+                      <span className="text-sm text-gray-700">{settings.geofence_enabled === 'true' ? 'Enabled' : 'Disabled'}</span>
+                    </label>
+                    <p className="text-[10px] text-gray-400 mt-1">Block orders outside delivery zone</p>
+                  </div>
+
+                  {/* Store Coordinates */}
+                  <div>
+                    <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Store GPS Coordinates</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <input type="text" value={settings.store_lat || ''} onChange={(e) => setSettings({ ...settings, store_lat: e.target.value })} placeholder="Latitude (e.g. 26.4728)" className="border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-primary bg-white" />
+                      <input type="text" value={settings.store_lng || ''} onChange={(e) => setSettings({ ...settings, store_lng: e.target.value })} placeholder="Longitude (e.g. 87.2765)" className="border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-primary bg-white" />
+                    </div>
+                  </div>
+
+                  {/* Directional Limits */}
+                  <div>
+                    <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Max Delivery Distance (KM per direction)</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs text-gray-500 mb-1 block">North (km)</label>
+                        <input type="number" value={settings.geofence_north || ''} onChange={(e) => setSettings({ ...settings, geofence_north: e.target.value })} placeholder="7" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-white" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500 mb-1 block">South (km)</label>
+                        <input type="number" value={settings.geofence_south || ''} onChange={(e) => setSettings({ ...settings, geofence_south: e.target.value })} placeholder="7" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-white" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500 mb-1 block">East (km)</label>
+                        <input type="number" value={settings.geofence_east || ''} onChange={(e) => setSettings({ ...settings, geofence_east: e.target.value })} placeholder="2" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-white" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500 mb-1 block">West (km)</label>
+                        <input type="number" value={settings.geofence_west || ''} onChange={(e) => setSettings({ ...settings, geofence_west: e.target.value })} placeholder="2" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-white" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Delivery Charge Presets */}
+                  <div>
+                    <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Distance-Based Delivery Charges</label>
+                    <p className="text-[10px] text-gray-400 mb-3">Set delivery fee based on customer distance. If no match, default fee from Orders tab is used.</p>
+                    {(() => {
+                      let presets = [];
+                      try { presets = JSON.parse(settings.delivery_charge_presets || '[]'); } catch {}
+                      const updatePresets = (newPresets) => setSettings({ ...settings, delivery_charge_presets: JSON.stringify(newPresets) });
+                      return (
+                        <div className="space-y-2">
+                          {presets.map((p, i) => (
+                            <div key={i} className="flex items-center gap-2">
+                              <input type="number" value={p.from} onChange={(e) => { const np = [...presets]; np[i].from = e.target.value; updatePresets(np); }} placeholder="0" className="w-20 border border-gray-200 rounded-lg px-2 py-2 text-sm outline-none focus:border-primary text-center" />
+                              <span className="text-xs text-gray-400">to</span>
+                              <input type="number" value={p.to} onChange={(e) => { const np = [...presets]; np[i].to = e.target.value; updatePresets(np); }} placeholder="3" className="w-20 border border-gray-200 rounded-lg px-2 py-2 text-sm outline-none focus:border-primary text-center" />
+                              <span className="text-xs text-gray-400">km →</span>
+                              <input type="number" value={p.fee} onChange={(e) => { const np = [...presets]; np[i].fee = e.target.value; updatePresets(np); }} placeholder="50" className="w-24 border border-gray-200 rounded-lg px-2 py-2 text-sm outline-none focus:border-primary" />
+                              <span className="text-xs text-gray-400">Rs.</span>
+                              <button type="button" onClick={() => { const np = presets.filter((_, idx) => idx !== i); updatePresets(np); }} className="text-red-500 text-xs font-medium hover:underline">Remove</button>
+                            </div>
+                          ))}
+                          <button type="button" onClick={() => updatePresets([...presets, { from: '', to: '', fee: '' }])} className="text-xs text-primary font-medium hover:underline">+ Add Range</button>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
               )}
             </div>
           </div>

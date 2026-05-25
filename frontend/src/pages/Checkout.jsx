@@ -40,6 +40,7 @@ function Checkout() {
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [deliveryFee, setDeliveryFee] = useState(null);
   const [kitchenSettings, setKitchenSettings] = useState({});
+  const [showOutOfArea, setShowOutOfArea] = useState(false);
 
   const total = getTotal();
   const discount = appliedCoupon ? appliedCoupon.discount : 0;
@@ -82,10 +83,35 @@ function Checkout() {
   useEffect(() => {
     api.getPublicSettings().then((res) => {
       const s = res.settings || {};
-      setDeliveryFee(Number(s.delivery_fee) || 0);
       setKitchenSettings(s);
+      // Calculate delivery fee - try distance-based first
+      let baseFee = Number(s.delivery_fee) || 0;
+      // If geo-fence enabled and presets exist, we'll recalculate on location fetch
+      setDeliveryFee(baseFee);
     }).catch(console.error);
   }, []);
+
+  // Recalculate delivery fee based on user location
+  useEffect(() => {
+    if (!kitchenSettings.store_lat || !kitchenSettings.delivery_charge_presets) return;
+    if (!selectedAddress?.latitude) return;
+
+    const storeLat = parseFloat(kitchenSettings.store_lat);
+    const storeLng = parseFloat(kitchenSettings.store_lng);
+    const dist = getDistanceKm(storeLat, storeLng, selectedAddress.latitude, selectedAddress.longitude);
+
+    let presets = [];
+    try { presets = JSON.parse(kitchenSettings.delivery_charge_presets || '[]'); } catch {}
+
+    if (presets.length > 0) {
+      const match = presets.find(p => dist >= parseFloat(p.from) && dist <= parseFloat(p.to));
+      if (match) {
+        setDeliveryFee(Number(match.fee));
+        return;
+      }
+    }
+    setDeliveryFee(Number(kitchenSettings.delivery_fee) || 0);
+  }, [kitchenSettings, selectedAddress]);
 
   useEffect(() => {
     const defaultAddr = getDefault();
@@ -118,6 +144,24 @@ function Checkout() {
     setCouponError('');
   };
 
+  // Geo-fence helpers
+  const getDistanceKm = (lat1, lon1, lat2, lon2) => {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  };
+
+  const getDirection = (storeLat, storeLng, userLat, userLng) => {
+    const latDiff = userLat - storeLat;
+    const lngDiff = userLng - storeLng;
+    if (Math.abs(latDiff) > Math.abs(lngDiff)) {
+      return latDiff > 0 ? 'North' : 'South';
+    }
+    return lngDiff > 0 ? 'East' : 'West';
+  };
+
   const handlePlaceOrder = async () => {
     if (!isAuthenticated) {
       navigate('/login');
@@ -148,6 +192,21 @@ function Checkout() {
       setLoading(false);
       alert('Location access is required to place an order. Please enable GPS/Location in your device settings and try again.');
       return;
+    }
+
+    // Geo-fence check
+    if (kitchenSettings.geofence_enabled === 'true' && kitchenSettings.store_lat && kitchenSettings.store_lng) {
+      const storeLat = parseFloat(kitchenSettings.store_lat);
+      const storeLng = parseFloat(kitchenSettings.store_lng);
+      const distance = getDistanceKm(storeLat, storeLng, customerLat, customerLng);
+      const direction = getDirection(storeLat, storeLng, customerLat, customerLng);
+
+      const maxDist = parseFloat(kitchenSettings[`geofence_${direction.toLowerCase()}`] || 999);
+      if (distance > maxDist) {
+        setLoading(false);
+        setShowOutOfArea(true);
+        return;
+      }
     }
 
     try {
@@ -546,6 +605,23 @@ function Checkout() {
           </div>
         </div>
       )}
+      {/* Out of Delivery Area Popup */}
+      {showOutOfArea && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center px-6">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowOutOfArea(false)} />
+          <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm animate-slide-up text-center">
+            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-3xl">📍</span>
+            </div>
+            <h3 className="text-lg font-bold text-gray-800">Out of Delivery Area</h3>
+            <p className="text-sm text-gray-500 mt-2">Sorry, we don't deliver to your current location. Please try a different address or contact support.</p>
+            <button onClick={() => setShowOutOfArea(false)} className="mt-5 w-full py-2.5 rounded-xl text-sm font-medium text-white bg-primary active:scale-95 transition-transform">
+              OK, Got it
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Order Success Overlay */}
       {orderSuccess && (
         <div className="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center animate-fade-in">
