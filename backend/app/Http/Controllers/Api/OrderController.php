@@ -53,6 +53,11 @@ class OrderController extends Controller
         $orderItems = [];
         $hasRewardItem = false;
 
+        // Check if user is blocked
+        if ($request->user()->is_blocked) {
+            return response()->json(['message' => 'Your account has been suspended. Please contact support.'], 403);
+        }
+
         foreach ($request->items as $item) {
             $menuItem = MenuItem::findOrFail($item['id']);
             if (!$menuItem->is_available) {

@@ -58,6 +58,7 @@ function Users() {
                 <th className="px-4 py-3">Spent</th>
                 <th className="px-4 py-3">Tag</th>
                 <th className="px-4 py-3">Joined</th>
+                <th className="px-4 py-3">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -79,6 +80,19 @@ function Users() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-center text-gray-500 text-xs">{new Date(user.created_at).toLocaleDateString()}</td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={async () => {
+                          try {
+                            await api.request(`/admin/users/${user.id}/toggle-block`, { method: 'PUT' });
+                            setUsers(users.map(u => u.id === user.id ? { ...u, is_blocked: !u.is_blocked } : u));
+                          } catch (err) { alert(err.message); }
+                        }}
+                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${user.is_blocked ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}
+                      >
+                        {user.is_blocked ? 'Blocked' : 'Active'}
+                      </button>
+                    </td>
                   </tr>
                 );
               })}

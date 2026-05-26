@@ -351,8 +351,15 @@ class AdminController extends Controller
             }])
             ->withSum('orders', 'total')
             ->orderByDesc('created_at')
-            ->get(['id', 'name', 'phone', 'is_verified', 'created_at']);
+            ->get(['id', 'name', 'phone', 'is_verified', 'is_blocked', 'created_at']);
         return response()->json(['users' => $users]);
+    }
+
+    public function toggleBlockUser($id)
+    {
+        $user = User::where('role', 'customer')->findOrFail($id);
+        $user->update(['is_blocked' => !$user->is_blocked]);
+        return response()->json(['message' => $user->is_blocked ? 'User blocked' : 'User unblocked', 'is_blocked' => $user->is_blocked]);
     }
 
     // Coupons

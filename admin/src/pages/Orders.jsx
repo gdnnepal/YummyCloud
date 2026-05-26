@@ -48,9 +48,20 @@ function Orders() {
         // Check for new orders (notify)
         if (silent && newOrders.length > orders.length) {
           const diff = newOrders.length - orders.length;
-          document.title = `(${diff} new) Orders - CloudKitchen`;
+          document.title = `(${diff} new) Orders`;
           // Play notification sound
-          try { new Audio('data:audio/wav;base64,UklGRl9vT19teleVBQAIABAAEAABABAAEAAQABAAEA==').play(); } catch {}
+          try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.value = 800;
+            gain.gain.value = 0.3;
+            osc.start();
+            osc.stop(ctx.currentTime + 0.15);
+            setTimeout(() => { const o2 = ctx.createOscillator(); const g2 = ctx.createGain(); o2.connect(g2); g2.connect(ctx.destination); o2.frequency.value = 1000; g2.gain.value = 0.3; o2.start(); o2.stop(ctx.currentTime + 0.15); }, 200);
+          } catch {}
         }
         setOrders(newOrders);
         if (!silent) setPage(1);

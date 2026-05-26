@@ -63,9 +63,29 @@ function Sales() {
       hour: 'numeric', minute: '2-digit', hour12: true,
     });
 
+  const exportCSV = () => {
+    if (!data?.orders?.length) return;
+    const headers = ['Order ID', 'Customer', 'Subtotal', 'Discount', 'Wallet', 'Delivery Fee', 'Total', 'Payment', 'Date'];
+    const rows = data.orders.map(o => [
+      o.order_number, o.user?.name || '', o.subtotal, o.discount, o.wallet_deduction || 0, o.delivery_fee || 0, o.total, o.payment_method,
+      new Date(o.created_at).toLocaleString()
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `sales-report-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+  };
+
   return (
     <div>
-      <h1 className="text-xl font-bold text-gray-800 mb-4">Sales Report</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-xl font-bold text-gray-800">Sales Report</h1>
+        {data?.orders?.length > 0 && (
+          <button onClick={exportCSV} className="text-xs text-gray-600 bg-gray-100 px-3 py-1.5 rounded-lg font-medium hover:bg-gray-200">Export CSV</button>
+        )}
+      </div>
 
       {/* Filters */}
       <form onSubmit={handleFilter} className="flex flex-wrap gap-3 items-end mb-6">

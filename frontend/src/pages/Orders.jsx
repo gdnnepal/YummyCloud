@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import { HiOutlineClock, HiOutlineFunnel } from 'react-icons/hi2';
+import { Link, useNavigate } from 'react-router-dom';
+import { HiOutlineClock, HiOutlineFunnel, HiOutlineArrowPath } from 'react-icons/hi2';
 import TopNav from '../components/TopNav';
 import useAuthStore from '../store/useAuthStore';
+import useCartStore from '../store/useCartStore';
 import api from '../services/api';
 
 const statusColors = {
@@ -27,6 +28,8 @@ const statusOptions = [
 function Orders() {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuthStore();
+  const addItem = useCartStore((state) => state.addItem);
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -77,6 +80,17 @@ function Orders() {
   };
 
   const activeFilterCount = (statusFilter !== 'all' ? 1 : 0) + (dateFrom ? 1 : 0) + (dateTo ? 1 : 0);
+
+  const handleReorder = (order, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    order.items?.forEach((item) => {
+      for (let i = 0; i < item.quantity; i++) {
+        addItem({ id: item.menu_item_id, name: item.name, price: Number(item.price), image: null });
+      }
+    });
+    navigate('/cart');
+  };
 
   return (
     <>
@@ -211,7 +225,14 @@ function Orders() {
                   <HiOutlineClock className="w-3.5 h-3.5" />
                   <span>{formatDate(order.created_at)}</span>
                 </div>
-                <span className="text-sm font-bold text-gray-800">Rs. {Number(order.total)}</span>
+                <div className="flex items-center gap-2">
+                  {(order.status === 'delivered' || order.status === 'cancelled') && (
+                    <button onClick={(e) => handleReorder(order, e)} className="flex items-center gap-1 text-xs text-primary font-medium bg-primary/10 px-2.5 py-1 rounded-lg active:scale-90 transition-transform">
+                      <HiOutlineArrowPath className="w-3.5 h-3.5" /> Reorder
+                    </button>
+                  )}
+                  <span className="text-sm font-bold text-gray-800">Rs. {Number(order.total)}</span>
+                </div>
               </div>
             </Link>
           ))}
