@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { HiOutlineXMark } from 'react-icons/hi2';
+import useAppStore from '../store/useAppStore';
 
 function InstallPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [storeLogo, setStoreLogo] = useState(null);
+  const appName = useAppStore((s) => s.appName);
 
   useEffect(() => {
     // Don't show if already installed or dismissed recently
@@ -27,6 +30,12 @@ function InstallPrompt() {
     if (isIOS && isSafari) {
       setTimeout(() => setShowPrompt(true), 3000);
     }
+
+    // Get store logo
+    fetch(`${import.meta.env.VITE_API_URL?.replace('/api', '')}/api/settings/public`)
+      .then(r => r.json())
+      .then(res => { if (res.settings?.store_logo) setStoreLogo(res.settings.store_logo); })
+      .catch(() => {});
 
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
@@ -56,12 +65,16 @@ function InstallPrompt() {
       <div className="max-w-lg mx-auto bg-white rounded-2xl shadow-xl border border-gray-200 p-4">
         <div className="flex items-start gap-3">
           {/* App Icon */}
-          <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shrink-0">
-            <span className="text-2xl">🍽️</span>
+          <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center shrink-0 overflow-hidden">
+            {storeLogo ? (
+              <img src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${storeLogo}`} alt="" className="w-full h-full object-cover rounded-full" />
+            ) : (
+              <span className="text-lg font-bold text-white">{appName?.charAt(0) || 'A'}</span>
+            )}
           </div>
 
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-bold text-gray-800">Install CloudKitchen</h3>
+            <h3 className="text-sm font-bold text-gray-800">Install {appName || 'App'}</h3>
             <p className="text-xs text-gray-500 mt-0.5">
               {isIOS
                 ? 'Tap the share button, then "Add to Home Screen"'
