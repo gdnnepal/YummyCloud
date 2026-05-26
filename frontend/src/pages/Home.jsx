@@ -118,11 +118,27 @@ function Home() {
       {/* Store Closed Notice */}
       {storeClosed && (
         <div className="px-4 mt-3">
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3">
-            <span className="text-2xl">🔒</span>
-            <div>
-              <p className="text-sm font-semibold text-red-700">Store is currently closed</p>
-              <p className="text-xs text-red-600">Opens at {storeOpenTime ? `${parseInt(storeOpenTime.split(':')[0]) > 12 ? parseInt(storeOpenTime.split(':')[0]) - 12 : storeOpenTime.split(':')[0]}:${storeOpenTime.split(':')[1] || '00'} ${parseInt(storeOpenTime.split(':')[0]) >= 12 ? 'PM' : 'AM'}` : 'later'}</p>
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-5 relative overflow-hidden shadow-lg">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-10 translate-x-10" />
+            <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-8 -translate-x-8" />
+            <div className="relative z-10 flex items-center gap-4">
+              <div className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center shrink-0">
+                <span className="text-2xl">🌙</span>
+              </div>
+              <div>
+                <p className="text-white font-bold text-sm">We're currently closed</p>
+                <p className="text-white/60 text-xs mt-0.5">
+                  Opens at {storeOpenTime ? (() => {
+                    const h = parseInt(storeOpenTime.split(':')[0]);
+                    const m = storeOpenTime.split(':')[1] || '00';
+                    return `${h > 12 ? h - 12 : h}:${m} ${h >= 12 ? 'PM' : 'AM'}`;
+                  })() : 'later'}
+                </p>
+                <div className="flex items-center gap-1.5 mt-2">
+                  <span className="w-2 h-2 bg-red-400 rounded-full animate-pulse" />
+                  <span className="text-[10px] text-white/50">Ordering is paused</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
