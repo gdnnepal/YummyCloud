@@ -3,8 +3,8 @@ import { useParams } from 'react-router-dom';
 import { HiOutlineCheckCircle, HiOutlineClock, HiStar } from 'react-icons/hi2';
 import api from '../services/api';
 
-const statuses = ['confirmed', 'preparing', 'on_the_way', 'delivered'];
-const statusLabels = { confirmed: 'Order Confirmed', preparing: 'Preparing', on_the_way: 'On the Way', delivered: 'Delivered', cancelled: 'Cancelled' };
+const statuses = ['pending', 'confirmed', 'preparing', 'on_the_way', 'delivered'];
+const statusLabels = { pending: 'Pending', confirmed: 'Order Confirmed', preparing: 'Preparing', on_the_way: 'On the Way', delivered: 'Delivered', cancelled: 'Cancelled' };
 
 function OrderDetail() {
   const { id } = useParams();

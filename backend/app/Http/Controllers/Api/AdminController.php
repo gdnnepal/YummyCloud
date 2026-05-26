@@ -86,7 +86,7 @@ class AdminController extends Controller
     public function updateOrderStatus(Request $request, $id)
     {
         $order = Order::with('user')->findOrFail($id);
-        $request->validate(['status' => 'required|in:confirmed,preparing,on_the_way,delivered,cancelled']);
+        $request->validate(['status' => 'required|in:pending,confirmed,preparing,on_the_way,delivered,cancelled']);
         $order->update(['status' => $request->status]);
         if ($request->status === 'delivered') {
             $order->update(['delivered_at' => now()]);

@@ -97,7 +97,7 @@ function Orders() {
 
       {/* Status Tabs */}
       <div className="flex flex-wrap gap-2 mb-4">
-        {['all', 'confirmed', 'preparing', 'on_the_way', 'delivered', 'cancelled'].map((s) => (
+        {['all', 'pending', 'confirmed', 'preparing', 'on_the_way', 'delivered', 'cancelled'].map((s) => (
           <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap capitalize ${filter === s ? 'bg-primary text-white' : 'bg-white border border-gray-200 text-gray-600'}`}>
             {s === 'all' ? 'All' : s.replaceAll('_', ' ')}
           </button>
@@ -120,7 +120,7 @@ function Orders() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {paginatedOrders.map((order) => (
-                <tr key={order.id} className={`hover:bg-gray-50 cursor-pointer ${order.status === 'confirmed' ? 'animate-blink-red border-l-4 border-l-red-500' : ''}`}>
+                <tr key={order.id} className={`hover:bg-gray-50 cursor-pointer ${order.status === 'pending' ? 'animate-blink-red border-l-4 border-l-red-500' : ''}`}>
                   <td className="px-4 py-3">
                     <Link to={`/orders/${order.id}`} className="font-medium text-primary">#{order.order_number}</Link>
                     <p className="text-[10px] text-gray-400">{new Date(order.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}</p>

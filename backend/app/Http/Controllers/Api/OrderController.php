@@ -173,7 +173,7 @@ class OrderController extends Controller
         $order = Order::create([
             'user_id' => $request->user()->id,
             'order_number' => Order::generateOrderNumber(),
-            'status' => 'confirmed',
+            'status' => 'pending',
             'subtotal' => $subtotal,
             'discount' => $discount,
             'wallet_deduction' => $walletDeduction,
@@ -213,7 +213,7 @@ class OrderController extends Controller
         // Log order creation
         \App\Models\OrderLog::create([
             'order_id' => $order->id,
-            'status' => 'confirmed',
+            'status' => 'pending',
             'note' => 'Order placed by customer',
             'created_at' => now(),
         ]);

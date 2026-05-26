@@ -9,13 +9,15 @@ import {
   HiOutlinePhone,
   HiOutlineStar,
   HiOutlineChatBubbleLeft,
+  HiOutlineClock,
   HiStar,
 } from 'react-icons/hi2';
 import TopNav from '../components/TopNav';
 import api from '../services/api';
 
 const steps = [
-  { key: 'confirmed', label: 'Order Confirmed', icon: HiOutlineCheckCircle },
+  { key: 'pending', label: 'Order Placed', icon: HiOutlineClock },
+  { key: 'confirmed', label: 'Confirmed', icon: HiOutlineCheckCircle },
   { key: 'preparing', label: 'Preparing', icon: HiOutlineFire },
   { key: 'on_the_way', label: 'On the Way', icon: HiOutlineTruck },
   { key: 'delivered', label: 'Delivered', icon: HiOutlineHome },
