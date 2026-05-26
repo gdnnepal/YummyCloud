@@ -25,7 +25,10 @@ function Login() {
     api.getPublicSettings().then(res => {
       const s = res.settings || {};
       if (s.store_logo) setStoreLogo(s.store_logo);
-      if (s.kitchen_name) setStoreName(s.kitchen_name);
+      if (s.kitchen_name) {
+        setStoreName(s.kitchen_name);
+        document.title = s.kitchen_name;
+      }
       window.__appSettings = s;
     }).catch(() => {});
   }, []);
