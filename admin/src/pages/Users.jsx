@@ -9,6 +9,9 @@ function Users() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [blockModal, setBlockModal] = useState(null);
+  const [blockReason, setBlockReason] = useState('');
+  const [blocking, setBlocking] = useState(false);
 
   useEffect(() => {
     api.getUsers()
@@ -82,11 +85,16 @@ function Users() {
                     <td className="px-4 py-3 text-center text-gray-500 text-xs">{new Date(user.created_at).toLocaleDateString()}</td>
                     <td className="px-4 py-3 text-center">
                       <button
-                        onClick={async () => {
-                          try {
-                            await api.request(`/admin/users/${user.id}/toggle-block`, { method: 'PUT' });
-                            setUsers(users.map(u => u.id === user.id ? { ...u, is_blocked: !u.is_blocked } : u));
-                          } catch (err) { alert(err.message); }
+                        onClick={() => {
+                          if (user.is_blocked) {
+                            // Unblock directly
+                            api.request(`/admin/users/${user.id}/toggle-block`, { method: 'PUT', body: JSON.stringify({ reason: '' }) })
+                              .then(() => setUsers(users.map(u => u.id === user.id ? { ...u, is_blocked: false } : u)))
+                              .catch(err => alert(err.message));
+                          } else {
+                            setBlockModal(user);
+                            setBlockReason('');
+                          }
                         }}
                         className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${user.is_blocked ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}
                       >
@@ -102,6 +110,44 @@ function Users() {
           </>
         )}
       </div>
+
+      {/* Block User Modal */}
+      {blockModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => !blocking && setBlockModal(null)} />
+          <div className="relative bg-white rounded-xl p-6 w-full max-w-sm">
+            <h3 className="text-lg font-bold text-gray-800 mb-2">Block Customer</h3>
+            <p className="text-sm text-gray-500 mb-1">Block <strong>{blockModal.name}</strong> ({blockModal.phone})?</p>
+            <p className="text-xs text-gray-400 mb-3">They won't be able to place orders.</p>
+            <textarea
+              value={blockReason}
+              onChange={(e) => setBlockReason(e.target.value)}
+              placeholder="Reason for blocking (required)..."
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm h-20 resize-none outline-none focus:border-primary mb-4"
+            />
+            <div className="flex gap-3">
+              <button onClick={() => setBlockModal(null)} disabled={blocking} className="flex-1 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700">Cancel</button>
+              <button
+                onClick={async () => {
+                  if (!blockReason.trim()) return;
+                  setBlocking(true);
+                  try {
+                    await api.request(`/admin/users/${blockModal.id}/toggle-block`, { method: 'PUT', body: JSON.stringify({ reason: blockReason }) });
+                    setUsers(users.map(u => u.id === blockModal.id ? { ...u, is_blocked: true } : u));
+                    setBlockModal(null);
+                    setBlockReason('');
+                  } catch (err) { alert(err.message); }
+                  finally { setBlocking(false); }
+                }}
+                disabled={blocking || !blockReason.trim()}
+                className="flex-1 py-2 rounded-lg text-sm font-medium bg-red-500 text-white disabled:opacity-50"
+              >
+                {blocking ? 'Blocking...' : 'Block User'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

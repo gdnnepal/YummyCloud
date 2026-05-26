@@ -19,6 +19,7 @@ class User extends Authenticatable
         'role',
         'is_verified',
         'is_blocked',
+        'block_reason',
         'webpushr_sid',
     ];
 

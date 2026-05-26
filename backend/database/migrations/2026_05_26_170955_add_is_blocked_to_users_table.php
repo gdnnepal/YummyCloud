@@ -10,13 +10,14 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->boolean('is_blocked')->default(false)->after('is_verified');
+            $table->string('block_reason')->nullable()->after('is_blocked');
         });
     }
 
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('is_blocked');
+            $table->dropColumn(['is_blocked', 'block_reason']);
         });
     }
 };

@@ -355,10 +355,13 @@ class AdminController extends Controller
         return response()->json(['users' => $users]);
     }
 
-    public function toggleBlockUser($id)
+    public function toggleBlockUser(Request $request, $id)
     {
         $user = User::where('role', 'customer')->findOrFail($id);
-        $user->update(['is_blocked' => !$user->is_blocked]);
+        $user->update([
+            'is_blocked' => !$user->is_blocked,
+            'block_reason' => $request->reason ?? null,
+        ]);
         return response()->json(['message' => $user->is_blocked ? 'User blocked' : 'User unblocked', 'is_blocked' => $user->is_blocked]);
     }
 
