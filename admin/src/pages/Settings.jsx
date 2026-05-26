@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { HiOutlineBuildingStorefront, HiOutlineTruck, HiOutlineCreditCard, HiOutlineMegaphone, HiOutlineWallet } from 'react-icons/hi2';
+import { HiOutlineBuildingStorefront, HiOutlineTruck, HiOutlineCreditCard, HiOutlineMegaphone, HiOutlineWallet, HiOutlineDocumentText } from 'react-icons/hi2';
 import api from '../services/api';
 
 const tabs = [
@@ -9,6 +9,7 @@ const tabs = [
   { id: 'payment', label: 'Payment', icon: HiOutlineCreditCard },
   { id: 'promotions', label: 'Promotions', icon: HiOutlineMegaphone },
   { id: 'wallet', label: 'Wallet', icon: HiOutlineWallet },
+  { id: 'legal', label: 'Legal & Policies', icon: HiOutlineDocumentText },
 ];
 
 const settingsConfig = {
@@ -20,8 +21,6 @@ const settingsConfig = {
     { key: 'store_logo', label: 'Store Logo', type: 'file' },
     { key: 'store_open_time', label: 'Store Opening Time (24hr)', type: 'text', placeholder: '12:00', hint: 'e.g. 12:00 for 12 PM' },
     { key: 'store_close_time', label: 'Store Closing Time (24hr)', type: 'text', placeholder: '03:00', hint: 'e.g. 03:00 for 3 AM next day' },
-    { key: 'terms_conditions', label: 'Terms & Conditions (HTML)', type: 'textarea' },
-    { key: 'privacy_policy', label: 'Privacy Policy (HTML)', type: 'textarea' },
   ],
   orders: [
     { key: 'delivery_fee', label: 'Default Delivery Fee (Rs.)', type: 'number', placeholder: '50' },
@@ -48,6 +47,10 @@ const settingsConfig = {
     { key: 'reward_enabled', label: 'Enable Loyalty Rewards', type: 'toggle', defaultValue: 'false', hint: 'Customers get a free reward item after every X delivered orders' },
     { key: 'reward_orders_required', label: 'Orders Required for Reward', type: 'number', placeholder: '5' },
     { key: 'reward_min_order_amount', label: 'Min Order Amount to Count (Rs.)', type: 'number', placeholder: '200', hint: 'Only orders above this amount count toward reward. Leave empty for no limit.' },
+  ],
+  legal: [
+    { key: 'terms_conditions', label: 'Terms & Conditions', type: 'textarea' },
+    { key: 'privacy_policy', label: 'Privacy Policy', type: 'textarea' },
   ],
 };
 
