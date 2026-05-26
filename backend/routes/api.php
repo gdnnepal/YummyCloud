@@ -28,7 +28,7 @@ Route::get('/categories', [MenuController::class, 'categories']);
 Route::get('/menu', [MenuController::class, 'index']);
 Route::get('/menu/search', [MenuController::class, 'search']);
 Route::get('/settings/public', function () {
-    $keys = ['kitchen_name', 'delivery_fee', 'delivery_fee_mandatory', 'estimated_delivery_time', 'qr_payment_info', 'qr_image', 'kitchen_phone', 'kitchen_address', 'min_order_amount', 'banner_enabled', 'banner_title', 'banner_subtitle', 'support_phone', 'reward_enabled', 'reward_orders_required', 'geofence_enabled', 'store_lat', 'store_lng', 'geofence_north', 'geofence_south', 'geofence_east', 'geofence_west', 'delivery_charge_presets'];
+    $keys = ['kitchen_name', 'delivery_fee', 'delivery_fee_mandatory', 'estimated_delivery_time', 'qr_payment_info', 'qr_image', 'kitchen_phone', 'kitchen_address', 'min_order_amount', 'banner_enabled', 'banner_title', 'banner_subtitle', 'support_phone', 'reward_enabled', 'reward_orders_required', 'geofence_enabled', 'store_lat', 'store_lng', 'geofence_north', 'geofence_south', 'geofence_east', 'geofence_west', 'delivery_charge_presets', 'store_open_time', 'store_close_time'];
     $settings = \App\Models\Setting::whereIn('key', $keys)->pluck('value', 'key');
     return response()->json(['settings' => $settings]);
 });

@@ -29,6 +29,8 @@ function Home() {
   const [popularDishes, setPopularDishes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [banner, setBanner] = useState(null);
+  const [storeClosed, setStoreClosed] = useState(false);
+  const [storeOpenTime, setStoreOpenTime] = useState('');
 
   useEffect(() => { document.title = `${t('app_name')} - Order Food Online`; }, []);
 
@@ -46,6 +48,23 @@ function Home() {
         const s = settingsRes.settings || {};
         if (s.banner_enabled === 'true' && s.banner_title) {
           setBanner({ title: s.banner_title, subtitle: s.banner_subtitle });
+        }
+        // Check if store is open
+        if (s.store_open_time && s.store_close_time) {
+          const now = new Date();
+          const currentMinutes = now.getHours() * 60 + now.getMinutes();
+          const [openH, openM] = s.store_open_time.split(':').map(Number);
+          const [closeH, closeM] = s.store_close_time.split(':').map(Number);
+          const openMinutes = openH * 60 + (openM || 0);
+          const closeMinutes = closeH * 60 + (closeM || 0);
+          let isOpen;
+          if (closeMinutes < openMinutes) {
+            isOpen = currentMinutes >= openMinutes || currentMinutes < closeMinutes;
+          } else {
+            isOpen = currentMinutes >= openMinutes && currentMinutes < closeMinutes;
+          }
+          setStoreClosed(!isOpen);
+          setStoreOpenTime(s.store_open_time);
         }
       } catch (err) {
         console.error('Failed to fetch data:', err);
@@ -95,6 +114,19 @@ function Home() {
           <span className="text-sm">{t('search')}</span>
         </Link>
       </header>
+
+      {/* Store Closed Notice */}
+      {storeClosed && (
+        <div className="px-4 mt-3">
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3">
+            <span className="text-2xl">🔒</span>
+            <div>
+              <p className="text-sm font-semibold text-red-700">Store is currently closed</p>
+              <p className="text-xs text-red-600">Opens at {storeOpenTime ? `${parseInt(storeOpenTime.split(':')[0]) > 12 ? parseInt(storeOpenTime.split(':')[0]) - 12 : storeOpenTime.split(':')[0]}:${storeOpenTime.split(':')[1] || '00'} ${parseInt(storeOpenTime.split(':')[0]) >= 12 ? 'PM' : 'AM'}` : 'later'}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Offers Banner */}
       {banner && (

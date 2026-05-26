@@ -21,7 +21,9 @@ class AdminController extends Controller
         $query = Order::where('status', '!=', 'cancelled');
 
         if ($period === 'today') {
-            $query->whereDate('created_at', today());
+            // Use business session (open→close) instead of calendar day
+            $range = $this->getCurrentSessionRange();
+            $query->where('created_at', '>=', $range['start'])->where('created_at', '<=', $range['end']);
         } elseif ($period === 'week') {
             $query->where('created_at', '>=', now()->subWeek());
         } elseif ($period === 'month') {
@@ -32,10 +34,53 @@ class AdminController extends Controller
             'total_orders' => Order::count(),
             'total_revenue' => $query->sum('total'),
             'total_customers' => User::where('role', 'customer')->count(),
-            'pending_orders' => Order::whereIn('status', ['confirmed', 'preparing'])->count(),
+            'pending_orders' => Order::whereIn('status', ['pending', 'confirmed', 'preparing'])->count(),
             'period_orders' => $query->count(),
             'recent_orders' => Order::with('user:id,name,phone')->latest()->take(5)->get(),
+            'session_start' => $this->getCurrentSessionRange()['start']->format('M d, h:i A'),
+            'session_end' => $this->getCurrentSessionRange()['end']->format('M d, h:i A'),
         ]);
+    }
+
+    private function getCurrentSessionRange(): array
+    {
+        $openTime = \App\Models\Setting::get('store_open_time', '12:00');
+        $closeTime = \App\Models\Setting::get('store_close_time', '03:00');
+
+        $openHour = (int) explode(':', $openTime)[0];
+        $openMin = (int) (explode(':', $openTime)[1] ?? 0);
+        $closeHour = (int) explode(':', $closeTime)[0];
+        $closeMin = (int) (explode(':', $closeTime)[1] ?? 0);
+
+        $now = now();
+        $currentHour = (int) $now->format('H');
+        $currentMin = (int) $now->format('i');
+        $currentTimeMinutes = $currentHour * 60 + $currentMin;
+        $openTimeMinutes = $openHour * 60 + $openMin;
+        $closeTimeMinutes = $closeHour * 60 + $closeMin;
+
+        if ($closeTimeMinutes < $openTimeMinutes) {
+            // Crosses midnight (e.g. 12:00 PM to 3:00 AM)
+            if ($currentTimeMinutes >= $openTimeMinutes) {
+                // After opening today
+                $start = $now->copy()->setTime($openHour, $openMin, 0);
+                $end = $now->copy()->addDay()->setTime($closeHour, $closeMin, 0);
+            } else if ($currentTimeMinutes < $closeTimeMinutes) {
+                // After midnight, before closing (still same session from yesterday)
+                $start = $now->copy()->subDay()->setTime($openHour, $openMin, 0);
+                $end = $now->copy()->setTime($closeHour, $closeMin, 0);
+            } else {
+                // Between close and open (store closed) - show previous session
+                $start = $now->copy()->subDay()->setTime($openHour, $openMin, 0);
+                $end = $now->copy()->setTime($closeHour, $closeMin, 0);
+            }
+        } else {
+            // Same day (e.g. 9:00 AM to 10:00 PM)
+            $start = $now->copy()->setTime($openHour, $openMin, 0);
+            $end = $now->copy()->setTime($closeHour, $closeMin, 0);
+        }
+
+        return ['start' => $start, 'end' => $end];
     }
 
     // Sales Report

@@ -17,6 +17,8 @@ const settingsConfig = {
     { key: 'kitchen_phone', label: 'Kitchen Phone', type: 'text', placeholder: '9800000000' },
     { key: 'kitchen_address', label: 'Kitchen Address', type: 'text', placeholder: 'e.g. Kathmandu, Nepal' },
     { key: 'support_phone', label: 'Support Phone (WhatsApp)', type: 'text', placeholder: '9800000000' },
+    { key: 'store_open_time', label: 'Store Opening Time (24hr)', type: 'text', placeholder: '12:00', hint: 'e.g. 12:00 for 12 PM' },
+    { key: 'store_close_time', label: 'Store Closing Time (24hr)', type: 'text', placeholder: '03:00', hint: 'e.g. 03:00 for 3 AM next day' },
   ],
   orders: [
     { key: 'delivery_fee', label: 'Default Delivery Fee (Rs.)', type: 'number', placeholder: '50' },

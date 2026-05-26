@@ -169,6 +169,27 @@ function Checkout() {
       return;
     }
     if (!selectedAddress) return;
+
+    // Check if store is open
+    if (kitchenSettings.store_open_time && kitchenSettings.store_close_time) {
+      const now = new Date();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+      const [openH, openM] = kitchenSettings.store_open_time.split(':').map(Number);
+      const [closeH, closeM] = kitchenSettings.store_close_time.split(':').map(Number);
+      const openMinutes = openH * 60 + (openM || 0);
+      const closeMinutes = closeH * 60 + (closeM || 0);
+      let isOpen;
+      if (closeMinutes < openMinutes) {
+        isOpen = currentMinutes >= openMinutes || currentMinutes < closeMinutes;
+      } else {
+        isOpen = currentMinutes >= openMinutes && currentMinutes < closeMinutes;
+      }
+      if (!isOpen) {
+        alert('Sorry, the store is currently closed. Please try again during opening hours.');
+        return;
+      }
+    }
+
     setLoading(true);
 
     // Get current GPS location (mandatory)
