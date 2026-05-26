@@ -58,7 +58,7 @@ function Wallets() {
       <h1 className="text-xl font-bold text-gray-800 mb-6">Wallet Management</h1>
       <div className="grid lg:grid-cols-5 gap-5">
         {/* Customer List */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 overflow-hidden flex flex-col" style={{ maxHeight: '75vh' }}>
+        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 overflow-hidden flex flex-col max-h-[70vh]">
           <div className="p-4 border-b border-gray-100">
             <div className="relative">
               <HiOutlineMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -158,7 +158,7 @@ function Wallets() {
                 {walletData.transactions.length === 0 ? (
                   <p className="text-xs text-gray-400 text-center py-4">No transactions yet</p>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-3 max-h-72 overflow-y-auto">
                     {walletData.transactions.map((txn) => (
                       <div key={txn.id} className="flex items-center gap-3 py-1">
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${txn.type === 'credit' ? 'bg-green-50' : 'bg-red-50'}`}>
