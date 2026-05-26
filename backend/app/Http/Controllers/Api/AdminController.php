@@ -358,10 +358,11 @@ class AdminController extends Controller
     public function toggleBlockUser(Request $request, $id)
     {
         $user = User::where('role', 'customer')->findOrFail($id);
-        $user->update([
-            'is_blocked' => !$user->is_blocked,
-            'block_reason' => $request->reason ?? null,
-        ]);
+        $data = ['is_blocked' => !$user->is_blocked];
+        if ($request->reason && \Schema::hasColumn('users', 'block_reason')) {
+            $data['block_reason'] = $request->reason;
+        }
+        $user->update($data);
         return response()->json(['message' => $user->is_blocked ? 'User blocked' : 'User unblocked', 'is_blocked' => $user->is_blocked]);
     }
 

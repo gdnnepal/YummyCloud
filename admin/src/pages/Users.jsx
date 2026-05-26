@@ -84,22 +84,25 @@ function Users() {
                     </td>
                     <td className="px-4 py-3 text-center text-gray-500 text-xs">{new Date(user.created_at).toLocaleDateString()}</td>
                     <td className="px-4 py-3 text-center">
-                      <button
-                        onClick={() => {
-                          if (user.is_blocked) {
-                            // Unblock directly
-                            api.request(`/admin/users/${user.id}/toggle-block`, { method: 'PUT', body: JSON.stringify({ reason: '' }) })
-                              .then(() => setUsers(users.map(u => u.id === user.id ? { ...u, is_blocked: false } : u)))
-                              .catch(err => alert(err.message));
-                          } else {
-                            setBlockModal(user);
-                            setBlockReason('');
-                          }
-                        }}
-                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${user.is_blocked ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}
-                      >
-                        {user.is_blocked ? 'Blocked' : 'Active'}
-                      </button>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={!user.is_blocked}
+                          onChange={() => {
+                            if (!user.is_blocked) {
+                              setBlockModal(user);
+                              setBlockReason('');
+                            } else {
+                              api.request(`/admin/users/${user.id}/toggle-block`, { method: 'PUT', body: JSON.stringify({ reason: '' }) })
+                                .then(() => setUsers(users.map(u => u.id === user.id ? { ...u, is_blocked: false } : u)))
+                                .catch(err => setBlockModal(null));
+                            }
+                          }}
+                          className="sr-only peer"
+                        />
+                        <div className="w-9 h-5 bg-red-300 peer-checked:bg-green-400 rounded-full transition-colors" />
+                        <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm peer-checked:translate-x-4 transition-transform" />
+                      </label>
                     </td>
                   </tr>
                 );
