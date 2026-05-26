@@ -17,6 +17,7 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [storeLogo, setStoreLogo] = useState(null);
+  const [storeName, setStoreName] = useState('');
   const [policyPopup, setPolicyPopup] = useState(null);
   const [policyContent, setPolicyContent] = useState('');
 
@@ -24,6 +25,7 @@ function Login() {
     api.getPublicSettings().then(res => {
       const s = res.settings || {};
       if (s.store_logo) setStoreLogo(s.store_logo);
+      if (s.kitchen_name) setStoreName(s.kitchen_name);
       window.__appSettings = s;
     }).catch(() => {});
   }, []);
@@ -78,10 +80,10 @@ function Login() {
           {storeLogo ? (
             <img src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${storeLogo}`} alt="" className="w-full h-full object-cover rounded-full" />
           ) : (
-            <span className="text-3xl font-bold text-primary">{t('app_name').charAt(0)}</span>
+            <span className="text-3xl font-bold text-primary">{(storeName || t('app_name')).charAt(0)}</span>
           )}
         </div>
-        <h1 className="text-2xl font-bold text-white">{t('app_name')}</h1>
+        <h1 className="text-2xl font-bold text-white">{storeName || t('app_name')}</h1>
         <p className="text-sm text-white/80 mt-1">Delicious food, delivered fast</p>
       </div>
 
