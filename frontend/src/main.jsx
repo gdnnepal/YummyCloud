@@ -15,6 +15,7 @@ useAppStore.getState().fetchSettings().then(() => {
   const name = useAppStore.getState().appName;
   i18n.addResource('en', 'translation', { app_name: name });
   i18n.addResource('ne', 'translation', { app_name: name });
+  document.title = name;
 });
 
 // OneSignal handles its own service worker registration for push notifications

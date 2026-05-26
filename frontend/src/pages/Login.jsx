@@ -74,11 +74,11 @@ function Login() {
 
       {/* Header Content */}
       <div className="relative z-10 text-center px-6 pt-6 pb-16">
-        <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg overflow-hidden">
+        <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg overflow-hidden border-2 border-white/50">
           {storeLogo ? (
-            <img src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${storeLogo}`} alt="" className="w-full h-full object-contain p-1" />
+            <img src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${storeLogo}`} alt="" className="w-full h-full object-cover rounded-full" />
           ) : (
-            <span className="text-2xl font-bold text-white">{t('app_name').charAt(0)}</span>
+            <span className="text-3xl font-bold text-primary">{t('app_name').charAt(0)}</span>
           )}
         </div>
         <h1 className="text-2xl font-bold text-white">{t('app_name')}</h1>
