@@ -68,7 +68,12 @@ class OrderController extends Controller
                 // Verify eligibility
                 $rewardEnabled = \App\Models\Setting::get('reward_enabled', 'false') === 'true';
                 $requiredOrders = (int) \App\Models\Setting::get('reward_orders_required', 5);
-                $deliveredCount = $request->user()->orders()->where('status', 'delivered')->count();
+                $minAmount = (float) \App\Models\Setting::get('reward_min_order_amount', 0);
+                $deliveredQuery = $request->user()->orders()->where('status', 'delivered');
+                if ($minAmount > 0) {
+                    $deliveredQuery->where('subtotal', '>=', $minAmount);
+                }
+                $deliveredCount = $deliveredQuery->count();
                 $rewardsClaimed = \App\Models\OrderItem::whereHas('order', function ($q) use ($request) {
                     $q->where('user_id', $request->user()->id)->where('status', '!=', 'cancelled');
                 })->where('price', 0)->whereHas('menuItem', function ($q) {

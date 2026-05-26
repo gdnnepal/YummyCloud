@@ -68,8 +68,15 @@ Route::middleware('auth:sanctum')->group(function () {
         }
 
         $requiredOrders = (int) \App\Models\Setting::get('reward_orders_required', 5);
+        $minAmount = (float) \App\Models\Setting::get('reward_min_order_amount', 0);
         $user = $request->user();
-        $deliveredCount = $user->orders()->where('status', 'delivered')->count();
+
+        // Count delivered orders (only those above min amount if set)
+        $deliveredQuery = $user->orders()->where('status', 'delivered');
+        if ($minAmount > 0) {
+            $deliveredQuery->where('subtotal', '>=', $minAmount);
+        }
+        $deliveredCount = $deliveredQuery->count();
 
         // Count rewards claimed (orders containing a reward item with price 0)
         $rewardsClaimed = \App\Models\OrderItem::whereHas('order', function ($q) use ($user) {
@@ -79,7 +86,6 @@ Route::middleware('auth:sanctum')->group(function () {
         })->count();
 
         // Eligible when delivered count reaches the next milestone
-        // Milestones: 5, 10, 15, 20... = (rewardsClaimed + 1) * requiredOrders
         $nextMilestone = ($rewardsClaimed + 1) * $requiredOrders;
         $eligible = $deliveredCount >= $nextMilestone;
         $ordersUntilReward = $eligible ? 0 : $nextMilestone - $deliveredCount;
@@ -99,6 +105,7 @@ Route::middleware('auth:sanctum')->group(function () {
             'delivered_count' => $deliveredCount,
             'rewards_claimed' => $rewardsClaimed,
             'required_orders' => $requiredOrders,
+            'min_order_amount' => $minAmount,
         ]);
     });
 

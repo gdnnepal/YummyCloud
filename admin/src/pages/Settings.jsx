@@ -44,6 +44,7 @@ const settingsConfig = {
     { key: 'cashback_max', label: 'Max Cashback per Order (Rs.)', type: 'number', placeholder: '50 (leave empty for no limit)' },
     { key: 'reward_enabled', label: 'Enable Loyalty Rewards', type: 'toggle', defaultValue: 'false', hint: 'Customers get a free reward item after every X delivered orders' },
     { key: 'reward_orders_required', label: 'Orders Required for Reward', type: 'number', placeholder: '5' },
+    { key: 'reward_min_order_amount', label: 'Min Order Amount to Count (Rs.)', type: 'number', placeholder: '200', hint: 'Only orders above this amount count toward reward. Leave empty for no limit.' },
   ],
 };
 

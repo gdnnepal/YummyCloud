@@ -120,7 +120,7 @@ function Menu() {
                 <span className="text-lg">🎁</span>
                 <h3 className="font-bold text-amber-800 text-sm">Loyalty Reward Unlocked!</h3>
               </div>
-              <p className="text-xs text-amber-700 mb-3">You've completed {rewardData.delivered_count} orders! Pick a free item below (delivery fee applies).</p>
+              <p className="text-xs text-amber-700 mb-3">You've completed {rewardData.delivered_count} orders{rewardData.min_order_amount > 0 ? ` (above Rs. ${rewardData.min_order_amount})` : ''}! Pick a free item below (delivery fee applies).</p>
               <div className="space-y-2">
                 {rewardData.reward_items.map((item) => {
                   const inCart = useCartStore.getState().items.some(i => i.id === item.id && i.isReward);
@@ -156,7 +156,7 @@ function Menu() {
             <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3 flex items-center gap-3">
               <span className="text-lg">🎯</span>
               <div className="flex-1">
-                <p className="text-xs text-gray-600"><strong>{rewardData.orders_until_reward} more order{rewardData.orders_until_reward > 1 ? 's' : ''}</strong> to unlock a free reward item!</p>
+                <p className="text-xs text-gray-600"><strong>{rewardData.orders_until_reward} more order{rewardData.orders_until_reward > 1 ? 's' : ''}</strong>{rewardData.min_order_amount > 0 ? ` (above Rs. ${rewardData.min_order_amount})` : ''} to unlock a free reward item!</p>
               </div>
             </div>
           ) : null}
