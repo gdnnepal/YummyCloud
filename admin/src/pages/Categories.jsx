@@ -62,28 +62,36 @@ function Categories() {
         <button onClick={() => { resetForm(); setShowForm(true); }} className="flex items-center gap-1 bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium"><HiOutlinePlus className="w-4 h-4" /> Add</button>
       </div>
       {showForm && (
-        <div className="bg-white rounded-xl border border-gray-100 p-4 mb-4">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">{editingId ? 'Edit Category' : 'Add Category'}</h3>
-          <form onSubmit={handleSubmit} className="flex flex-wrap gap-3 items-end">
-            <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name" className="border border-gray-200 rounded-lg px-3 py-2 text-sm flex-1 min-w-[120px] outline-none focus:border-primary" required />
-            <input type="text" value={form.name_ne} onChange={(e) => setForm({ ...form, name_ne: e.target.value })} placeholder="Nepali Name" className="border border-gray-200 rounded-lg px-3 py-2 text-sm flex-1 min-w-[120px] outline-none focus:border-primary" />
-            <div className="relative">
-              <button type="button" onClick={() => setShowIconPicker(!showIconPicker)} className="border border-gray-200 rounded-lg px-3 py-2 text-sm w-20 text-center hover:border-primary">
-                {form.icon || 'Icon'}
-              </button>
-              {showIconPicker && (
-                <div className="absolute top-full mt-1 left-0 bg-white border border-gray-200 rounded-lg shadow-lg z-20 p-2 w-64 grid grid-cols-8 gap-1">
-                  {foodEmojis.map((emoji) => (
-                    <button key={emoji} type="button" onClick={() => { setForm({ ...form, icon: emoji }); setShowIconPicker(false); }} className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-lg">
-                      {emoji}
-                    </button>
-                  ))}
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/40" onClick={resetForm} />
+          <div className="relative bg-white rounded-xl p-6 w-full max-w-md">
+            <h3 className="text-lg font-bold mb-4">{editingId ? 'Edit Category' : 'Add Category'}</h3>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name (English)" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" required />
+              <input type="text" value={form.name_ne} onChange={(e) => setForm({ ...form, name_ne: e.target.value })} placeholder="Name (Nepali)" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+              <div>
+                <label className="text-xs font-medium text-gray-600 mb-1 block">Icon</label>
+                <div className="relative">
+                  <button type="button" onClick={() => setShowIconPicker(!showIconPicker)} className="border border-gray-200 rounded-lg px-3 py-2 text-sm w-full text-left hover:border-primary">
+                    {form.icon ? `${form.icon} Selected` : 'Choose an icon'}
+                  </button>
+                  {showIconPicker && (
+                    <div className="absolute top-full mt-1 left-0 bg-white border border-gray-200 rounded-lg shadow-lg z-20 p-2 w-full grid grid-cols-10 gap-1">
+                      {foodEmojis.map((emoji) => (
+                        <button key={emoji} type="button" onClick={() => { setForm({ ...form, icon: emoji }); setShowIconPicker(false); }} className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-lg">
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            <button type="submit" className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium">{editingId ? 'Update' : 'Save'}</button>
-            <button type="button" onClick={resetForm} className="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg text-sm">Cancel</button>
-          </form>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button type="button" onClick={resetForm} className="flex-1 py-2 rounded-lg text-sm bg-gray-100 text-gray-600">Cancel</button>
+                <button type="submit" className="flex-1 py-2 rounded-lg text-sm bg-primary text-white font-medium">{editingId ? 'Update' : 'Save'}</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
