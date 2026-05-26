@@ -87,8 +87,13 @@ class AdminController extends Controller
     public function salesReport(Request $request)
     {
         $query = Order::with('user:id,name')->where('status', '!=', 'cancelled');
-        if ($request->from) $query->whereDate('created_at', '>=', $request->from);
-        if ($request->to) $query->whereDate('created_at', '<=', $request->to);
+        if ($request->session === 'current') {
+            $range = $this->getCurrentSessionRange();
+            $query->where('created_at', '>=', $range['start'])->where('created_at', '<=', $range['end']);
+        } else {
+            if ($request->from) $query->whereDate('created_at', '>=', $request->from);
+            if ($request->to) $query->whereDate('created_at', '<=', $request->to);
+        }
         if ($request->user_id) $query->where('user_id', $request->user_id);
 
         $orders = $query->latest()->get();

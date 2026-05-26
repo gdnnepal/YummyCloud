@@ -20,11 +20,15 @@ function Sales() {
     fetchReport();
   }, []);
 
-  const fetchReport = () => {
+  const fetchReport = (sessionMode = false) => {
     setLoading(true);
     let params = '?';
-    if (dateFrom) params += `from=${dateFrom}&`;
-    if (dateTo) params += `to=${dateTo}&`;
+    if (sessionMode) {
+      params += 'session=current&';
+    } else {
+      if (dateFrom) params += `from=${dateFrom}&`;
+      if (dateTo) params += `to=${dateTo}&`;
+    }
     if (selectedCustomer) params += `user_id=${selectedCustomer.id}&`;
     api.request(`/admin/sales-report${params}`)
       .then(setData).catch(console.error)
@@ -35,6 +39,13 @@ function Sales() {
     e.preventDefault();
     setPage(1);
     fetchReport();
+  };
+
+  const handleCurrentSession = () => {
+    setDateFrom('');
+    setDateTo('');
+    setPage(1);
+    fetchReport(true);
   };
 
   const [orderSearch, setOrderSearch] = useState('');
@@ -76,6 +87,7 @@ function Sales() {
         />
 
         <button type="submit" className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium">Apply</button>
+        <button type="button" onClick={handleCurrentSession} className="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium">Current Session</button>
         {(dateFrom || dateTo || selectedCustomer) && (
           <button type="button" onClick={() => { setDateFrom(''); setDateTo(''); setSelectedCustomer(null); setTimeout(fetchReport, 0); }} className="text-sm text-primary font-medium">Clear</button>
         )}
