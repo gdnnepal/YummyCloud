@@ -34,8 +34,8 @@ function AdminLayout() {
   useEffect(() => {
     const titles = { '/': 'Dashboard', '/orders': 'Orders', '/menu': 'Menu Items', '/categories': 'Categories', '/coupons': 'Coupons', '/users': 'Customers', '/delivery-partners': 'Delivery Partners', '/messages': 'Messages', '/refunds': 'Refunds', '/reviews': 'Reviews', '/sales': 'Sales Report', '/settings': 'Settings' };
     const title = titles[location.pathname] || 'Admin';
-    document.title = `${title} - CloudKitchen Admin`;
-  }, [location.pathname]);
+    document.title = `${title} - ${kitchenName} Admin`;
+  }, [location.pathname, kitchenName]);
 
   const handleLogout = () => {
     localStorage.removeItem('admin-auth');
