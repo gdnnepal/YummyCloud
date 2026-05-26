@@ -17,8 +17,11 @@ const settingsConfig = {
     { key: 'kitchen_phone', label: 'Kitchen Phone', type: 'text', placeholder: '9800000000' },
     { key: 'kitchen_address', label: 'Kitchen Address', type: 'text', placeholder: 'e.g. Kathmandu, Nepal' },
     { key: 'support_phone', label: 'Support Phone (WhatsApp)', type: 'text', placeholder: '9800000000' },
+    { key: 'store_logo', label: 'Store Logo', type: 'file' },
     { key: 'store_open_time', label: 'Store Opening Time (24hr)', type: 'text', placeholder: '12:00', hint: 'e.g. 12:00 for 12 PM' },
     { key: 'store_close_time', label: 'Store Closing Time (24hr)', type: 'text', placeholder: '03:00', hint: 'e.g. 03:00 for 3 AM next day' },
+    { key: 'terms_conditions', label: 'Terms & Conditions (HTML)', type: 'textarea' },
+    { key: 'privacy_policy', label: 'Privacy Policy (HTML)', type: 'textarea' },
   ],
   orders: [
     { key: 'delivery_fee', label: 'Default Delivery Fee (Rs.)', type: 'number', placeholder: '50' },
@@ -186,11 +189,11 @@ function Settings() {
                   ) : config.type === 'file' ? (
                     <div className="flex items-center gap-4">
                       {settings[config.key] && (
-                        <img src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${settings[config.key]}`} alt="QR" className="w-20 h-20 rounded-lg border border-gray-200 object-cover" />
+                        <img src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${settings[config.key]}`} alt="" className="w-20 h-20 rounded-lg border border-gray-200 object-contain" />
                       )}
                       <label className="cursor-pointer inline-flex items-center gap-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 transition-colors">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                        {settings[config.key] ? 'Change Image' : 'Upload Image'}
+                        {settings[config.key] ? 'Change' : 'Upload'}
                         <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
                           const file = e.target.files[0];
                           if (!file) return;
@@ -198,11 +201,18 @@ function Settings() {
                           formData.append('qr_image', file);
                           try {
                             const res = await api.upload('/admin/settings/qr-image', formData);
-                            setSettings({ ...settings, qr_image: res.path });
+                            setSettings({ ...settings, [config.key]: res.path });
                           } catch (err) { alert(err.message); }
                         }} />
                       </label>
                     </div>
+                  ) : config.type === 'textarea' ? (
+                    <textarea
+                      value={settings[config.key] || ''}
+                      onChange={(e) => setSettings({ ...settings, [config.key]: e.target.value })}
+                      placeholder="Use HTML: <b>bold</b>, <i>italic</i>, <br> for line break, <h3>heading</h3>"
+                      className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 bg-white h-32 resize-y font-mono"
+                    />
                   ) : (
                     <input
                       type={config.type}

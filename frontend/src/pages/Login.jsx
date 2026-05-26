@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 import { HiOutlineChevronLeft, HiOutlineEye, HiOutlineEyeSlash } from 'react-icons/hi2';
@@ -16,6 +16,17 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [storeLogo, setStoreLogo] = useState(null);
+  const [policyPopup, setPolicyPopup] = useState(null);
+  const [policyContent, setPolicyContent] = useState('');
+
+  useEffect(() => {
+    api.getPublicSettings().then(res => {
+      const s = res.settings || {};
+      if (s.store_logo) setStoreLogo(s.store_logo);
+      window.__appSettings = s;
+    }).catch(() => {});
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -63,8 +74,12 @@ function Login() {
 
       {/* Header Content */}
       <div className="relative z-10 text-center px-6 pt-6 pb-16">
-        <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-          <span className="text-3xl">🍽️</span>
+        <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg overflow-hidden">
+          {storeLogo ? (
+            <img src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${storeLogo}`} alt="" className="w-full h-full object-contain p-1" />
+          ) : (
+            <span className="text-2xl font-bold text-white">{t('app_name').charAt(0)}</span>
+          )}
         </div>
         <h1 className="text-2xl font-bold text-white">{t('app_name')}</h1>
         <p className="text-sm text-white/80 mt-1">Delicious food, delivered fast</p>
@@ -159,11 +174,28 @@ function Login() {
       <div className="relative z-10 text-center mt-8 pb-8 px-6">
         <p className="text-xs text-gray-400">
           By continuing, you agree to our{' '}
-          <span className="text-primary font-medium">Terms of Service</span>
+          <button onClick={() => { setPolicyPopup('Terms of Service'); setPolicyContent(window.__appSettings?.terms_conditions || 'Terms not configured yet.'); }} className="text-primary font-medium">Terms of Service</button>
           {' '}and{' '}
-          <span className="text-primary font-medium">Privacy Policy</span>
+          <button onClick={() => { setPolicyPopup('Privacy Policy'); setPolicyContent(window.__appSettings?.privacy_policy || 'Privacy policy not configured yet.'); }} className="text-primary font-medium">Privacy Policy</button>
         </p>
       </div>
+
+      {/* Policy Popup */}
+      {policyPopup && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setPolicyPopup(null)} />
+          <div className="relative bg-white rounded-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden">
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
+              <h3 className="text-lg font-bold text-gray-800">{policyPopup}</h3>
+              <button onClick={() => setPolicyPopup(null)} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold">×</button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-5 py-4 text-sm text-gray-600 leading-relaxed prose prose-sm" dangerouslySetInnerHTML={{ __html: policyContent }} />
+            <div className="px-5 py-3 border-t border-gray-100 shrink-0">
+              <button onClick={() => setPolicyPopup(null)} className="w-full py-2.5 rounded-xl text-sm font-medium text-white bg-primary">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
