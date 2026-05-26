@@ -8,7 +8,9 @@ function MenuItems() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState(null);
-  const [form, setForm] = useState({ name: '', name_ne: '', price: '', category_id: '', is_veg: false, is_available: true, is_featured: false, is_reward: false, image: null });
+  const [form, setForm] = useState({ name: '', name_ne: '', price: '', category_id: '', is_available: true, is_featured: false, is_reward: false, image: null });
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     Promise.all([api.getMenuItems(), api.getCategories()])
@@ -24,7 +26,6 @@ function MenuItems() {
       formData.append('name_ne', form.name_ne || '');
       formData.append('price', form.price);
       formData.append('category_id', form.category_id);
-      formData.append('is_veg', form.is_veg ? '1' : '0');
       formData.append('is_available', form.is_available ? '1' : '0');
       formData.append('is_featured', form.is_featured ? '1' : '0');
       formData.append('is_reward', form.is_reward ? '1' : '0');
@@ -42,9 +43,15 @@ function MenuItems() {
     } catch (err) { alert(err.message); }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this item?')) return;
-    try { await api.deleteMenuItem(id); setItems(items.filter((i) => i.id !== id)); } catch (err) { alert(err.message); }
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await api.deleteMenuItem(deleteTarget.id);
+      setItems(items.filter((i) => i.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch (err) { alert(err.message); }
+    finally { setDeleting(false); }
   };
 
   const handleToggle = async (id) => {
@@ -54,9 +61,9 @@ function MenuItems() {
     } catch (err) { alert(err.message); }
   };
 
-  const resetForm = () => { setShowForm(false); setEditItem(null); setForm({ name: '', name_ne: '', price: '', category_id: '', is_veg: false, is_available: true, is_featured: false, is_reward: false, image: null }); };
+  const resetForm = () => { setShowForm(false); setEditItem(null); setForm({ name: '', name_ne: '', price: '', category_id: '', is_available: true, is_featured: false, is_reward: false, image: null }); };
 
-  const openEdit = (item) => { setEditItem(item); setForm({ name: item.name, name_ne: item.name_ne || '', price: item.price, category_id: item.category_id, is_veg: item.is_veg, is_available: item.is_available, is_featured: item.is_featured, is_reward: item.is_reward || false, image: null }); setShowForm(true); };
+  const openEdit = (item) => { setEditItem(item); setForm({ name: item.name, name_ne: item.name_ne || '', price: item.price, category_id: item.category_id, is_available: item.is_available, is_featured: item.is_featured, is_reward: item.is_reward || false, image: null }); setShowForm(true); };
 
   return (
     <div>
@@ -74,15 +81,14 @@ function MenuItems() {
           <div className="relative bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-bold mb-4">{editItem ? 'Edit Item' : 'Add Item'}</h3>
             <form onSubmit={handleSubmit} className="space-y-3">
-              <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name (English)" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" required />
-              <input type="text" value={form.name_ne} onChange={(e) => setForm({ ...form, name_ne: e.target.value })} placeholder="Name (Nepali)" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" />
-              <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Price" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" required />
-              <select value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" required>
+              <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name (English)" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" required />
+              <input type="text" value={form.name_ne} onChange={(e) => setForm({ ...form, name_ne: e.target.value })} placeholder="Name (Nepali)" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+              <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Price" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" required />
+              <select value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" required>
                 <option value="">Select Category</option>
                 {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
               <div className="flex gap-4">
-                <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.is_veg} onChange={(e) => setForm({ ...form, is_veg: e.target.checked })} className="accent-green-600" /> Veg</label>
                 <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.is_featured} onChange={(e) => setForm({ ...form, is_featured: e.target.checked })} className="accent-primary" /> Featured</label>
                 <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.is_reward} onChange={(e) => setForm({ ...form, is_reward: e.target.checked })} className="accent-amber-500" /> Reward Item</label>
                 <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.is_available} onChange={(e) => setForm({ ...form, is_available: e.target.checked })} className="accent-blue-600" /> Available</label>
@@ -108,6 +114,26 @@ function MenuItems() {
         </div>
       )}
 
+      {/* Delete Confirmation */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => !deleting && setDeleteTarget(null)} />
+          <div className="relative bg-white rounded-xl p-6 w-full max-w-sm text-center">
+            <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <HiOutlineTrash className="w-6 h-6 text-red-500" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-800">Delete Item</h3>
+            <p className="text-sm text-gray-500 mt-2">Are you sure you want to delete <strong>{deleteTarget.name}</strong>? This cannot be undone.</p>
+            <div className="flex gap-3 mt-5">
+              <button onClick={() => setDeleteTarget(null)} disabled={deleting} className="flex-1 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700">Cancel</button>
+              <button onClick={handleDelete} disabled={deleting} className="flex-1 py-2 rounded-lg text-sm font-medium bg-red-500 text-white disabled:opacity-50">
+                {deleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Table */}
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
         {loading ? <div className="p-8 text-center text-gray-400">Loading...</div> : (
@@ -118,12 +144,7 @@ function MenuItems() {
             <tbody className="divide-y divide-gray-100">
               {items.map((item) => (
                 <tr key={item.id}>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <span className={`w-3 h-3 border-2 rounded-sm ${item.is_veg ? 'border-green-600' : 'border-red-600'}`}><span className={`block w-1.5 h-1.5 rounded-full m-auto mt-0.5 ${item.is_veg ? 'bg-green-600' : 'bg-red-600'}`} /></span>
-                      <span className="font-medium">{item.name}</span>
-                    </div>
-                  </td>
+                  <td className="px-4 py-3 font-medium">{item.name}</td>
                   <td className="px-4 py-3 text-center">Rs. {Number(item.price)}</td>
                   <td className="px-4 py-3 text-center text-gray-500">{item.category?.name}</td>
                   <td className="px-4 py-3 text-center">
@@ -134,7 +155,7 @@ function MenuItems() {
                   <td className="px-4 py-3 text-center">
                     <div className="flex items-center justify-center gap-1">
                       <button onClick={() => openEdit(item)} className="p-1.5 rounded hover:bg-gray-100"><HiOutlinePencilSquare className="w-4 h-4 text-gray-500" /></button>
-                      <button onClick={() => handleDelete(item.id)} className="p-1.5 rounded hover:bg-red-50"><HiOutlineTrash className="w-4 h-4 text-red-500" /></button>
+                      <button onClick={() => setDeleteTarget(item)} className="p-1.5 rounded hover:bg-red-50"><HiOutlineTrash className="w-4 h-4 text-red-500" /></button>
                     </div>
                   </td>
                 </tr>

@@ -9,6 +9,8 @@ function Categories() {
   const [showForm, setShowForm] = useState(false);
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const foodEmojis = [
     '🥟', '🍚', '🍜', '🥤', '🍿', '🍰', '🍕', '🍔', '🌮', '🌯',
@@ -46,9 +48,11 @@ function Categories() {
     setShowForm(false);
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this category?')) return;
-    try { await api.deleteCategory(id); setCategories(categories.filter((c) => c.id !== id)); } catch (err) { alert(err.message); }
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try { await api.deleteCategory(deleteTarget.id); setCategories(categories.filter((c) => c.id !== deleteTarget.id)); setDeleteTarget(null); } catch (err) { alert(err.message); }
+    finally { setDeleting(false); }
   };
 
   return (
@@ -97,7 +101,7 @@ function Categories() {
                       <button onClick={() => handleEdit(cat)} className="p-1.5 rounded hover:bg-blue-50" title="Edit">
                         <HiOutlinePencilSquare className="w-4 h-4 text-blue-500" />
                       </button>
-                      <button onClick={() => handleDelete(cat.id)} className="p-1.5 rounded hover:bg-red-50" title="Delete">
+                      <button onClick={() => setDeleteTarget(cat)} className="p-1.5 rounded hover:bg-red-50" title="Delete">
                         <HiOutlineTrash className="w-4 h-4 text-red-500" />
                       </button>
                     </div>
@@ -108,6 +112,26 @@ function Categories() {
           </table>
         )}
       </div>
+
+      {/* Delete Confirmation */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => !deleting && setDeleteTarget(null)} />
+          <div className="relative bg-white rounded-xl p-6 w-full max-w-sm text-center">
+            <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <HiOutlineTrash className="w-6 h-6 text-red-500" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-800">Delete Category</h3>
+            <p className="text-sm text-gray-500 mt-2">Delete <strong>{deleteTarget.name}</strong>? Items in this category won't be deleted.</p>
+            <div className="flex gap-3 mt-5">
+              <button onClick={() => setDeleteTarget(null)} disabled={deleting} className="flex-1 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700">Cancel</button>
+              <button onClick={handleDelete} disabled={deleting} className="flex-1 py-2 rounded-lg text-sm font-medium bg-red-500 text-white disabled:opacity-50">
+                {deleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
