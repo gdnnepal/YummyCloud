@@ -90,6 +90,8 @@ class AdminController extends Controller
         $order->update(['status' => $request->status]);
         if ($request->status === 'delivered') {
             $order->update(['delivered_at' => now()]);
+            // Apply cashback
+            $this->applyCashback($order);
         }
         // Log the status change
         \App\Models\OrderLog::create([
@@ -456,5 +458,35 @@ class AdminController extends Controller
             ->orderByDesc('created_at')
             ->get();
         return response()->json(['reviews' => $reviews]);
+    }
+
+    private function applyCashback(Order $order): void
+    {
+        $enabled = \App\Models\Setting::get('cashback_enabled', 'false') === 'true';
+        if (!$enabled) return;
+
+        $type = \App\Models\Setting::get('cashback_type', 'percent');
+        $value = (float) \App\Models\Setting::get('cashback_value', 0);
+        $maxCashback = (float) \App\Models\Setting::get('cashback_max', 0);
+
+        if ($value <= 0) return;
+
+        $orderSubtotal = (float) $order->subtotal;
+        $cashback = $type === 'percent' ? ($orderSubtotal * $value / 100) : $value;
+
+        // Apply max cap if set
+        if ($maxCashback > 0 && $cashback > $maxCashback) {
+            $cashback = $maxCashback;
+        }
+
+        $cashback = round($cashback, 2);
+        if ($cashback <= 0) return;
+
+        $wallet = $order->user->wallet;
+        if (!$wallet) {
+            $wallet = \App\Models\Wallet::create(['user_id' => $order->user_id, 'balance' => 0]);
+        }
+
+        $wallet->credit($cashback, 'Order Cashback', "Cashback for Order #{$order->order_number}", $order->id);
     }
 }

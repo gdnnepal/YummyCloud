@@ -36,6 +36,10 @@ const settingsConfig = {
   ],
   wallet: [
     { key: 'welcome_bonus', label: 'Welcome Bonus (Rs.)', type: 'number', placeholder: '100' },
+    { key: 'cashback_enabled', label: 'Enable Cashback', type: 'toggle', defaultValue: 'false', hint: 'Customers get cashback to wallet on every delivered order' },
+    { key: 'cashback_type', label: 'Cashback Type', type: 'select', options: [{ value: 'percent', label: 'Percentage (%)' }, { value: 'fixed', label: 'Fixed Amount (Rs.)' }] },
+    { key: 'cashback_value', label: 'Cashback Value', type: 'number', placeholder: 'e.g. 5 for 5% or 20 for Rs.20' },
+    { key: 'cashback_max', label: 'Max Cashback per Order (Rs.)', type: 'number', placeholder: '50 (leave empty for no limit)' },
     { key: 'reward_enabled', label: 'Enable Loyalty Rewards', type: 'toggle', defaultValue: 'false', hint: 'Customers get a free reward item after every X delivered orders' },
     { key: 'reward_orders_required', label: 'Orders Required for Reward', type: 'number', placeholder: '5' },
   ],

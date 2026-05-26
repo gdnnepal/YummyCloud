@@ -198,7 +198,25 @@ Route::middleware('auth:sanctum')->prefix('rider')->group(function () {
         $order = \App\Models\Order::where('delivery_partner_id', $request->user()->id)->findOrFail($id);
         $request->validate(['status' => 'required|in:on_the_way,delivered']);
         $order->update(['status' => $request->status]);
-        if ($request->status === 'delivered') $order->update(['delivered_at' => now()]);
+        if ($request->status === 'delivered') {
+            $order->update(['delivered_at' => now()]);
+            // Apply cashback
+            $cashbackEnabled = \App\Models\Setting::get('cashback_enabled', 'false') === 'true';
+            if ($cashbackEnabled) {
+                $type = \App\Models\Setting::get('cashback_type', 'percent');
+                $value = (float) \App\Models\Setting::get('cashback_value', 0);
+                $maxCashback = (float) \App\Models\Setting::get('cashback_max', 0);
+                if ($value > 0) {
+                    $cashback = $type === 'percent' ? ((float) $order->subtotal * $value / 100) : $value;
+                    if ($maxCashback > 0 && $cashback > $maxCashback) $cashback = $maxCashback;
+                    $cashback = round($cashback, 2);
+                    if ($cashback > 0) {
+                        $wallet = $order->user->wallet ?? \App\Models\Wallet::create(['user_id' => $order->user_id, 'balance' => 0]);
+                        $wallet->credit($cashback, 'Order Cashback', "Cashback for Order #{$order->order_number}", $order->id);
+                    }
+                }
+            }
+        }
         \App\Models\OrderLog::create(['order_id' => $order->id, 'status' => $request->status, 'note' => 'Updated by rider - ' . $request->user()->name, 'created_at' => now()]);
         // Notify customer
         app(\App\Services\NotificationService::class)->sendToUser(
