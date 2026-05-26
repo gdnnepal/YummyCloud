@@ -45,23 +45,24 @@ function Orders() {
     api.getOrders(params)
       .then((res) => {
         const newOrders = res.orders || [];
-        // Check for new orders (notify)
-        if (silent && newOrders.length > orders.length) {
-          const diff = newOrders.length - orders.length;
-          document.title = `(${diff} new) Orders`;
-          // Play notification sound
-          try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.frequency.value = 800;
-            gain.gain.value = 0.3;
-            osc.start();
-            osc.stop(ctx.currentTime + 0.15);
-            setTimeout(() => { const o2 = ctx.createOscillator(); const g2 = ctx.createGain(); o2.connect(g2); g2.connect(ctx.destination); o2.frequency.value = 1000; g2.gain.value = 0.3; o2.start(); o2.stop(ctx.currentTime + 0.15); }, 200);
-          } catch {}
+        // Play sound only if there are new pending orders
+        if (silent) {
+          const newPending = newOrders.filter(o => o.status === 'pending').length;
+          const oldPending = orders.filter(o => o.status === 'pending').length;
+          if (newPending > oldPending) {
+            document.title = `(${newPending} pending) Orders`;
+            try {
+              const ctx = new (window.AudioContext || window.webkitAudioContext)();
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.connect(gain); gain.connect(ctx.destination);
+              osc.frequency.value = 800; gain.gain.value = 0.3;
+              osc.start(); osc.stop(ctx.currentTime + 0.15);
+              setTimeout(() => { const o2 = ctx.createOscillator(); const g2 = ctx.createGain(); o2.connect(g2); g2.connect(ctx.destination); o2.frequency.value = 1000; g2.gain.value = 0.3; o2.start(); o2.stop(ctx.currentTime + 0.15); }, 200);
+            } catch {}
+          } else {
+            document.title = 'Orders';
+          }
         }
         setOrders(newOrders);
         if (!silent) setPage(1);
@@ -122,7 +123,6 @@ function Orders() {
               <tr>
                 <th className="px-4 py-3 text-left">Order</th>
                 <th className="px-4 py-3 text-left">Customer</th>
-                <th className="px-4 py-3 text-center">Items</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Item Total</th>
                 <th className="px-4 py-3 text-right">Del. Fee</th>
@@ -140,7 +140,6 @@ function Orders() {
                     <p className="text-gray-700 font-medium">{order.user?.name}</p>
                     <p className="text-xs text-gray-400">{order.user?.phone}</p>
                   </td>
-                  <td className="px-4 py-3 text-center text-gray-600">{order.items?.reduce((s, i) => s + i.quantity, 0) || 0}</td>
                   <td className="px-4 py-3 text-center">
                     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize ${statusColors[order.status]}`}>
                       {order.status.replaceAll('_', ' ')}

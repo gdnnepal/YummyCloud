@@ -99,11 +99,11 @@ function OrderDetail() {
               <div className="flex justify-between items-center"><span className="text-gray-500">Screenshot</span><button onClick={() => setShowScreenshot(true)} className="text-primary text-xs font-medium underline">View Screenshot</button></div>
             )}
             <div className="flex justify-between"><span className="text-gray-500">Address</span><span className="text-right max-w-[200px]">{order.address}</span></div>
-            {order.customer_lat && order.customer_lng && (
+            {order.customer_lat && order.customer_lng && storeCoords && (
               <div className="flex justify-between items-center">
                 <span className="text-gray-500">Location</span>
                 <a href={`https://www.google.com/maps/dir/?api=1&origin=${storeCoords.lat},${storeCoords.lng}&destination=${order.customer_lat},${order.customer_lng}`} target="_blank" rel="noopener noreferrer" className="text-primary text-xs font-medium underline">
-                  Open in Maps{storeCoords && (() => {
+                  Open in Maps{(() => {
                     const R = 6371;
                     const lat1 = storeCoords.lat, lon1 = storeCoords.lng;
                     const lat2 = parseFloat(order.customer_lat), lon2 = parseFloat(order.customer_lng);

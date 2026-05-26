@@ -41,6 +41,7 @@ function Checkout() {
   const [deliveryFee, setDeliveryFee] = useState(null);
   const [kitchenSettings, setKitchenSettings] = useState({});
   const [showOutOfArea, setShowOutOfArea] = useState(false);
+  const [orderError, setOrderError] = useState(null);
   const [outOfAreaInfo, setOutOfAreaInfo] = useState(null);
 
   const total = getTotal();
@@ -251,7 +252,7 @@ function Checkout() {
         navigate('/orders', { replace: true });
       }, 2500);
     } catch (err) {
-      alert(err.message || 'Failed to place order.');
+      setOrderError(err.message || 'Failed to place order.');
     } finally {
       setLoading(false);
     }
@@ -628,6 +629,23 @@ function Checkout() {
           </div>
         </div>
       )}
+      {/* Order Error Popup */}
+      {orderError && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center px-6">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setOrderError(null)} />
+          <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm animate-slide-up text-center">
+            <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">⚠️</span>
+            </div>
+            <h3 className="text-lg font-bold text-gray-800">Order Failed</h3>
+            <p className="text-sm text-gray-500 mt-2">{orderError}</p>
+            <button onClick={() => setOrderError(null)} className="mt-5 w-full py-2.5 rounded-xl text-sm font-medium text-white bg-primary active:scale-95 transition-transform">
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Out of Delivery Area Popup */}
       {showOutOfArea && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center px-6">
