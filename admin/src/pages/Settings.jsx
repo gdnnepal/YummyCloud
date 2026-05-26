@@ -35,7 +35,7 @@ const settingsConfig = {
     { key: 'banner_subtitle', label: 'Banner Subtitle', type: 'text', placeholder: 'e.g. Use code FIRST20' },
   ],
   wallet: [
-    { key: 'welcome_bonus', label: 'Welcome Bonus (Rs.)', type: 'number', placeholder: '100' },
+    { key: 'welcome_bonus', label: 'Welcome Bonus (Rs.)', type: 'number', placeholder: '100', hint: 'New customers receive this amount as wallet credit upon registration' },
     { key: 'cashback_enabled', label: 'Enable Cashback', type: 'toggle', defaultValue: 'false', hint: 'Customers get cashback to wallet on every delivered order' },
     { key: 'cashback_type', label: 'Cashback Type', type: 'select', options: [{ value: 'percent', label: 'Percentage (%)' }, { value: 'fixed', label: 'Fixed Amount (Rs.)' }] },
     { key: 'cashback_value', label: 'Cashback Value', type: 'number', placeholder: 'e.g. 5 for 5% or 20 for Rs.20' },
@@ -192,12 +192,9 @@ function Settings() {
                       className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 bg-white"
                     />
                   )}
+                  {config.hint && config.type !== 'toggle' && <p className="text-[10px] text-gray-400 mt-1">{config.hint}</p>}
                 </div>
               ))}
-
-              {activeTab === 'wallet' && (
-                <p className="text-xs text-gray-400 mt-2">New customers receive this amount as wallet credit upon registration.</p>
-              )}
 
               {/* Delivery Zone Custom UI */}
               {activeTab === 'delivery_zone' && (
