@@ -513,6 +513,18 @@ class AdminController extends Controller
         return response()->json(['message' => 'QR image uploaded.', 'path' => $path]);
     }
 
+    public function clearCache()
+    {
+        try {
+            \Artisan::call('config:cache');
+            \Artisan::call('route:cache');
+            \Artisan::call('cache:clear');
+            return response()->json(['message' => 'Cache cleared successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Cache clear failed: ' . $e->getMessage()], 500);
+        }
+    }
+
     public function reviews()
     {
         $reviews = \App\Models\Rating::with(['user:id,name,phone', 'order:id,order_number'])

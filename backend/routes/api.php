@@ -177,6 +177,7 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
     Route::get('/settings', [AdminController::class, 'getSettings']);
     Route::put('/settings', [AdminController::class, 'updateSettings']);
     Route::post('/settings/qr-image', [AdminController::class, 'uploadQrImage']);
+    Route::post('/settings/clear-cache', [AdminController::class, 'clearCache']);
     Route::get('/reviews', [AdminController::class, 'reviews']);
 });
 

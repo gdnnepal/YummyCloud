@@ -54,6 +54,7 @@ function Settings() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState('store');
+  const [clearing, setClearing] = useState(false);
 
   useEffect(() => {
     api.request('/admin/settings')
@@ -83,13 +84,29 @@ function Settings() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-gray-800">Settings</h1>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="bg-primary text-white px-5 py-2 rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-primary/90 transition-colors"
-        >
-          {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save Changes'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={async () => {
+              setClearing(true);
+              try {
+                await api.request('/admin/settings/clear-cache', { method: 'POST' });
+                alert('Cache cleared!');
+              } catch (err) { alert(err.message); }
+              finally { setClearing(false); }
+            }}
+            disabled={clearing}
+            className="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 disabled:opacity-50"
+          >
+            {clearing ? 'Clearing...' : 'Clear Cache'}
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="bg-primary text-white px-5 py-2 rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-primary/90 transition-colors"
+          >
+            {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save Changes'}
+          </button>
+        </div>
       </div>
 
       {saved && (
