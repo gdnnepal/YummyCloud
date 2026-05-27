@@ -63,16 +63,16 @@ function Wallet() {
 
       {/* Balance Card */}
       <div className="px-4 pt-4">
-        <div className="bg-gradient-to-br from-primary via-primary-dark to-primary rounded-2xl p-5 text-white relative overflow-hidden">
-          <div className="absolute top-[-20px] right-[-20px] w-32 h-32 bg-white/10 rounded-full" />
-          <div className="absolute bottom-[-10px] left-[-10px] w-20 h-20 bg-white/10 rounded-full" />
+        <div className="bg-gradient-to-br from-primary via-primary to-primary-dark rounded-2xl p-6 text-white relative overflow-hidden">
+          <div className="absolute top-[-20px] right-[-20px] w-36 h-36 bg-white/5 rounded-full" />
+          <div className="absolute bottom-[-15px] left-[-15px] w-24 h-24 bg-white/5 rounded-full" />
           <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-1">
-              <HiOutlineWallet className="w-5 h-5 opacity-80" />
-              <span className="text-sm opacity-80">Available Balance</span>
+            <div className="flex items-center gap-2 mb-2">
+              <HiOutlineWallet className="w-5 h-5 opacity-70" />
+              <span className="text-xs font-medium uppercase tracking-wider opacity-70">Available Balance</span>
             </div>
-            <h2 className="text-3xl font-bold mt-1">Rs. {balance}</h2>
-            <p className="text-xs opacity-70 mt-2">Use wallet balance on your next order</p>
+            <h2 className="text-3xl font-bold">Rs. {balance}</h2>
+            <p className="text-xs opacity-60 mt-3">Use wallet balance at checkout for instant discount</p>
           </div>
         </div>
       </div>

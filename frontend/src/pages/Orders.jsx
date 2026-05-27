@@ -8,12 +8,12 @@ import useCartStore from '../store/useCartStore';
 import api from '../services/api';
 
 const statusColors = {
-  pending: 'bg-yellow-100 text-yellow-700',
-  confirmed: 'bg-blue-100 text-blue-700',
-  preparing: 'bg-orange-100 text-orange-700',
-  on_the_way: 'bg-purple-100 text-purple-700',
-  delivered: 'bg-green-100 text-green-700',
-  cancelled: 'bg-red-100 text-red-700',
+  pending: 'bg-yellow-50 text-yellow-700 border border-yellow-200',
+  confirmed: 'bg-blue-50 text-blue-700 border border-blue-200',
+  preparing: 'bg-orange-50 text-orange-700 border border-orange-200',
+  on_the_way: 'bg-purple-50 text-purple-700 border border-purple-200',
+  delivered: 'bg-green-50 text-green-700 border border-green-200',
+  cancelled: 'bg-red-50 text-red-700 border border-red-200',
 };
 
 const statusOptions = [
