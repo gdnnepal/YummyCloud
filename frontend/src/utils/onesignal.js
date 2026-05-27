@@ -20,6 +20,10 @@ export function setOneSignalExternalUserId(userId) {
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   window.OneSignalDeferred.push(function (OneSignal) {
     OneSignal.login(String(userId));
+    // Request permission if not already granted
+    if (OneSignal.Notifications && !OneSignal.Notifications.permission) {
+      OneSignal.Notifications.requestPermission();
+    }
   });
 }
 
