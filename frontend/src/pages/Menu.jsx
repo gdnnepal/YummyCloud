@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { HiOutlineMagnifyingGlass, HiOutlineGift, HiOutlineTrophy } from 'react-icons/hi2';
+import { HiOutlineMagnifyingGlass, HiOutlineGift, HiOutlineTrophy, HiOutlineXMark } from 'react-icons/hi2';
 import TopNav from '../components/TopNav';
 import useCartStore from '../store/useCartStore';
 import useAuthStore from '../store/useAuthStore';
@@ -72,37 +72,42 @@ function Menu() {
   };
 
   return (
-    <div className="pb-4">
+    <div className="pb-4 bg-gray-50 min-h-screen">
       <TopNav
         title={t('menu')}
         showBack={true}
       />
 
       {/* Search */}
-      <div className="px-4 pt-3 pb-2">
-        <div className="flex items-center gap-3 bg-gray-100 rounded-xl px-4 py-3">
-          <HiOutlineMagnifyingGlass className="w-5 h-5 text-gray-400" />
+      <div className="px-4 pt-3 pb-2 bg-white">
+        <div className="flex items-center gap-3 bg-gray-50 rounded-2xl px-4 py-3 border border-gray-100">
+          <HiOutlineMagnifyingGlass className="w-5 h-5 text-gray-400 shrink-0" />
           <input
             type="text"
-            placeholder={t('search')}
+            placeholder="Search dishes..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="bg-transparent outline-none text-sm flex-1 text-gray-700 placeholder-gray-400"
           />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery('')} className="shrink-0">
+              <HiOutlineXMark className="w-4 h-4 text-gray-400" />
+            </button>
+          )}
         </div>
       </div>
 
       {/* Category Tabs */}
-      <div className="px-4 py-2">
+      <div className="px-4 py-2.5 bg-white border-b border-gray-100 sticky top-14 z-40">
         <div className="flex gap-2 overflow-x-auto no-scrollbar">
           {categories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(String(cat.id))}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+              className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 String(activeCategory) === String(cat.id)
-                  ? 'bg-primary text-white'
-                  : 'bg-gray-100 text-gray-600'
+                  ? 'bg-primary text-white shadow-sm shadow-primary/20'
+                  : 'bg-gray-100 text-gray-600 active:scale-95'
               }`}
             >
               {isNepali ? cat.name_ne || cat.name : cat.name}
@@ -113,7 +118,7 @@ function Menu() {
 
       {/* Reward Section */}
       {rewardData && (
-        <div className="px-4 mt-3 mb-2">
+        <div className="px-4 mt-3 mb-1">
           {rewardData.eligible && rewardData.reward_items?.length > 0 ? (
             <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4">
               <div className="flex items-center gap-2 mb-2">
@@ -153,10 +158,12 @@ function Menu() {
               </div>
             </div>
           ) : rewardData.orders_until_reward > 0 ? (
-            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3 flex items-center gap-3">
-              <HiOutlineTrophy className="w-5 h-5 text-amber-500 shrink-0" />
+            <div className="bg-white border border-gray-100 rounded-2xl p-3.5 flex items-center gap-3 shadow-sm">
+              <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center shrink-0">
+                <HiOutlineTrophy className="w-5 h-5 text-amber-500" />
+              </div>
               <div className="flex-1">
-                <p className="text-xs text-gray-600"><strong>{rewardData.orders_until_reward} more order{rewardData.orders_until_reward > 1 ? 's' : ''}</strong>{rewardData.min_order_amount > 0 ? ` (above Rs. ${rewardData.min_order_amount})` : ''} to unlock a free reward item!</p>
+                <p className="text-xs text-gray-700"><strong>{rewardData.orders_until_reward} more order{rewardData.orders_until_reward > 1 ? 's' : ''}</strong>{rewardData.min_order_amount > 0 ? ` (above Rs. ${rewardData.min_order_amount})` : ''} to unlock a free reward!</p>
               </div>
             </div>
           ) : null}
@@ -164,36 +171,41 @@ function Menu() {
       )}
 
       {/* Menu Items */}
-      <div className="px-4 mt-2 space-y-3">
+      <div className="px-4 mt-3 space-y-2.5">
         {loading ? (
           [...Array(5)].map((_, i) => (
-            <div key={i} className="bg-gray-100 rounded-2xl h-20 animate-pulse" />
+            <div key={i} className="bg-white rounded-2xl h-20 animate-pulse" />
           ))
         ) : (
           <>
+            {/* Item count */}
+            {!searchQuery && filteredItems.length > 0 && (
+              <p className="text-[11px] text-gray-400 font-medium px-1">{filteredItems.length} items</p>
+            )}
+
             {filteredItems.map((item) => (
               <div
                 key={item.id}
                 className="flex items-center gap-3 bg-white rounded-2xl p-3 shadow-sm border border-gray-100"
               >
-                <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
+                <div className="w-16 h-16 bg-gray-50 rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
                   {item.image ? (
                     <img src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${item.image}`} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <svg className="w-7 h-7 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M15 8.25v-1.5m-6 1.5v-1.5m12 9.75l-1.5.75a3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0L3 16.5m15-12.75H6A2.25 2.25 0 003.75 6v12a2.25 2.25 0 002.25 2.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75z" /></svg>
+                    <svg className="w-7 h-7 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M15 8.25v-1.5m-6 1.5v-1.5m12 9.75l-1.5.75a3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0L3 16.5m15-12.75H6A2.25 2.25 0 003.75 6v12a2.25 2.25 0 002.25 2.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75z" /></svg>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-gray-800 text-sm truncate">
+                  <h3 className="font-semibold text-gray-800 text-sm truncate">
                     {isNepali ? item.name_ne || item.name : item.name}
                   </h3>
                   <div className="flex items-center justify-between mt-2">
-                    <span className="font-bold text-gray-800 text-sm">
+                    <span className="font-bold text-gray-900 text-sm">
                       Rs. {Number(item.price)}
                     </span>
                     <button
                       onClick={() => handleAddToCart(item)}
-                      className="bg-primary text-white text-xs px-3 py-1.5 rounded-lg font-medium active:scale-90 transition-transform"
+                      className="bg-primary/10 text-primary text-xs px-3.5 py-1.5 rounded-lg font-bold active:scale-90 active:bg-primary active:text-white transition-all"
                     >
                       + ADD
                     </button>
@@ -203,9 +215,12 @@ function Menu() {
             ))}
 
             {filteredItems.length === 0 && (
-              <div className="text-center py-12 text-gray-400">
-                <HiOutlineMagnifyingGlass className="w-10 h-10 mx-auto mb-2 text-gray-300" />
-                <p className="text-sm">No items found</p>
+              <div className="text-center py-16">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <HiOutlineMagnifyingGlass className="w-7 h-7 text-gray-300" />
+                </div>
+                <p className="text-sm font-medium text-gray-500">No items found</p>
+                <p className="text-xs text-gray-400 mt-1">Try a different search or category</p>
               </div>
             )}
           </>

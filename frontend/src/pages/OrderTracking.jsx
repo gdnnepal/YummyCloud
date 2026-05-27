@@ -156,17 +156,18 @@ function OrderTracking() {
   });
 
   return (
-    <div className="pb-4">
+    <div className="pb-4 bg-gray-50 min-h-screen">
       <TopNav title={`Order #${order.order_number}`} showBack={true} />
 
       {/* Status Header */}
       <div className="px-4 pt-4">
-        <div className={`rounded-2xl p-5 text-white relative overflow-hidden ${
+        <div className={`rounded-2xl p-6 text-white relative overflow-hidden ${
           isDelivered ? 'bg-gradient-to-br from-green-500 to-green-700' :
           isCancelled ? 'bg-gradient-to-br from-red-500 to-red-700' :
           'bg-gradient-to-br from-primary to-primary-dark'
         }`}>
-          <div className="absolute top-[-20px] right-[-20px] w-32 h-32 bg-white/10 rounded-full" />
+          <div className="absolute top-[-20px] right-[-20px] w-36 h-36 bg-white/5 rounded-full" />
+          <div className="absolute bottom-[-15px] left-[-15px] w-24 h-24 bg-white/5 rounded-full" />
           <div className="relative z-10">
             {isDelivered ? (
               <>
