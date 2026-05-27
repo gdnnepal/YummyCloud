@@ -15,7 +15,7 @@ function Login() {
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL?.replace('/api', '')}/api/settings/public`)
       .then(r => r.json())
-      .then(res => { if (res.settings?.kitchen_name) setKitchenName(res.settings.kitchen_name); })
+      .then(res => { if (res.settings?.kitchen_name) { setKitchenName(res.settings.kitchen_name); document.title = `Admin - ${res.settings.kitchen_name}`; } })
       .catch(() => {});
   }, []);
 
