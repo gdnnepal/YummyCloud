@@ -6,7 +6,7 @@ import api from '../services/api';
 function Dashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [period, setPeriod] = useState('today');
+  const [period, setPeriod] = useState('current');
 
   useEffect(() => {
     setLoading(true);
@@ -16,10 +16,10 @@ function Dashboard() {
   if (loading) return <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">{[...Array(4)].map((_, i) => <div key={i} className="bg-white rounded-xl h-28 animate-pulse" />)}</div>;
 
   const cards = [
-    { label: 'Total Orders', value: stats?.total_orders || 0, icon: HiOutlineShoppingBag, color: 'bg-blue-50 text-blue-600' },
-    { label: `Revenue (${period})`, value: `Rs. ${stats?.total_revenue || 0}`, icon: HiOutlineCurrencyDollar, color: 'bg-green-50 text-green-600' },
+    { label: 'Orders', value: stats?.total_orders || 0, icon: HiOutlineShoppingBag, color: 'bg-blue-50 text-blue-600' },
+    { label: 'Revenue', value: `Rs. ${stats?.total_revenue || 0}`, icon: HiOutlineCurrencyDollar, color: 'bg-green-50 text-green-600' },
     { label: 'Customers', value: stats?.total_customers || 0, icon: HiOutlineUsers, color: 'bg-purple-50 text-purple-600' },
-    { label: 'Pending Orders', value: stats?.pending_orders || 0, icon: HiOutlineClipboardDocumentList, color: 'bg-orange-50 text-orange-600' },
+    { label: 'Pending', value: stats?.pending_orders || 0, icon: HiOutlineClipboardDocumentList, color: 'bg-orange-50 text-orange-600' },
   ];
 
   return (
@@ -27,9 +27,9 @@ function Dashboard() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-bold text-gray-800">Dashboard</h1>
         <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
-          {['today', 'week', 'month'].map((p) => (
-            <button key={p} onClick={() => setPeriod(p)} className={`px-3 py-1.5 rounded-md text-xs font-medium capitalize ${period === p ? 'bg-white shadow-sm text-gray-800' : 'text-gray-500'}`}>
-              {p}
+          {[{ key: 'current', label: 'Current Shift' }, { key: 'previous', label: 'Previous Shift' }].map((p) => (
+            <button key={p.key} onClick={() => setPeriod(p.key)} className={`px-3 py-1.5 rounded-md text-xs font-medium ${period === p.key ? 'bg-white shadow-sm text-gray-800' : 'text-gray-500'}`}>
+              {p.label}
             </button>
           ))}
         </div>

@@ -17,29 +17,47 @@ class AdminController extends Controller
     // Dashboard
     public function dashboard(Request $request)
     {
-        $period = $request->period ?? 'today';
+        $period = $request->period ?? 'current';
         $query = Order::where('status', '!=', 'cancelled');
 
-        if ($period === 'today') {
-            // Use business session (open→close) instead of calendar day
+        if ($period === 'current') {
             $range = $this->getCurrentSessionRange();
             $query->where('created_at', '>=', $range['start'])->where('created_at', '<=', $range['end']);
-        } elseif ($period === 'week') {
-            $query->where('created_at', '>=', now()->subWeek());
-        } elseif ($period === 'month') {
-            $query->where('created_at', '>=', now()->subMonth());
+        } elseif ($period === 'previous') {
+            $range = $this->getPreviousSessionRange();
+            $query->where('created_at', '>=', $range['start'])->where('created_at', '<=', $range['end']);
         }
 
+        $range = $period === 'previous' ? $this->getPreviousSessionRange() : $this->getCurrentSessionRange();
+
         return response()->json([
-            'total_orders' => Order::count(),
+            'total_orders' => $query->count(),
             'total_revenue' => $query->sum('total'),
             'total_customers' => User::where('role', 'customer')->count(),
             'pending_orders' => Order::whereIn('status', ['pending', 'confirmed', 'preparing'])->count(),
             'period_orders' => $query->count(),
             'recent_orders' => Order::with('user:id,name,phone')->latest()->take(5)->get(),
-            'session_start' => $this->getCurrentSessionRange()['start']->format('M d, h:i A'),
-            'session_end' => $this->getCurrentSessionRange()['end']->format('M d, h:i A'),
+            'session_start' => $range['start']->format('M d, h:i A'),
+            'session_end' => $range['end']->format('M d, h:i A'),
         ]);
+    }
+
+    private function getPreviousSessionRange(): array
+    {
+        $openTime = \App\Models\Setting::get('store_open_time', '12:00');
+        $closeTime = \App\Models\Setting::get('store_close_time', '03:00');
+
+        $openHour = (int) explode(':', $openTime)[0];
+        $openMin = (int) (explode(':', $openTime)[1] ?? 0);
+        $closeHour = (int) explode(':', $closeTime)[0];
+        $closeMin = (int) (explode(':', $closeTime)[1] ?? 0);
+
+        $currentRange = $this->getCurrentSessionRange();
+        // Previous session is one day before current session
+        $start = $currentRange['start']->copy()->subDay();
+        $end = $currentRange['end']->copy()->subDay();
+
+        return ['start' => $start, 'end' => $end];
     }
 
     private function getCurrentSessionRange(): array
