@@ -191,6 +191,7 @@ Route::middleware('auth:sanctum')->prefix('rider')->group(function () {
     Route::get('/orders', function (\Illuminate\Http\Request $request) {
         $orders = \App\Models\Order::with(['user:id,name,phone', 'items'])
             ->where('delivery_partner_id', $request->user()->id)
+            ->whereNotIn('status', ['cancelled'])
             ->latest()
             ->get();
         return response()->json(['orders' => $orders]);
