@@ -115,8 +115,8 @@ function ForgotPassword() {
                 type="text"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                placeholder="Enter 6-digit OTP"
-                className="w-full border-2 border-gray-100 rounded-2xl px-4 py-3.5 text-center text-lg tracking-[0.3em] font-mono outline-none focus:border-primary transition-colors bg-gray-50/50 font-bold"
+                placeholder="000000"
+                className="w-full border-2 border-gray-100 rounded-2xl px-4 py-3.5 text-center text-sm tracking-[0.2em] outline-none focus:border-primary transition-colors bg-gray-50/50 font-bold"
                 maxLength={6}
                 inputMode="numeric"
                 autoFocus

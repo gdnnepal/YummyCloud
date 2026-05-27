@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $adminName = trim($_POST['admin_name'] ?? '');
     $adminPhone = trim($_POST['admin_phone'] ?? '');
     $adminPassword = $_POST['admin_password'] ?? '';
-    $kitchenName = trim($_POST['kitchen_name'] ?? 'CloudKitchen');
+    $kitchenName = trim($_POST['kitchen_name'] ?? 'Yummy Cloud');
 
     // Validate
     if (!$dbName) $errors[] = 'Database name is required';
