@@ -72,7 +72,8 @@ class AuthController extends Controller
                 // Welcome bonus
                 $welcomeBonus = (float) \App\Models\Setting::get('welcome_bonus', 100);
                 if ($welcomeBonus > 0) {
-                    $user->wallet?->credit($welcomeBonus, 'Welcome Bonus', 'Welcome to CloudKitchen!');
+                    $appName = \App\Models\Setting::get('kitchen_name') ?: 'our app';
+                    $user->wallet?->credit($welcomeBonus, 'Welcome Bonus', "Welcome to {$appName}!");
                 }
 
                 $token = $user->createToken('auth-token')->plainTextToken;
