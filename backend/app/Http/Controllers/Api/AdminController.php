@@ -153,6 +153,7 @@ class AdminController extends Controller
 
         // Send push notification to customer
         $statusMessages = [
+            'confirmed' => 'Your order has been confirmed! 🎉',
             'preparing' => 'Your order is being prepared! 🍳',
             'on_the_way' => 'Your order is on the way! 🚗',
             'delivered' => 'Your order has been delivered! ✅',
