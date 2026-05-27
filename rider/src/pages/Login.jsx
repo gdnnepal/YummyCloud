@@ -46,7 +46,7 @@ function Login() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Top Section - Branding */}
-      <div className="bg-gradient-to-br from-primary via-primary to-primary-dark pt-16 pb-20 px-6 text-center relative overflow-hidden">
+      <div className="bg-gradient-to-br from-primary via-primary to-primary-dark pt-12 pb-16 px-6 text-center relative overflow-hidden">
         <div className="absolute top-[-30px] right-[-30px] w-40 h-40 bg-white/5 rounded-full" />
         <div className="absolute bottom-[-20px] left-[-20px] w-32 h-32 bg-white/5 rounded-full" />
         <div className="absolute top-[50%] right-[10%] w-20 h-20 bg-white/5 rounded-full" />
@@ -61,7 +61,7 @@ function Login() {
       </div>
 
       {/* Form Card - overlapping */}
-      <div className="flex-1 px-5 -mt-8">
+      <div className="flex-1 px-5 -mt-6">
         <div className="bg-white rounded-3xl shadow-lg shadow-black/5 p-6 border border-gray-100">
           {error && (
             <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-5">
