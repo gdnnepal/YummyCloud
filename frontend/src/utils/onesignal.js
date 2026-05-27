@@ -11,7 +11,7 @@ export function initOneSignal() {
     OneSignal.init({
       appId: ONESIGNAL_APP_ID,
       safari_web_id: 'web.onesignal.auto.2068edc0-2ec7-4d8d-bc37-83913e3acbff',
-      notifyButton: { enable: true },
+      notifyButton: { enable: false },
     });
   });
 }
