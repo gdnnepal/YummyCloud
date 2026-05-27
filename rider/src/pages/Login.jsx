@@ -74,9 +74,8 @@ function Login() {
             <div>
               <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Phone Number</label>
               <div className="flex items-center border-2 border-gray-100 rounded-xl px-4 py-3 focus-within:border-primary transition-colors bg-gray-50/50">
-                <div className="flex items-center gap-1.5 pr-3 border-r border-gray-200">
-                  <span className="text-sm">🇳🇵</span>
-                  <span className="text-xs font-semibold text-gray-600">+977</span>
+                <div className="flex items-center pr-3 border-r border-gray-200">
+                  <span className="text-xs font-bold text-gray-600">+977</span>
                 </div>
                 <input
                   type="tel"
@@ -114,7 +113,7 @@ function Login() {
             <button
               type="submit"
               disabled={loading || phone.length < 10 || password.length < 6}
-              className="w-full bg-primary text-white py-3.5 rounded-xl text-sm font-semibold disabled:opacity-40 active:scale-[0.98] transition-all shadow-sm shadow-primary/20"
+              className="w-full bg-primary text-white py-3.5 rounded-xl text-sm font-semibold disabled:opacity-50 active:scale-[0.98] transition-all shadow-md shadow-primary/30"
             >
               {loading ? (
                 <span className="inline-flex items-center gap-2">
