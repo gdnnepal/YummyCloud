@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { HiOutlineClipboardDocumentList, HiOutlineChartBar, HiOutlineUsers } from 'react-icons/hi2';
 import api from '../services/api';
 
 function Login() {
@@ -48,7 +49,7 @@ function Login() {
 
         <div className="relative z-10 text-center px-12">
           <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <span className="text-4xl">🍽️</span>
+            <span className="text-3xl font-bold text-white">{kitchenName.charAt(0)}</span>
           </div>
           <h1 className="text-3xl font-bold text-white mb-3">{kitchenName}</h1>
           <p className="text-white/70 text-sm leading-relaxed max-w-xs mx-auto">
@@ -56,15 +57,15 @@ function Login() {
           </p>
           <div className="mt-10 grid grid-cols-3 gap-4 max-w-xs mx-auto">
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
-              <p className="text-xl font-bold text-white">📦</p>
+              <HiOutlineClipboardDocumentList className="w-6 h-6 text-white mx-auto" />
               <p className="text-[10px] text-white/60 mt-1">Orders</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
-              <p className="text-xl font-bold text-white">📊</p>
+              <HiOutlineChartBar className="w-6 h-6 text-white mx-auto" />
               <p className="text-[10px] text-white/60 mt-1">Analytics</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
-              <p className="text-xl font-bold text-white">👥</p>
+              <HiOutlineUsers className="w-6 h-6 text-white mx-auto" />
               <p className="text-[10px] text-white/60 mt-1">Customers</p>
             </div>
           </div>
@@ -77,7 +78,7 @@ function Login() {
           {/* Mobile branding */}
           <div className="text-center mb-8 lg:mb-10">
             <div className="lg:hidden w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">🍽️</span>
+              <span className="text-2xl font-bold text-primary">{kitchenName.charAt(0)}</span>
             </div>
             <h2 className="text-2xl font-bold text-gray-800">Welcome back</h2>
             <p className="text-sm text-gray-500 mt-1">Sign in to {kitchenName} Admin</p>

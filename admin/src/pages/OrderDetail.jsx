@@ -256,7 +256,7 @@ function OrderDetail() {
           <div className="absolute inset-0 bg-black/50" onClick={() => setShowPartnerWarning(false)} />
           <div className="relative bg-white rounded-xl p-6 w-full max-w-sm text-center">
             <div className="w-14 h-14 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">🚗</span>
+              <svg className="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
             <h3 className="text-lg font-bold text-gray-800">Assign Delivery Partner</h3>
             <p className="text-sm text-gray-500 mt-2">Please assign a delivery partner before marking this order as On the Way.</p>
