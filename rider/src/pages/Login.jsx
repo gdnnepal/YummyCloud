@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HiOutlineTruck, HiOutlineEye, HiOutlineEyeSlash } from 'react-icons/hi2';
+import { HiOutlineTruck, HiOutlineEye, HiOutlineEyeSlash, HiOutlinePhone, HiOutlineLockClosed } from 'react-icons/hi2';
 import api from '../services/api';
 
 function Login() {
@@ -44,89 +44,80 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* Top Section - Branding */}
-      <div className="bg-gradient-to-br from-primary via-primary to-primary-dark pt-12 pb-16 px-6 text-center relative overflow-hidden">
-        <div className="absolute top-[-30px] right-[-30px] w-40 h-40 bg-white/5 rounded-full" />
-        <div className="absolute bottom-[-20px] left-[-20px] w-32 h-32 bg-white/5 rounded-full" />
-        <div className="absolute top-[50%] right-[10%] w-20 h-20 bg-white/5 rounded-full" />
-
-        <div className="relative z-10">
-          <div className="w-18 h-18 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 w-[72px] h-[72px]">
-            <HiOutlineTruck className="w-9 h-9 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-white">{kitchenName || 'Delivery'}</h1>
-          <p className="text-sm text-white/60 mt-1.5">Rider Partner Login</p>
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6">
+      {/* Logo / Branding */}
+      <div className="text-center mb-10">
+        <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <HiOutlineTruck className="w-8 h-8 text-primary" />
         </div>
+        <h1 className="text-2xl font-bold text-gray-900">{kitchenName || 'Rider'}</h1>
+        <p className="text-sm text-gray-500 mt-1">Delivery Partner Login</p>
       </div>
 
-      {/* Form Card - overlapping */}
-      <div className="flex-1 px-5 -mt-6">
-        <div className="bg-white rounded-3xl shadow-lg shadow-black/5 p-6 border border-gray-100">
-          {error && (
-            <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-5">
-              <svg className="w-4 h-4 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              <span className="text-xs text-red-600">{error}</span>
+      {/* Form */}
+      <div className="w-full max-w-sm">
+        {error && (
+          <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-5">
+            <svg className="w-4 h-4 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <span className="text-xs text-red-600">{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Phone Number</label>
+            <div className="relative">
+              <HiOutlinePhone className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400" />
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                placeholder="98XXXXXXXX"
+                className="w-full border border-gray-200 rounded-xl pl-11 pr-4 py-3.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all placeholder-gray-400"
+                maxLength={10}
+                autoComplete="tel"
+              />
             </div>
-          )}
+          </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div>
-              <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Phone Number</label>
-              <div className="flex items-center border-2 border-gray-100 rounded-xl px-4 py-3 focus-within:border-primary transition-colors bg-gray-50/50">
-                <div className="flex items-center pr-3 border-r border-gray-200">
-                  <span className="text-xs font-bold text-gray-600">+977</span>
-                </div>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                  placeholder="98XXXXXXXX"
-                  className="flex-1 outline-none text-sm text-gray-800 placeholder-gray-400 ml-3 bg-transparent font-medium"
-                  maxLength={10}
-                  autoComplete="tel"
-                />
-              </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Password</label>
+            <div className="relative">
+              <HiOutlineLockClosed className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                className="w-full border border-gray-200 rounded-xl pl-11 pr-11 py-3.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all placeholder-gray-400"
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <HiOutlineEyeSlash className="w-4.5 h-4.5" /> : <HiOutlineEye className="w-4.5 h-4.5" />}
+              </button>
             </div>
+          </div>
 
-            <div>
-              <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Password</label>
-              <div className="flex items-center border-2 border-gray-100 rounded-xl px-4 py-3 focus-within:border-primary transition-colors bg-gray-50/50">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="flex-1 outline-none text-sm text-gray-800 placeholder-gray-400 bg-transparent font-medium"
-                  autoComplete="current-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="ml-2 text-gray-400 active:scale-90 transition-transform"
-                >
-                  {showPassword ? <HiOutlineEyeSlash className="w-5 h-5" /> : <HiOutlineEye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
+          <button
+            type="submit"
+            disabled={loading || phone.length < 10 || password.length < 6}
+            className="w-full bg-primary text-white py-3.5 rounded-xl text-sm font-semibold disabled:opacity-50 hover:bg-primary-dark active:scale-[0.98] transition-all mt-2"
+          >
+            {loading ? (
+              <span className="inline-flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Signing in...
+              </span>
+            ) : 'Sign In'}
+          </button>
+        </form>
 
-            <button
-              type="submit"
-              disabled={loading || phone.length < 10 || password.length < 6}
-              className="w-full bg-primary text-white py-3.5 rounded-xl text-sm font-semibold disabled:opacity-50 active:scale-[0.98] transition-all shadow-md shadow-primary/30"
-            >
-              {loading ? (
-                <span className="inline-flex items-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Signing in...
-                </span>
-              ) : 'Sign In'}
-            </button>
-          </form>
-        </div>
-
-        <p className="text-center text-[11px] text-gray-400 mt-6">
-          {kitchenName || 'CloudKitchen'} Rider App
+        <p className="text-center text-[11px] text-gray-400 mt-8">
+          {kitchenName || 'CloudKitchen'} &middot; Rider App
         </p>
       </div>
     </div>
