@@ -11,6 +11,7 @@ function Categories() {
   const [editingId, setEditingId] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const foodEmojis = [
     '🥟', '🍚', '🍜', '🥤', '🍿', '🍰', '🍕', '🍔', '🌮', '🌯',
@@ -24,16 +25,23 @@ function Categories() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!form.name.trim()) return;
+    setSaving(true);
     try {
       if (editingId) {
         const res = await api.updateCategory(editingId, form);
-        setCategories(categories.map((c) => c.id === editingId ? res.category : c));
+        setCategories(categories.map((c) => c.id === editingId ? (res.category || { ...c, ...form }) : c));
       } else {
         const res = await api.createCategory(form);
         setCategories([...categories, res.category]);
       }
       resetForm();
-    } catch (err) { alert(err.message); }
+    } catch (err) {
+      console.error('Category save error:', err);
+      alert(err.message || 'Failed to save category');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleEdit = (cat) => {
@@ -87,8 +95,8 @@ function Categories() {
                 </div>
               </div>
               <div className="flex gap-2 pt-2">
-                <button type="button" onClick={resetForm} className="flex-1 py-2 rounded-lg text-sm bg-gray-100 text-gray-600">Cancel</button>
-                <button type="submit" className="flex-1 py-2 rounded-lg text-sm bg-primary text-white font-medium">{editingId ? 'Update' : 'Save'}</button>
+                <button type="button" onClick={resetForm} disabled={saving} className="flex-1 py-2 rounded-lg text-sm bg-gray-100 text-gray-600">Cancel</button>
+                <button type="submit" disabled={saving || !form.name.trim()} className="flex-1 py-2 rounded-lg text-sm bg-primary text-white font-medium disabled:opacity-50">{saving ? 'Saving...' : editingId ? 'Update' : 'Save'}</button>
               </div>
             </form>
           </div>
