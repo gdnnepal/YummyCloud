@@ -42,7 +42,7 @@ function Dashboard() {
       <header className="bg-primary text-white px-4 pt-5 pb-6 rounded-b-3xl">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-xs opacity-80">Hello 👋</p>
+            <p className="text-xs opacity-80">Hello,</p>
             <h1 className="text-lg font-bold">{user.name || 'Rider'}</h1>
           </div>
           <div className="flex items-center gap-2">
