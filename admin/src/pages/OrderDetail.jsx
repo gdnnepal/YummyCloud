@@ -31,10 +31,12 @@ function OrderDetail() {
       }).catch(() => {});
   }, [id]);
 
+  const [showPartnerWarning, setShowPartnerWarning] = useState(false);
+
   const handleStatusChange = async (status) => {
     // Block "on_the_way" if no delivery partner assigned
     if (status === 'on_the_way' && !order.delivery_partner_id) {
-      alert('Please assign a delivery partner before marking as On the Way.');
+      setShowPartnerWarning(true);
       return;
     }
     setUpdatingStatus(status);
@@ -244,6 +246,21 @@ function OrderDetail() {
                 {updatingStatus === 'cancelled' ? 'Cancelling...' : 'Cancel Order'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Partner Warning Popup */}
+      {showPartnerWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowPartnerWarning(false)} />
+          <div className="relative bg-white rounded-xl p-6 w-full max-w-sm text-center">
+            <div className="w-14 h-14 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">🚗</span>
+            </div>
+            <h3 className="text-lg font-bold text-gray-800">Assign Delivery Partner</h3>
+            <p className="text-sm text-gray-500 mt-2">Please assign a delivery partner before marking this order as On the Way.</p>
+            <button onClick={() => setShowPartnerWarning(false)} className="mt-5 w-full py-2.5 rounded-lg text-sm font-medium text-white bg-primary">OK</button>
           </div>
         </div>
       )}
