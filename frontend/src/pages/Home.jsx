@@ -5,10 +5,11 @@ import {
   HiOutlineEnvelope,
   HiOutlineMagnifyingGlass,
   HiOutlineMoon,
-  HiOutlineHandRaised,
+  HiOutlineBell,
 } from 'react-icons/hi2';
 import useCartStore from '../store/useCartStore';
 import useAuthStore from '../store/useAuthStore';
+import useAppStore from '../store/useAppStore';
 import api from '../services/api';
 
 function Home() {
@@ -16,6 +17,7 @@ function Home() {
   const isNepali = i18n.language === 'ne';
   const addItem = useCartStore((state) => state.addItem);
   const { user } = useAuthStore();
+  const appName = useAppStore((s) => s.appName);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -33,8 +35,9 @@ function Home() {
   const [banner, setBanner] = useState(null);
   const [storeClosed, setStoreClosed] = useState(false);
   const [storeOpenTime, setStoreOpenTime] = useState('');
+  const [notice, setNotice] = useState(null);
 
-  useEffect(() => { document.title = `${t('app_name')} - Order Food Online`; }, []);
+  useEffect(() => { document.title = `${appName || t('app_name')} - Order Food Online`; }, [appName]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,10 +49,13 @@ function Home() {
         ]);
         setCategories(catRes.categories || []);
         const featured = (menuRes.items || []).filter((i) => i.is_featured);
-        setPopularDishes(featured.length > 0 ? featured : (menuRes.items || []).slice(0, 4));
+        setPopularDishes(featured.length > 0 ? featured : (menuRes.items || []).slice(0, 6));
         const s = settingsRes.settings || {};
         if (s.banner_enabled === 'true' && s.banner_title) {
           setBanner({ title: s.banner_title, subtitle: s.banner_subtitle });
+        }
+        if (s.notice_enabled === 'true' && s.notice_text) {
+          setNotice(s.notice_text);
         }
         // Check if store is open
         if (s.store_open_time && s.store_close_time) {
@@ -90,42 +96,44 @@ function Home() {
   return (
     <div className="pb-4">
       {/* Header */}
-      <header className="bg-primary text-white px-4 pt-5 pb-7 rounded-b-[28px]">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <HiOutlineHandRaised className="w-6 h-6 text-white/90" />
+      <header className="bg-gradient-to-br from-primary via-primary to-primary-dark text-white px-5 pt-6 pb-8 rounded-b-[32px] relative overflow-hidden">
+        <div className="absolute top-[-30px] right-[-30px] w-40 h-40 bg-white/5 rounded-full" />
+        <div className="absolute bottom-[-20px] left-[20%] w-24 h-24 bg-white/5 rounded-full" />
+
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-5">
             <div>
-              <p className="text-xs opacity-80">Welcome</p>
-              <p className="text-sm font-semibold">{firstName}</p>
+              <p className="text-xs text-white/70 font-medium">{getGreeting()}</p>
+              <h1 className="text-lg font-bold mt-0.5">{firstName}</h1>
             </div>
+            <Link
+              to="/messages"
+              className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center active:scale-90 transition-transform"
+            >
+              <HiOutlineBell className="w-5 h-5" />
+            </Link>
           </div>
+
+          {/* Search Bar */}
           <Link
-            to="/messages"
-            className="w-10 h-10 bg-white/15 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+            to="/menu"
+            className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3.5 border border-white/10"
           >
-            <HiOutlineEnvelope className="w-5 h-5" />
+            <HiOutlineMagnifyingGlass className="w-5 h-5 text-white/60" />
+            <span className="text-sm text-white/60">Search for dishes...</span>
           </Link>
         </div>
-
-        {/* Search Bar */}
-        <Link
-          to="/menu"
-          className="flex items-center gap-3 bg-white/15 backdrop-blur-sm rounded-2xl px-4 py-3 text-white/80"
-        >
-          <HiOutlineMagnifyingGlass className="w-5 h-5" />
-          <span className="text-sm">{t('search')}</span>
-        </Link>
       </header>
 
       {/* Store Closed Notice */}
       {storeClosed && (
-        <div className="px-4 mt-3">
+        <div className="px-4 mt-4">
           <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-5 relative overflow-hidden shadow-lg">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-10 translate-x-10" />
             <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-8 -translate-x-8" />
             <div className="relative z-10 flex items-center gap-4">
-              <div className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center shrink-0">
-                <HiOutlineMoon className="w-7 h-7 text-white/80" />
+              <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center shrink-0">
+                <HiOutlineMoon className="w-6 h-6 text-white/80" />
               </div>
               <div>
                 <p className="text-white font-bold text-sm">We're currently closed</p>
@@ -146,37 +154,55 @@ function Home() {
         </div>
       )}
 
+      {/* Notice */}
+      {notice && (
+        <div className="px-4 mt-4">
+          <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 flex items-start gap-2.5">
+            <HiOutlineBell className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <p className="text-xs text-amber-800 font-medium leading-relaxed">{notice}</p>
+          </div>
+        </div>
+      )}
+
       {/* Offers Banner */}
       {banner && (
         <section className="px-4 mt-4">
-          <div className="bg-gradient-to-r from-primary to-primary-dark rounded-2xl p-4 text-white relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-6 translate-x-6" />
-            <p className="text-xs font-medium opacity-90">{t('offers')}</p>
-            <p className="text-lg font-bold mt-1">{banner.title}</p>
-            {banner.subtitle && <p className="text-xs mt-1 opacity-80">{banner.subtitle}</p>}
+          <div className="bg-gradient-to-r from-primary to-primary-dark rounded-2xl p-5 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-28 h-28 bg-white/10 rounded-full -translate-y-8 translate-x-8" />
+            <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full translate-y-6 -translate-x-6" />
+            <div className="relative z-10">
+              <p className="text-[10px] font-semibold uppercase tracking-wider opacity-80">{t('offers')}</p>
+              <p className="text-lg font-bold mt-1.5">{banner.title}</p>
+              {banner.subtitle && <p className="text-xs mt-1.5 opacity-80">{banner.subtitle}</p>}
+            </div>
           </div>
         </section>
       )}
 
       {/* Categories */}
       <section className="px-4 mt-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-3">{t('categories')}</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-bold text-gray-800">{t('categories')}</h2>
+          <Link to="/menu" className="text-xs text-primary font-semibold">See All</Link>
+        </div>
         {loading ? (
-          <div className="grid grid-cols-3 gap-3">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-gray-100 rounded-2xl p-3 h-20 animate-pulse" />
+          <div className="flex gap-3 overflow-x-auto no-scrollbar">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="bg-gray-100 rounded-2xl w-20 h-24 shrink-0 animate-pulse" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-3">
+          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1">
             {categories.map((cat) => (
               <Link
                 key={cat.id}
                 to={`/menu?category=${cat.id}`}
-                className="flex flex-col items-center gap-1.5 bg-white rounded-2xl p-3 shadow-sm border border-gray-100 active:scale-95 transition-transform"
+                className="flex flex-col items-center gap-2 shrink-0 w-[72px] active:scale-95 transition-transform"
               >
-                <span className="text-3xl">{cat.icon}</span>
-                <span className="text-xs font-medium text-gray-700">
+                <div className="w-[60px] h-[60px] bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center">
+                  <span className="text-2xl">{cat.icon}</span>
+                </div>
+                <span className="text-[11px] font-medium text-gray-600 text-center leading-tight line-clamp-2">
                   {isNepali ? cat.name_ne || cat.name : cat.name}
                 </span>
               </Link>
@@ -188,44 +214,44 @@ function Home() {
       {/* Popular Dishes */}
       <section className="px-4 mt-6">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-gray-800">{t('popular')}</h2>
-          <Link to="/menu" className="text-sm text-primary font-medium">
+          <h2 className="text-base font-bold text-gray-800">{t('popular')}</h2>
+          <Link to="/menu" className="text-xs text-primary font-semibold">
             View All
           </Link>
         </div>
         {loading ? (
-          <div className="space-y-3">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="bg-gray-100 rounded-2xl h-24 animate-pulse" />
+          <div className="grid grid-cols-2 gap-3">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="bg-gray-100 rounded-2xl h-48 animate-pulse" />
             ))}
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
             {popularDishes.map((dish) => (
               <div
                 key={dish.id}
-                className="flex items-center gap-3 bg-white rounded-2xl p-3 shadow-sm border border-gray-100"
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
               >
-                <div className="w-20 h-20 bg-gray-100 rounded-xl flex items-center justify-center text-2xl shrink-0 overflow-hidden">
+                <div className="w-full h-28 bg-gray-100 flex items-center justify-center overflow-hidden">
                   {dish.image ? (
                     <img src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${dish.image}`} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M15 8.25v-1.5m-6 1.5v-1.5m12 9.75l-1.5.75a3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0L3 16.5m15-12.75H6A2.25 2.25 0 003.75 6v12a2.25 2.25 0 002.25 2.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75z" /></svg>
+                    <svg className="w-10 h-10 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M15 8.25v-1.5m-6 1.5v-1.5m12 9.75l-1.5.75a3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0L3 16.5m15-12.75H6A2.25 2.25 0 003.75 6v12a2.25 2.25 0 002.25 2.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75z" /></svg>
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-gray-800 text-sm">
+                <div className="p-3">
+                  <h3 className="font-semibold text-gray-800 text-sm truncate">
                     {isNepali ? dish.name_ne || dish.name : dish.name}
                   </h3>
                   <div className="flex items-center justify-between mt-2">
-                    <span className="font-bold text-primary text-sm">
+                    <span className="font-bold text-gray-900 text-sm">
                       Rs. {Number(dish.price)}
                     </span>
                     <button
                       onClick={() => handleAddToCart(dish)}
-                      className="bg-primary text-white text-xs px-3 py-1.5 rounded-lg font-medium active:scale-90 transition-transform"
+                      className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white active:scale-90 transition-transform shadow-sm shadow-primary/20"
                     >
-                      + ADD
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4.5v15m7.5-7.5h-15" /></svg>
                     </button>
                   </div>
                 </div>
