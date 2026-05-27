@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { HiOutlineMagnifyingGlass } from 'react-icons/hi2';
+import { HiOutlineMagnifyingGlass, HiOutlineGift, HiOutlineTrophy } from 'react-icons/hi2';
 import TopNav from '../components/TopNav';
 import useCartStore from '../store/useCartStore';
 import useAuthStore from '../store/useAuthStore';
@@ -117,7 +117,7 @@ function Menu() {
           {rewardData.eligible && rewardData.reward_items?.length > 0 ? (
             <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg">🎁</span>
+                <HiOutlineGift className="w-5 h-5 text-amber-600" />
                 <h3 className="font-bold text-amber-800 text-sm">Loyalty Reward Unlocked!</h3>
               </div>
               <p className="text-xs text-amber-700 mb-3">You've completed {rewardData.delivered_count} orders{rewardData.min_order_amount > 0 ? ` (above Rs. ${rewardData.min_order_amount})` : ''}! Pick a free item below (delivery fee applies).</p>
@@ -130,7 +130,7 @@ function Menu() {
                       {item.image ? (
                         <img src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${item.image}`} alt="" className="w-full h-full object-cover" />
                       ) : (
-                        <span className="text-lg">🎁</span>
+                        <HiOutlineGift className="w-5 h-5 text-amber-500" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -154,7 +154,7 @@ function Menu() {
             </div>
           ) : rewardData.orders_until_reward > 0 ? (
             <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3 flex items-center gap-3">
-              <span className="text-lg">🎯</span>
+              <HiOutlineTrophy className="w-5 h-5 text-amber-500 shrink-0" />
               <div className="flex-1">
                 <p className="text-xs text-gray-600"><strong>{rewardData.orders_until_reward} more order{rewardData.orders_until_reward > 1 ? 's' : ''}</strong>{rewardData.min_order_amount > 0 ? ` (above Rs. ${rewardData.min_order_amount})` : ''} to unlock a free reward item!</p>
               </div>
@@ -180,7 +180,7 @@ function Menu() {
                   {item.image ? (
                     <img src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${item.image}`} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <span className="text-xl">🍽️</span>
+                    <svg className="w-7 h-7 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M15 8.25v-1.5m-6 1.5v-1.5m12 9.75l-1.5.75a3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0L3 16.5m15-12.75H6A2.25 2.25 0 003.75 6v12a2.25 2.25 0 002.25 2.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75z" /></svg>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -204,7 +204,7 @@ function Menu() {
 
             {filteredItems.length === 0 && (
               <div className="text-center py-12 text-gray-400">
-                <p className="text-4xl mb-2">🔍</p>
+                <HiOutlineMagnifyingGlass className="w-10 h-10 mx-auto mb-2 text-gray-300" />
                 <p className="text-sm">No items found</p>
               </div>
             )}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import { HiOutlineClock, HiOutlineFunnel, HiOutlineArrowPath } from 'react-icons/hi2';
+import { HiOutlineClock, HiOutlineFunnel, HiOutlineArrowPath, HiOutlineClipboardDocumentList } from 'react-icons/hi2';
 import TopNav from '../components/TopNav';
 import useAuthStore from '../store/useAuthStore';
 import useCartStore from '../store/useCartStore';
@@ -171,7 +171,9 @@ function Orders() {
 
       {!isAuthenticated ? (
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
-          <span className="text-6xl mb-4">📋</span>
+          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <HiOutlineClipboardDocumentList className="w-10 h-10 text-gray-300" />
+          </div>
           <p className="text-sm text-gray-500 mb-4">Login to view your orders</p>
           <Link to="/login" className="bg-primary text-white px-6 py-2.5 rounded-xl font-medium text-sm">
             {t('login')}
@@ -185,7 +187,9 @@ function Orders() {
         </div>
       ) : filteredOrders.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[50vh] px-4">
-          <span className="text-5xl mb-4">📋</span>
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <HiOutlineClipboardDocumentList className="w-8 h-8 text-gray-300" />
+          </div>
           <h2 className="text-base font-semibold text-gray-800 mb-1">
             {orders.length === 0 ? 'No orders yet' : 'No matching orders'}
           </h2>

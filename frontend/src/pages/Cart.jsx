@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { HiOutlineTrash, HiMinus, HiPlus } from 'react-icons/hi2';
+import { HiOutlineTrash, HiMinus, HiPlus, HiOutlineShoppingCart } from 'react-icons/hi2';
 import TopNav from '../components/TopNav';
 import useCartStore from '../store/useCartStore';
 
@@ -15,7 +15,9 @@ function Cart() {
       <>
         <TopNav title={t('cart')} showBack={true} />
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
-          <span className="text-6xl mb-4">🛒</span>
+          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <HiOutlineShoppingCart className="w-10 h-10 text-gray-300" />
+          </div>
           <h2 className="text-lg font-semibold text-gray-800 mb-2">{t('no_items')}</h2>
           <Link
             to="/menu"
@@ -54,7 +56,7 @@ function Cart() {
               {item.image ? (
                 <img src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${item.image}`} alt="" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-lg">🍽️</span>
+                <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M15 8.25v-1.5m-6 1.5v-1.5m12 9.75l-1.5.75a3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0L3 16.5m15-12.75H6A2.25 2.25 0 003.75 6v12a2.25 2.25 0 002.25 2.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75z" /></svg>
               )}
             </div>
             <div className="flex-1 min-w-0">

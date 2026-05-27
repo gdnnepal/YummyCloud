@@ -11,6 +11,9 @@ import {
   HiOutlineXMark,
   HiOutlineCheckCircle,
   HiOutlineTicket,
+  HiOutlineWallet,
+  HiOutlineCamera,
+  HiOutlineQrCode,
 } from 'react-icons/hi2';
 import TopNav from '../components/TopNav';
 import useCartStore from '../store/useCartStore';
@@ -368,8 +371,8 @@ function Checkout() {
                 {kitchenSettings.qr_image ? (
                   <img src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${kitchenSettings.qr_image}`} alt="QR Code" className="w-40 h-40 mx-auto rounded-lg object-contain" />
                 ) : (
-                  <div className="w-32 h-32 bg-gray-200 rounded-lg mx-auto flex items-center justify-center text-3xl">
-                    📱
+                  <div className="w-32 h-32 bg-gray-200 rounded-lg mx-auto flex items-center justify-center">
+                    <HiOutlineQrCode className="w-12 h-12 text-gray-400" />
                   </div>
                 )}
                 <p className="text-xs text-gray-500 mt-2">{kitchenSettings.qr_payment_info || `Scan to pay Rs. ${finalTotal}`}</p>
@@ -395,7 +398,7 @@ function Checkout() {
                   </div>
                 ) : (
                   <>
-                    <span className="text-lg">📷</span>
+                    <HiOutlineCamera className="w-5 h-5 text-gray-500" />
                     <span className="text-xs text-gray-600 font-medium">Upload Payment Screenshot</span>
                   </>
                 )}
@@ -412,7 +415,7 @@ function Checkout() {
             <label className="flex items-center justify-between cursor-pointer">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center">
-                  <span className="text-lg">💰</span>
+                  <HiOutlineWallet className="w-5 h-5 text-amber-600" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-800">Use Wallet Balance</p>
@@ -635,7 +638,7 @@ function Checkout() {
           <div className="absolute inset-0 bg-black/50" onClick={() => setOrderError(null)} />
           <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm animate-slide-up text-center">
             <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">⚠️</span>
+              <svg className="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
             </div>
             <h3 className="text-lg font-bold text-gray-800">Order Failed</h3>
             <p className="text-sm text-gray-500 mt-2">{orderError}</p>
@@ -652,7 +655,7 @@ function Checkout() {
           <div className="absolute inset-0 bg-black/50" onClick={() => setShowOutOfArea(false)} />
           <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm animate-slide-up text-center">
             <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-3xl">📍</span>
+              <HiOutlineMapPin className="w-8 h-8 text-red-500" />
             </div>
             <h3 className="text-lg font-bold text-gray-800">Out of Delivery Area</h3>
             <p className="text-sm text-gray-500 mt-2">Sorry, we don't deliver to your current location. Please try a different address or contact support.</p>
@@ -681,7 +684,7 @@ function Checkout() {
             </div>
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mt-6">Order Placed!</h2>
-          <p className="text-sm text-gray-500 mt-2">Your food is being prepared 🎉</p>
+          <p className="text-sm text-gray-500 mt-2">Your food is being prepared</p>
           <p className="text-xs text-gray-400 mt-4">Redirecting to orders...</p>
         </div>
       )}

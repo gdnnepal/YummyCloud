@@ -200,14 +200,14 @@ function OrderTracking() {
               <h3 className="text-xs font-semibold text-blue-800 uppercase">Your Delivery Partner</h3>
               {riderDistance && (
                 <span className="text-xs font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full animate-pulse">
-                  📍 {riderDistance}
+                  {riderDistance}
                 </span>
               )}
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-lg">🚗</span>
+                  <HiOutlineTruck className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-800">{order.delivery_partner.name}</p>
@@ -467,7 +467,7 @@ function OrderTracking() {
           <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm animate-slide-up">
             <div className="text-center">
               <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">⚠️</span>
+                <svg className="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
               </div>
               <h3 className="text-lg font-bold text-gray-800">Cancel Order?</h3>
               <p className="text-sm text-gray-500 mt-2">

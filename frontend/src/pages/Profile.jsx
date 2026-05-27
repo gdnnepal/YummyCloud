@@ -8,6 +8,7 @@ import {
   HiOutlineArrowRightOnRectangle,
   HiOutlineChevronRight,
   HiOutlineCog6Tooth,
+  HiOutlineUserCircle,
 } from 'react-icons/hi2';
 import TopNav from '../components/TopNav';
 import useAuthStore from '../store/useAuthStore';
@@ -28,7 +29,7 @@ function Profile() {
         <TopNav title={t('profile')} showBack={true} />
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
           <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-            <span className="text-4xl">👤</span>
+            <HiOutlineUserCircle className="w-12 h-12 text-gray-400" />
           </div>
           <h2 className="text-lg font-semibold text-gray-800 mb-2">{t('login')}</h2>
           <p className="text-sm text-gray-500 mb-6 text-center">
@@ -68,8 +69,8 @@ function Profile() {
       {/* Profile Header */}
       <div className="px-4 pt-4">
         <div className="bg-primary text-white rounded-2xl p-5 flex items-center gap-4">
-          <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center text-2xl">
-            👤
+          <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center">
+            <HiOutlineUserCircle className="w-8 h-8 text-white" />
           </div>
           <div>
             <h2 className="text-lg font-bold">{user?.name || 'User'}</h2>

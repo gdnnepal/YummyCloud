@@ -18,7 +18,7 @@ class ErrorBoundary extends Component {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center bg-gray-50">
-          <p className="text-5xl">⚠️</p>
+          <svg className="w-14 h-14 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
           <h1 className="text-lg font-semibold text-gray-800 mt-4">Something went wrong</h1>
           <p className="text-sm text-gray-500 mt-2">Please try refreshing the page.</p>
           <button

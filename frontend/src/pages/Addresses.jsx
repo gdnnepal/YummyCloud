@@ -122,7 +122,9 @@ function Addresses() {
       <>
         <TopNav title={t('saved_addresses')} showBack={true} />
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
-          <span className="text-6xl mb-4">📍</span>
+          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <HiOutlineMapPin className="w-10 h-10 text-gray-300" />
+          </div>
           <p className="text-sm text-gray-500 mb-4">Login to manage addresses</p>
           <Link to="/login" className="bg-primary text-white px-6 py-2.5 rounded-xl font-medium text-sm">
             {t('login')}
@@ -297,13 +299,13 @@ function Addresses() {
                     </>
                   ) : formData.latitude ? (
                     <>
-                      <span className="text-green-600">📍</span>
+                      <HiOutlineMapPin className="w-4 h-4 text-green-600" />
                       <span className="text-green-600 font-medium">Location captured</span>
                       <span className="text-[10px] text-gray-400">({formData.latitude.toFixed(4)}, {formData.longitude.toFixed(4)})</span>
                     </>
                   ) : (
                     <>
-                      <span>📍</span>
+                      <HiOutlineMapPin className="w-4 h-4" />
                       Use Current Location
                     </>
                   )}

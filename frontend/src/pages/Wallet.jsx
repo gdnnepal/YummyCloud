@@ -45,7 +45,9 @@ function Wallet() {
       <>
         <TopNav title={t('wallet')} showBack={true} />
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
-          <span className="text-6xl mb-4">💰</span>
+          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <HiOutlineWallet className="w-10 h-10 text-gray-300" />
+          </div>
           <p className="text-sm text-gray-500 mb-4">Login to view your wallet</p>
           <Link to="/login" className="bg-primary text-white px-6 py-2.5 rounded-xl font-medium text-sm">
             {t('login')}
@@ -130,7 +132,7 @@ function Wallet() {
       {/* How it works */}
       <div className="px-4 mt-6">
         <div className="bg-amber-50 rounded-2xl p-4 border border-amber-100">
-          <h4 className="text-sm font-semibold text-amber-800 mb-2">💡 How Wallet Works</h4>
+          <h4 className="text-sm font-semibold text-amber-800 mb-2 flex items-center gap-1.5"><svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" /></svg> How Wallet Works</h4>
           <ul className="space-y-1.5 text-xs text-amber-700">
             <li>• Earn cashback on every order</li>
             <li>• Get bonus for referring friends</li>

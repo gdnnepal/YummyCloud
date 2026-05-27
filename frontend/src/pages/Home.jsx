@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import {
   HiOutlineEnvelope,
   HiOutlineMagnifyingGlass,
+  HiOutlineMoon,
+  HiOutlineHandRaised,
 } from 'react-icons/hi2';
 import useCartStore from '../store/useCartStore';
 import useAuthStore from '../store/useAuthStore';
@@ -91,7 +93,7 @@ function Home() {
       <header className="bg-primary text-white px-4 pt-5 pb-7 rounded-b-[28px]">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">👋</span>
+            <HiOutlineHandRaised className="w-6 h-6 text-white/90" />
             <div>
               <p className="text-xs opacity-80">Welcome</p>
               <p className="text-sm font-semibold">{firstName}</p>
@@ -123,7 +125,7 @@ function Home() {
             <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-8 -translate-x-8" />
             <div className="relative z-10 flex items-center gap-4">
               <div className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center shrink-0">
-                <span className="text-2xl">🌙</span>
+                <HiOutlineMoon className="w-7 h-7 text-white/80" />
               </div>
               <div>
                 <p className="text-white font-bold text-sm">We're currently closed</p>
@@ -208,7 +210,7 @@ function Home() {
                   {dish.image ? (
                     <img src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${dish.image}`} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <span>🍽️</span>
+                    <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M15 8.25v-1.5m-6 1.5v-1.5m12 9.75l-1.5.75a3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0L3 16.5m15-12.75H6A2.25 2.25 0 003.75 6v12a2.25 2.25 0 002.25 2.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75z" /></svg>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
