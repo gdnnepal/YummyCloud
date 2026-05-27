@@ -142,9 +142,9 @@ function Addresses() {
         rightAction={
           <button
             onClick={() => setShowForm(true)}
-            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100"
+            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 active:scale-90 transition-all"
           >
-            <HiOutlinePlus className="w-5 h-5 text-primary" />
+            <HiOutlinePlus className="w-5 h-5 text-white" />
           </button>
         }
       />
@@ -281,16 +281,20 @@ function Addresses() {
                 />
               </div>
 
-              {/* GPS Location (optional) */}
+              {/* GPS Location (required) */}
               <div>
                 <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5 block">
-                  GPS Location <span className="text-gray-400 normal-case font-normal">(optional)</span>
+                  GPS Location <span className="text-red-500">*</span>
                 </label>
                 <button
                   type="button"
                   onClick={getCurrentLocation}
                   disabled={gettingLocation}
-                  className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-2xl py-3 text-sm text-gray-600 hover:border-primary hover:text-primary transition-colors disabled:opacity-50"
+                  className={`w-full flex items-center justify-center gap-2 border-2 border-dashed rounded-2xl py-3 text-sm transition-colors disabled:opacity-50 ${
+                    formData.latitude
+                      ? 'border-green-300 bg-green-50 text-green-700'
+                      : 'border-gray-200 text-gray-600 hover:border-primary hover:text-primary'
+                  }`}
                 >
                   {gettingLocation ? (
                     <>
@@ -306,15 +310,18 @@ function Addresses() {
                   ) : (
                     <>
                       <HiOutlineMapPin className="w-4 h-4" />
-                      Use Current Location
+                      Tap to get your current location
                     </>
                   )}
                 </button>
+                {!formData.latitude && (
+                  <p className="text-[11px] text-red-500 mt-1.5 ml-1">Location is required for delivery</p>
+                )}
               </div>
 
               <button
                 type="submit"
-                disabled={!formData.address.trim()}
+                disabled={!formData.address.trim() || !formData.latitude}
                 className="w-full bg-primary text-white py-3.5 rounded-2xl font-semibold text-sm disabled:opacity-40 active:scale-[0.98] transition-all shadow-lg shadow-primary/30"
               >
                 Save Address

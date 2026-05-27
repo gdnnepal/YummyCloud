@@ -101,11 +101,11 @@ function Orders() {
           orders.length > 0 ? (
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100"
+              className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 active:scale-90 transition-all"
             >
-              <HiOutlineFunnel className="w-5 h-5 text-gray-700" />
+              <HiOutlineFunnel className="w-5 h-5 text-white" />
               {activeFilterCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-white text-primary text-[9px] font-bold rounded-full flex items-center justify-center">
                   {activeFilterCount}
                 </span>
               )}
