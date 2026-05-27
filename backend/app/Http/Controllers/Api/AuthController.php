@@ -17,19 +17,32 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'phone' => 'required|string|size:10|unique:users,phone',
+            'phone' => 'required|string|size:10',
             'password' => 'required|string|min:6',
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'password' => $request->password,
-            'is_verified' => false,
-        ]);
+        // Check if phone exists
+        $existingUser = User::where('phone', $request->phone)->first();
+        if ($existingUser && $existingUser->is_verified) {
+            return response()->json(['message' => 'Phone number already registered. Please login.'], 422);
+        }
 
-        // Create wallet
-        Wallet::create(['user_id' => $user->id, 'balance' => 0]);
+        // If unverified user exists, update their details
+        if ($existingUser && !$existingUser->is_verified) {
+            $existingUser->update([
+                'name' => $request->name,
+                'password' => $request->password,
+            ]);
+            $user = $existingUser;
+        } else {
+            $user = User::create([
+                'name' => $request->name,
+                'phone' => $request->phone,
+                'password' => $request->password,
+                'is_verified' => false,
+            ]);
+            Wallet::create(['user_id' => $user->id, 'balance' => 0]);
+        }
 
         // Send OTP
         $otp = OtpCode::generate($request->phone, 'registration');
