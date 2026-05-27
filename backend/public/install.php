@@ -1,49 +1,73 @@
 <?php
 /**
- * CloudKitchen Installer
- * Upload backend to server, then open this file in browser: https://api.yourdomain.com/install.php
- * After installation, DELETE this file for security.
+ * YummyCloud Installer
+ * Upload this file to your public_html/backend/ directory and open in browser.
+ * It will clone the repo, install dependencies, and set up everything.
  */
 
-if (file_exists(__DIR__ . '/../.env') && filesize(__DIR__ . '/../.env') > 100) {
-    $installed = true;
-} else {
-    $installed = false;
+// Prevent re-installation
+if (file_exists(__DIR__ . '/../.env') && file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    $env = file_get_contents(__DIR__ . '/../.env');
+    if (strpos($env, 'APP_INSTALLED=true') !== false) {
+        die('<h2>Application is already installed.</h2><p>Delete this file for security.</p>');
+    }
 }
 
-$message = '';
+$errors = [];
 $success = false;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$installed) {
-    $dbHost = trim($_POST['db_host'] ?? '127.0.0.1');
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $dbHost = trim($_POST['db_host'] ?? 'localhost');
     $dbName = trim($_POST['db_name'] ?? '');
     $dbUser = trim($_POST['db_user'] ?? '');
     $dbPass = $_POST['db_pass'] ?? '';
-    $appUrl = rtrim(trim($_POST['app_url'] ?? ''), '/');
-    $frontendUrl = rtrim(trim($_POST['frontend_url'] ?? ''), '/');
-    $adminName = trim($_POST['admin_name'] ?? 'Admin');
+    $domain = rtrim(trim($_POST['domain'] ?? ''), '/');
+    $adminName = trim($_POST['admin_name'] ?? '');
     $adminPhone = trim($_POST['admin_phone'] ?? '');
-    $adminPass = $_POST['admin_pass'] ?? 'password';
-    $smsKey = trim($_POST['sms_key'] ?? '');
+    $adminPassword = $_POST['admin_password'] ?? '';
+    $kitchenName = trim($_POST['kitchen_name'] ?? 'CloudKitchen');
 
-    // Test DB connection
-    try {
-        $pdo = new PDO("mysql:host={$dbHost};dbname={$dbName}", $dbUser, $dbPass);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch (Exception $e) {
-        $message = "Database connection failed: " . $e->getMessage();
-        goto render;
+    // Validate
+    if (!$dbName) $errors[] = 'Database name is required';
+    if (!$dbUser) $errors[] = 'Database username is required';
+    if (!$domain) $errors[] = 'Domain is required';
+    if (!$adminPhone || strlen($adminPhone) !== 10) $errors[] = 'Admin phone must be 10 digits';
+    if (!$adminPassword || strlen($adminPassword) < 6) $errors[] = 'Admin password must be at least 6 characters';
+
+    if (empty($errors)) {
+        // Test DB connection
+        try {
+            $pdo = new PDO("mysql:host={$dbHost};dbname={$dbName}", $dbUser, $dbPass);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            $errors[] = 'Database connection failed: ' . $e->getMessage();
+        }
     }
 
-    // Generate app key
-    $appKey = 'base64:' . base64_encode(random_bytes(32));
+    if (empty($errors)) {
+        $homeDir = dirname(dirname(dirname(__DIR__))); // ~/
+        $repoDir = $homeDir . '/YummyCloud';
+        $backendDir = $repoDir . '/backend';
+        $publicHtml = dirname(dirname(__DIR__)); // public_html
 
-    // Write .env
-    $env = "APP_NAME=CloudKitchen
+        // Step 1: Clone repo if not exists
+        if (!is_dir($repoDir)) {
+            exec("cd {$homeDir} && git clone https://github.com/justbishwash/YummyCloud.git YummyCloud 2>&1", $output, $code);
+            if ($code !== 0) {
+                $errors[] = 'Git clone failed: ' . implode("\n", $output);
+            }
+        } else {
+            exec("cd {$repoDir} && git checkout -- . && git pull 2>&1", $output);
+        }
+
+        if (empty($errors)) {
+            // Step 2: Create .env
+            $envContent = "APP_NAME={$kitchenName}
 APP_ENV=production
-APP_KEY={$appKey}
+APP_KEY=
 APP_DEBUG=false
-APP_URL={$appUrl}
+APP_URL={$domain}/backend
+APP_INSTALLED=true
 
 DB_CONNECTION=mysql
 DB_HOST={$dbHost}
@@ -58,116 +82,178 @@ FILESYSTEM_DISK=local
 QUEUE_CONNECTION=database
 CACHE_STORE=database
 
-SMS_API_KEY={$smsKey}
-SMS_API_URL=https://spellcpaas.com/api/smsapi
-SMS_CAMPAIGN=API
-SMS_ROUTE_ID=SI_Alert
-
-FRONTEND_URL={$frontendUrl}
+FRONTEND_URL={$domain}
 ";
+            file_put_contents($backendDir . '/.env', $envContent);
 
-    file_put_contents(__DIR__ . '/../.env', $env);
+            // Step 3: Install composer
+            if (!file_exists($backendDir . '/vendor/autoload.php')) {
+                exec("cd {$backendDir} && curl -sS https://getcomposer.org/installer | php 2>&1");
+                exec("cd {$backendDir} && php composer.phar install --no-dev --optimize-autoloader 2>&1", $composerOutput, $composerCode);
+                if ($composerCode !== 0) {
+                    $errors[] = 'Composer install failed';
+                }
+            }
 
-    // Run artisan commands
-    $basePath = realpath(__DIR__ . '/..');
-    $php = PHP_BINARY ?: 'php';
+            // Step 4: Generate key
+            exec("cd {$backendDir} && php artisan key:generate --force 2>&1");
 
-    exec("cd {$basePath} && {$php} artisan migrate --force 2>&1", $output1, $code1);
-    exec("cd {$basePath} && {$php} artisan db:seed --force 2>&1", $output2, $code2);
-    exec("cd {$basePath} && {$php} artisan storage:link --force 2>&1", $output3, $code3);
-    exec("cd {$basePath} && {$php} artisan config:cache 2>&1", $output4, $code4);
-    exec("cd {$basePath} && {$php} artisan route:cache 2>&1", $output5, $code5);
+            // Step 5: Run migrations
+            exec("cd {$backendDir} && php artisan migrate --force 2>&1", $migrateOutput, $migrateCode);
 
-    // Create admin user if not seeded
-    if ($adminPhone) {
-        require __DIR__ . '/../vendor/autoload.php';
-        $app = require __DIR__ . '/../bootstrap/app.php';
-        $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
+            // Step 6: Create admin user
+            exec("cd {$backendDir} && php artisan tinker --execute=\"\$u = App\\Models\\User::updateOrCreate(['phone' => '{$adminPhone}'], ['name' => '{$adminName}', 'phone' => '{$adminPhone}', 'password' => bcrypt('{$adminPassword}'), 'role' => 'admin', 'is_verified' => true]); App\\Models\\Wallet::firstOrCreate(['user_id' => \$u->id], ['balance' => 0]);\" 2>&1");
 
-        $existing = \App\Models\User::where('phone', $adminPhone)->first();
-        if (!$existing) {
-            \App\Models\User::create([
-                'name' => $adminName,
-                'phone' => $adminPhone,
-                'password' => $adminPass,
-                'role' => 'admin',
-                'is_verified' => true,
-            ]);
+            // Step 7: Set kitchen name
+            exec("cd {$backendDir} && php artisan tinker --execute=\"App\\Models\\Setting::set('kitchen_name', '{$kitchenName}');\" 2>&1");
+
+            // Step 8: Storage link
+            exec("cd {$backendDir} && php artisan storage:link 2>&1");
+
+            // Step 9: Create symlink for backend
+            $backendPublic = $backendDir . '/public';
+            $backendLink = $publicHtml . '/backend';
+            if (!is_link($backendLink) && !is_dir($backendLink)) {
+                symlink($backendPublic, $backendLink);
+            }
+
+            // Step 10: Copy frontend dist files
+            exec("cp -r {$repoDir}/frontend/dist/* {$publicHtml}/ 2>&1");
+            exec("mkdir -p {$publicHtml}/admin && cp -r {$repoDir}/admin/dist/* {$publicHtml}/admin/ 2>&1");
+            exec("mkdir -p {$publicHtml}/rider && cp -r {$repoDir}/rider/dist/* {$publicHtml}/rider/ 2>&1");
+
+            // Step 11: Create .htaccess files
+            file_put_contents($publicHtml . '/.htaccess', '<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^backend/ - [L]
+  RewriteRule ^admin/ - [L]
+  RewriteRule ^rider/ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>');
+
+            file_put_contents($publicHtml . '/admin/.htaccess', '<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /admin/
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /admin/index.html [L]
+</IfModule>');
+
+            file_put_contents($publicHtml . '/rider/.htaccess', '<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /rider/
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /rider/index.html [L]
+</IfModule>');
+
+            // Step 12: Cache
+            exec("cd {$backendDir} && php artisan config:cache && php artisan route:cache 2>&1");
+
+            // Step 13: Set permissions
+            exec("chmod -R 775 {$backendDir}/storage {$backendDir}/bootstrap/cache 2>&1");
+
+            $success = true;
         }
     }
-
-    $success = true;
-    $message = "Installation complete! Please DELETE this file (install.php) for security.";
 }
-
-render:
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CloudKitchen Installer</title>
+    <title>Install YummyCloud</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, sans-serif; background: #f9fafb; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 32px; max-width: 480px; width: 100%; }
-        h1 { font-size: 24px; color: #1f2937; margin-bottom: 4px; }
-        p.sub { font-size: 14px; color: #6b7280; margin-bottom: 24px; }
-        label { display: block; font-size: 12px; font-weight: 600; color: #4b5563; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-        input { width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 12px; font-size: 14px; margin-bottom: 16px; outline: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .card { background: white; border-radius: 16px; padding: 40px; max-width: 500px; width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+        h1 { font-size: 24px; color: #1a1a1a; margin-bottom: 8px; }
+        p.sub { color: #666; font-size: 14px; margin-bottom: 24px; }
+        label { display: block; font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; margin-top: 16px; }
+        input { width: 100%; padding: 12px 16px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; }
         input:focus { border-color: #e23744; }
-        button { width: 100%; background: #e23744; color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        button { width: 100%; padding: 14px; background: #e23744; color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 24px; }
         button:hover { background: #c62828; }
-        .msg { padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; }
-        .msg.error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
-        .msg.success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
-        .section { font-size: 13px; font-weight: 700; color: #9ca3af; margin: 20px 0 8px; border-top: 1px solid #f3f4f6; padding-top: 16px; }
+        .error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; }
+        .success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; padding: 16px; border-radius: 8px; font-size: 14px; text-align: center; }
+        .success a { color: #e23744; font-weight: 600; text-decoration: none; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     </style>
 </head>
 <body>
 <div class="card">
-    <h1>🍽️ CloudKitchen</h1>
-    <p class="sub">Installation Wizard</p>
+    <?php if ($success): ?>
+        <div class="success">
+            <h2 style="margin-bottom:12px;">Installation Complete!</h2>
+            <p>Your app is ready.</p>
+            <p style="margin-top:16px;">
+                <a href="<?= $domain ?>">Customer App</a> &bull;
+                <a href="<?= $domain ?>/admin">Admin Panel</a> &bull;
+                <a href="<?= $domain ?>/rider">Rider App</a>
+            </p>
+            <p style="margin-top:12px;font-size:12px;color:#666;">Admin: <?= $adminPhone ?> / your password</p>
+            <p style="margin-top:16px;font-size:11px;color:#999;">Delete this install.php file for security!</p>
+        </div>
+    <?php else: ?>
+        <h1>Install YummyCloud</h1>
+        <p class="sub">Fill in the details below to set up your food delivery system.</p>
 
-    <?php if ($installed && !$success): ?>
-        <div class="msg success">Application is already installed. Delete this file for security.</div>
-    <?php elseif ($message): ?>
-        <div class="msg <?= $success ? 'success' : 'error' ?>"><?= htmlspecialchars($message) ?></div>
-    <?php endif; ?>
+        <?php if (!empty($errors)): ?>
+            <div class="error">
+                <?php foreach ($errors as $e): ?>
+                    <p>&bull; <?= htmlspecialchars($e) ?></p>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
 
-    <?php if (!$installed && !$success): ?>
-    <form method="POST">
-        <div class="section">Database</div>
-        <label>DB Host</label>
-        <input name="db_host" value="localhost" required>
-        <label>DB Name</label>
-        <input name="db_name" placeholder="cloudkitchen" required>
-        <label>DB Username</label>
-        <input name="db_user" placeholder="root" required>
-        <label>DB Password</label>
-        <input name="db_pass" type="password">
+        <form method="POST">
+            <label>Kitchen / Store Name</label>
+            <input type="text" name="kitchen_name" value="<?= htmlspecialchars($_POST['kitchen_name'] ?? '') ?>" placeholder="e.g. Yummy Tummy" required>
 
-        <div class="section">URLs</div>
-        <label>API URL (this domain)</label>
-        <input name="app_url" placeholder="https://api.yourdomain.com" required>
-        <label>Frontend URL</label>
-        <input name="frontend_url" placeholder="https://yourdomain.com" required>
+            <label>Your Domain (with https://)</label>
+            <input type="url" name="domain" value="<?= htmlspecialchars($_POST['domain'] ?? '') ?>" placeholder="https://yourdomain.com" required>
 
-        <div class="section">Admin Account</div>
-        <label>Admin Name</label>
-        <input name="admin_name" value="Admin" required>
-        <label>Admin Phone (10 digits)</label>
-        <input name="admin_phone" placeholder="98XXXXXXXX" required>
-        <label>Admin Password</label>
-        <input name="admin_pass" type="password" value="password" required>
+            <div class="grid">
+                <div>
+                    <label>DB Host</label>
+                    <input type="text" name="db_host" value="<?= htmlspecialchars($_POST['db_host'] ?? 'localhost') ?>">
+                </div>
+                <div>
+                    <label>DB Name</label>
+                    <input type="text" name="db_name" value="<?= htmlspecialchars($_POST['db_name'] ?? '') ?>" required>
+                </div>
+            </div>
+            <div class="grid">
+                <div>
+                    <label>DB Username</label>
+                    <input type="text" name="db_user" value="<?= htmlspecialchars($_POST['db_user'] ?? '') ?>" required>
+                </div>
+                <div>
+                    <label>DB Password</label>
+                    <input type="password" name="db_pass" value="<?= htmlspecialchars($_POST['db_pass'] ?? '') ?>">
+                </div>
+            </div>
 
-        <div class="section">SMS (Optional)</div>
-        <label>SMS API Key</label>
-        <input name="sms_key" placeholder="Leave blank to skip">
+            <label>Admin Name</label>
+            <input type="text" name="admin_name" value="<?= htmlspecialchars($_POST['admin_name'] ?? '') ?>" placeholder="Your name" required>
 
-        <button type="submit">Install CloudKitchen</button>
-    </form>
+            <div class="grid">
+                <div>
+                    <label>Admin Phone (10 digits)</label>
+                    <input type="tel" name="admin_phone" value="<?= htmlspecialchars($_POST['admin_phone'] ?? '') ?>" placeholder="9800000000" maxlength="10" required>
+                </div>
+                <div>
+                    <label>Admin Password</label>
+                    <input type="password" name="admin_password" placeholder="Min 6 chars" required>
+                </div>
+            </div>
+
+            <button type="submit">Install Now</button>
+        </form>
     <?php endif; ?>
 </div>
 </body>
