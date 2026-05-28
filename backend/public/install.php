@@ -66,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 APP_ENV=production
 APP_KEY=
 APP_DEBUG=false
+APP_TIMEZONE=Asia/Kathmandu
 APP_URL={$domain}/backend
 APP_INSTALLED=true
 
@@ -83,6 +84,14 @@ QUEUE_CONNECTION=database
 CACHE_STORE=database
 
 FRONTEND_URL={$domain}
+
+SMS_API_URL=https://spellcpaas.com/api/smsapi
+SMS_API_KEY=
+SMS_CAMPAIGN=API
+SMS_ROUTE_ID=SI_Alert
+
+ONESIGNAL_APP_ID=
+ONESIGNAL_REST_API_KEY=
 ";
             file_put_contents($backendDir . '/.env', $envContent);
 
