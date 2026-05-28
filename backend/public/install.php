@@ -107,6 +107,31 @@ FRONTEND_URL={$domain}
             // Step 7: Set kitchen name
             exec("cd {$backendDir} && php artisan tinker --execute=\"App\\Models\\Setting::set('kitchen_name', '{$kitchenName}');\" 2>&1");
 
+            // Step 7b: Verify and store license key
+            $licenseKey = trim($_POST['license_key'] ?? '');
+            if ($licenseKey) {
+                exec("cd {$backendDir} && php artisan tinker --execute=\"App\\Models\\Setting::set('license_key', '{$licenseKey}');\" 2>&1");
+                $domain = parse_url($domain, PHP_URL_HOST);
+                $licensePayload = json_encode([
+                    'license_key' => $licenseKey,
+                    'product_slug' => 'yummycloud',
+                    'domain' => $domain,
+                ]);
+                $ch = curl_init('https://license.gdn.com.np/api/verify');
+                curl_setopt_array($ch, [
+                    CURLOPT_POST => true,
+                    CURLOPT_POSTFIELDS => $licensePayload,
+                    CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_TIMEOUT => 10,
+                ]);
+                $licenseResponse = curl_exec($ch);
+                curl_close($ch);
+                $licenseData = json_decode($licenseResponse, true);
+                $licenseValid = ($licenseData['valid'] ?? false) ? 'true' : 'false';
+                exec("cd {$backendDir} && php artisan tinker --execute=\"App\\Models\\Setting::set('license_valid', '{$licenseValid}');\" 2>&1");
+            }
+
             // Step 8: Storage link
             exec("cd {$backendDir} && php artisan storage:link 2>&1");
 
@@ -251,6 +276,9 @@ FRONTEND_URL={$domain}
                     <input type="password" name="admin_password" placeholder="Min 6 chars" required>
                 </div>
             </div>
+
+            <label>License Key</label>
+            <input type="text" name="license_key" value="<?= htmlspecialchars($_POST['license_key'] ?? '') ?>" placeholder="XXXX-XXXX-XXXX-XXXX" style="font-family: monospace;">
 
             <button type="submit">Install Now</button>
         </form>

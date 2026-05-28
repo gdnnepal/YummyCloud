@@ -510,6 +510,29 @@ class AdminController extends Controller
         ]);
     }
 
+    // License
+    public function verifyLicense(Request $request)
+    {
+        $request->validate(['license_key' => 'required|string']);
+
+        \App\Models\Setting::set('license_key', $request->license_key);
+
+        $licenseService = app(\App\Services\LicenseService::class);
+        $licenseService->clearCache();
+        $result = $licenseService->verify($request->license_key, forceCheck: true);
+
+        return response()->json($result);
+    }
+
+    public function licenseStatus()
+    {
+        $licenseService = app(\App\Services\LicenseService::class);
+        $result = $licenseService->verify();
+        $result['license_key'] = \App\Models\Setting::get('license_key') ? '••••••••' . substr(\App\Models\Setting::get('license_key'), -6) : null;
+
+        return response()->json($result);
+    }
+
     // Settings
     public function getSettings()
     {

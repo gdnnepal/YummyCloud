@@ -20,6 +20,7 @@ read -p "Admin Name: " ADMIN_NAME
 read -p "Admin Phone (10 digits): " ADMIN_PHONE
 read -sp "Admin Password: " ADMIN_PASS
 echo ""
+read -p "License Key: " LICENSE_KEY
 echo ""
 
 HOME_DIR=$(eval echo ~)
@@ -27,7 +28,7 @@ REPO_DIR="$HOME_DIR/YummyCloud"
 BACKEND_DIR="$REPO_DIR/backend"
 PUBLIC_HTML="$HOME_DIR/public_html"
 
-echo "[1/10] Cloning repository..."
+echo "[1/11] Cloning repository..."
 if [ -d "$REPO_DIR/.git" ]; then
     cd "$REPO_DIR" && git checkout -- . && git pull
 elif [ -d "$REPO_DIR" ]; then
@@ -42,7 +43,7 @@ if [ ! -d "$BACKEND_DIR" ]; then
     exit 1
 fi
 
-echo "[2/10] Creating .env..."
+echo "[2/11] Creating .env..."
 APP_KEY=$(openssl rand -base64 32)
 cat > "$BACKEND_DIR/.env" << EOF
 APP_NAME="$KITCHEN_NAME"
@@ -68,35 +69,52 @@ CACHE_STORE=database
 FRONTEND_URL=$DOMAIN
 EOF
 
-echo "[3/10] Installing Composer..."
+echo "[3/11] Installing Composer..."
 cd "$BACKEND_DIR"
 if [ ! -f "vendor/autoload.php" ]; then
     curl -sS https://getcomposer.org/installer | php
     php composer.phar install --no-dev --optimize-autoloader
 fi
 
-echo "[4/10] Running migrations..."
+echo "[4/11] Running migrations..."
 php artisan migrate --force
 
-echo "[5/10] Creating admin user..."
+echo "[5/11] Creating admin user..."
 php artisan tinker --execute="\$u = \App\Models\User::updateOrCreate(['phone'=>'$ADMIN_PHONE'],['name'=>'$ADMIN_NAME','phone'=>'$ADMIN_PHONE','password'=>bcrypt('$ADMIN_PASS'),'role'=>'admin','is_verified'=>true]); \App\Models\Wallet::firstOrCreate(['user_id'=>\$u->id],['balance'=>0]);"
 
-echo "[6/10] Setting kitchen name..."
+echo "[6/11] Setting kitchen name..."
 php artisan tinker --execute="\App\Models\Setting::set('kitchen_name','$KITCHEN_NAME');"
 
-echo "[7/10] Creating symlinks..."
+echo "[7/11] Verifying license..."
+if [ -n "$LICENSE_KEY" ]; then
+    php artisan tinker --execute="\App\Models\Setting::set('license_key','$LICENSE_KEY');"
+    LICENSE_RESULT=$(curl -s -X POST https://license.gdn.com.np/api/verify \
+        -H "Content-Type: application/json" \
+        -d "{\"license_key\":\"$LICENSE_KEY\",\"product_slug\":\"yummycloud\",\"domain\":\"$(echo $DOMAIN | sed 's|https://||;s|http://||;s|/.*||')\"}")
+    if echo "$LICENSE_RESULT" | grep -q '"valid":true'; then
+        echo "   ✓ License activated successfully!"
+        php artisan tinker --execute="\App\Models\Setting::set('license_valid','true');"
+    else
+        echo "   ⚠ License verification failed. You can activate later from Admin > Settings > License."
+        php artisan tinker --execute="\App\Models\Setting::set('license_valid','false');"
+    fi
+else
+    echo "   ⚠ No license key provided. Activate later from Admin > Settings > License."
+fi
+
+echo "[8/11] Creating symlinks..."
 php artisan storage:link
 rm -rf "$PUBLIC_HTML/backend"
 ln -s "$BACKEND_DIR/public" "$PUBLIC_HTML/backend"
 
-echo "[8/10] Copying frontend files..."
+echo "[9/11] Copying frontend files..."
 cp -r "$REPO_DIR/frontend/dist/"* "$PUBLIC_HTML/"
 mkdir -p "$PUBLIC_HTML/admin"
 cp -r "$REPO_DIR/admin/dist/"* "$PUBLIC_HTML/admin/"
 mkdir -p "$PUBLIC_HTML/rider"
 cp -r "$REPO_DIR/rider/dist/"* "$PUBLIC_HTML/rider/"
 
-echo "[9/10] Creating .htaccess files..."
+echo "[10/11] Creating .htaccess files..."
 cat > "$PUBLIC_HTML/.htaccess" << 'HTEOF'
 <IfModule mod_rewrite.c>
   RewriteEngine On
@@ -130,7 +148,7 @@ cat > "$PUBLIC_HTML/rider/.htaccess" << 'HTEOF'
 </IfModule>
 HTEOF
 
-echo "[10/10] Caching & permissions..."
+echo "[11/11] Caching & permissions..."
 cd "$BACKEND_DIR"
 php artisan config:cache
 php artisan route:cache

@@ -129,9 +129,13 @@ Route::middleware('auth:sanctum')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+Route::middleware(['auth:sanctum', \App\Http\Middleware\VerifyLicense::class])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard']);
     Route::get('/sales-report', [AdminController::class, 'salesReport']);
+
+    // License verification
+    Route::post('/license/verify', [AdminController::class, 'verifyLicense']);
+    Route::get('/license/status', [AdminController::class, 'licenseStatus']);
 
     Route::get('/orders', [AdminController::class, 'orders']);
     Route::get('/orders/{id}', [AdminController::class, 'orderDetail']);

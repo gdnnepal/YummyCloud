@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { HiOutlineBuildingStorefront, HiOutlineTruck, HiOutlineCreditCard, HiOutlineMegaphone, HiOutlineWallet, HiOutlineDocumentText } from 'react-icons/hi2';
+import { HiOutlineBuildingStorefront, HiOutlineTruck, HiOutlineCreditCard, HiOutlineMegaphone, HiOutlineWallet, HiOutlineDocumentText, HiOutlineKey } from 'react-icons/hi2';
 import api from '../services/api';
 
 const tabs = [
@@ -10,6 +10,7 @@ const tabs = [
   { id: 'promotions', label: 'Promotions', icon: HiOutlineMegaphone },
   { id: 'wallet', label: 'Wallet', icon: HiOutlineWallet },
   { id: 'legal', label: 'Legal & Policies', icon: HiOutlineDocumentText },
+  { id: 'license', label: 'License', icon: HiOutlineKey },
 ];
 
 const settingsConfig = {
@@ -306,9 +307,94 @@ function Settings() {
                   </div>
                 </div>
               )}
+
+              {/* License Tab Custom UI */}
+              {activeTab === 'license' && <LicensePanel />}
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function LicensePanel() {
+  const [licenseKey, setLicenseKey] = useState('');
+  const [status, setStatus] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [verifying, setVerifying] = useState(false);
+
+  useEffect(() => {
+    api.request('/admin/license/status')
+      .then((res) => {
+        setStatus(res);
+        if (res.license_key) setLicenseKey('');
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleVerify = async () => {
+    if (!licenseKey.trim()) return alert('Please enter a license key.');
+    setVerifying(true);
+    try {
+      const res = await api.request('/admin/license/verify', {
+        method: 'POST',
+        body: JSON.stringify({ license_key: licenseKey.trim() }),
+      });
+      setStatus(res);
+      if (res.valid) setLicenseKey('');
+    } catch (err) { alert(err.message); }
+    finally { setVerifying(false); }
+  };
+
+  if (loading) return <div className="animate-pulse h-32 bg-gray-50 rounded-lg" />;
+
+  return (
+    <div className="space-y-6">
+      {/* Status Badge */}
+      <div className={`flex items-center gap-3 p-4 rounded-lg border ${status?.valid ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+        <div className={`w-3 h-3 rounded-full ${status?.valid ? 'bg-green-500' : 'bg-red-500'}`} />
+        <div>
+          <p className={`text-sm font-medium ${status?.valid ? 'text-green-800' : 'text-red-800'}`}>
+            {status?.valid ? 'License Active' : 'License Inactive'}
+          </p>
+          <p className="text-xs text-gray-500 mt-0.5">{status?.message}</p>
+          {status?.expires_at && <p className="text-xs text-gray-400 mt-0.5">Expires: {status.expires_at}</p>}
+          {status?.plan && <p className="text-xs text-gray-400">Plan: {status.plan}</p>}
+        </div>
+      </div>
+
+      {/* Current Key (masked) */}
+      {status?.license_key && (
+        <div>
+          <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Current License Key</label>
+          <p className="text-sm text-gray-600 font-mono bg-gray-50 px-4 py-2.5 rounded-lg border border-gray-200">{status.license_key}</p>
+        </div>
+      )}
+
+      {/* Input */}
+      <div>
+        <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">
+          {status?.license_key ? 'Update License Key' : 'Enter License Key'}
+        </label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={licenseKey}
+            onChange={(e) => setLicenseKey(e.target.value)}
+            placeholder="XXXX-XXXX-XXXX-XXXX"
+            className="flex-1 border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 bg-white font-mono"
+          />
+          <button
+            onClick={handleVerify}
+            disabled={verifying}
+            className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-primary/90 transition-colors whitespace-nowrap"
+          >
+            {verifying ? 'Verifying...' : 'Activate'}
+          </button>
+        </div>
+        <p className="text-[10px] text-gray-400 mt-1.5">Enter your YummyCloud license key to activate the product.</p>
       </div>
     </div>
   );
