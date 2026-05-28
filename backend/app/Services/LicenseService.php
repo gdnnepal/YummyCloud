@@ -85,12 +85,28 @@ class LicenseService
     }
 
     /**
-     * Check if the current license is valid (uses cache first).
+     * Check if the current license is valid.
+     * Uses a short 5-minute cache for performance while keeping enforcement responsive.
      */
     public function isValid(): bool
     {
-        $result = $this->verify();
-        return $result['valid'] === true;
+        $licenseKey = Setting::get('license_key');
+        if (!$licenseKey) {
+            return false;
+        }
+
+        $cacheKey = 'license_valid_' . md5($licenseKey);
+        if (Cache::has($cacheKey)) {
+            return Cache::get($cacheKey);
+        }
+
+        $result = $this->verify($licenseKey, forceCheck: true);
+        $valid = $result['valid'] === true;
+
+        // Cache validity for 5 minutes
+        Cache::put($cacheKey, $valid, now()->addMinutes(5));
+
+        return $valid;
     }
 
     /**
