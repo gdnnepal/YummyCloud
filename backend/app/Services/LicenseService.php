@@ -40,15 +40,18 @@ class LicenseService
                 'license_key' => $licenseKey,
                 'product_slug' => $this->productSlug,
                 'domain' => $domain,
+                'timestamp' => time(),
             ]);
 
             if ($response->successful()) {
                 $data = $response->json();
+                $isValid = ($data['status'] ?? '') === 'valid';
                 $result = [
-                    'valid' => $data['valid'] ?? false,
+                    'valid' => $isValid,
                     'message' => $data['message'] ?? 'License verified.',
                     'expires_at' => $data['expires_at'] ?? null,
                     'plan' => $data['plan'] ?? null,
+                    'status' => $data['status'] ?? 'unknown',
                 ];
             } else {
                 $result = [

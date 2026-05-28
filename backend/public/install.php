@@ -116,6 +116,7 @@ FRONTEND_URL={$domain}
                     'license_key' => $licenseKey,
                     'product_slug' => 'yummycloud',
                     'domain' => $domain,
+                    'timestamp' => time(),
                 ]);
                 $ch = curl_init('https://license.gdn.com.np/api/verify');
                 curl_setopt_array($ch, [
@@ -128,7 +129,7 @@ FRONTEND_URL={$domain}
                 $licenseResponse = curl_exec($ch);
                 curl_close($ch);
                 $licenseData = json_decode($licenseResponse, true);
-                $licenseValid = ($licenseData['valid'] ?? false) ? 'true' : 'false';
+                $licenseValid = (($licenseData['status'] ?? '') === 'valid') ? 'true' : 'false';
                 exec("cd {$backendDir} && php artisan tinker --execute=\"App\\Models\\Setting::set('license_valid', '{$licenseValid}');\" 2>&1");
             }
 

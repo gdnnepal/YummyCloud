@@ -90,8 +90,8 @@ if [ -n "$LICENSE_KEY" ]; then
     php artisan tinker --execute="\App\Models\Setting::set('license_key','$LICENSE_KEY');"
     LICENSE_RESULT=$(curl -s -X POST https://license.gdn.com.np/api/verify \
         -H "Content-Type: application/json" \
-        -d "{\"license_key\":\"$LICENSE_KEY\",\"product_slug\":\"yummycloud\",\"domain\":\"$(echo $DOMAIN | sed 's|https://||;s|http://||;s|/.*||')\"}")
-    if echo "$LICENSE_RESULT" | grep -q '"valid":true'; then
+        -d "{\"license_key\":\"$LICENSE_KEY\",\"product_slug\":\"yummycloud\",\"domain\":\"$(echo $DOMAIN | sed 's|https://||;s|http://||;s|/.*||')\",\"timestamp\":$(date +%s)}")
+    if echo "$LICENSE_RESULT" | grep -q '"status":"valid"'; then
         echo "   ✓ License activated successfully!"
         php artisan tinker --execute="\App\Models\Setting::set('license_valid','true');"
     else
