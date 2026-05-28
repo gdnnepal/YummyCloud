@@ -27,7 +27,12 @@ class AdminApi {
       throw new Error('Unauthorized');
     }
     const data = await response.json();
-    if (!response.ok) throw { status: response.status, message: data.message, errors: data.errors };
+    if (!response.ok) {
+      if (data.license_error) {
+        window.dispatchEvent(new CustomEvent('license-error', { detail: data.message }));
+      }
+      throw { status: response.status, message: data.message, errors: data.errors, license_error: data.license_error };
+    }
     return data;
   }
 

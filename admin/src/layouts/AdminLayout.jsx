@@ -23,6 +23,16 @@ function AdminLayout() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [kitchenName, setKitchenName] = useState('CloudKitchen');
+  const [licenseToast, setLicenseToast] = useState(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      setLicenseToast(e.detail || 'License inactive. Please activate in Settings > License.');
+      setTimeout(() => setLicenseToast(null), 6000);
+    };
+    window.addEventListener('license-error', handler);
+    return () => window.removeEventListener('license-error', handler);
+  }, []);
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL?.replace('/api', '')}/api/settings/public`)
@@ -94,6 +104,24 @@ function AdminLayout() {
           <Outlet />
         </main>
       </div>
+
+      {/* License Error Toast */}
+      {licenseToast && (
+        <div className="fixed top-4 right-4 z-[9999] max-w-sm animate-slide-in">
+          <div className="bg-red-600 text-white px-5 py-4 rounded-xl shadow-2xl flex items-start gap-3">
+            <svg className="w-5 h-5 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <div>
+              <p className="font-semibold text-sm">License Error</p>
+              <p className="text-xs text-red-100 mt-0.5">{licenseToast}</p>
+            </div>
+            <button onClick={() => setLicenseToast(null)} className="ml-auto text-red-200 hover:text-white">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
