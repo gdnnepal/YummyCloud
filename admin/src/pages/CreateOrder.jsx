@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HiOutlinePlus, HiOutlineMinus, HiOutlineTrash } from 'react-icons/hi2';
+import { HiOutlinePlus, HiOutlineMinus, HiOutlineTrash, HiOutlineCheckCircle, HiOutlineExclamationTriangle } from 'react-icons/hi2';
 import api from '../services/api';
 
 function CreateOrder() {
@@ -9,6 +9,7 @@ function CreateOrder() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [popup, setPopup] = useState(null); // { type: 'success'|'error', message: '' }
 
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -69,7 +70,7 @@ function CreateOrder() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!customerName || !customerPhone || !address || cart.length === 0) {
-      alert('Please fill all required fields and add at least one item.');
+      setPopup({ type: 'error', message: 'Please fill all required fields and add at least one item.' });
       return;
     }
     setSubmitting(true);
@@ -88,9 +89,8 @@ function CreateOrder() {
         method: 'POST',
         body: JSON.stringify(payload),
       });
-      alert('Order created successfully!');
-      navigate(`/orders/${res.order.id}`);
-    } catch (err) { alert(err.message || 'Failed to create order.'); }
+      setPopup({ type: 'success', message: 'Order created successfully!', orderId: res.order.id });
+    } catch (err) { setPopup({ type: 'error', message: err.message || 'Failed to create order.' }); }
     finally { setSubmitting(false); }
   };
 
@@ -223,6 +223,35 @@ function CreateOrder() {
           </div>
         </div>
       </div>
+
+      {/* Popup Notification */}
+      {popup && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => { if (popup.type !== 'success') setPopup(null); }} />
+          <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm text-center animate-[fade-in_0.2s_ease-out]">
+            <div className={`w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 ${popup.type === 'success' ? 'bg-green-50' : 'bg-red-50'}`}>
+              {popup.type === 'success' ? (
+                <HiOutlineCheckCircle className="w-7 h-7 text-green-500" />
+              ) : (
+                <HiOutlineExclamationTriangle className="w-7 h-7 text-red-500" />
+              )}
+            </div>
+            <h3 className="text-lg font-bold text-gray-800">{popup.type === 'success' ? 'Success' : 'Error'}</h3>
+            <p className="text-sm text-gray-500 mt-2">{popup.message}</p>
+            <button
+              onClick={() => {
+                if (popup.type === 'success' && popup.orderId) {
+                  navigate(`/orders/${popup.orderId}`);
+                }
+                setPopup(null);
+              }}
+              className={`w-full mt-5 py-2.5 rounded-xl text-sm font-medium text-white ${popup.type === 'success' ? 'bg-green-500' : 'bg-primary'}`}
+            >
+              {popup.type === 'success' ? 'View Order' : 'OK'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
