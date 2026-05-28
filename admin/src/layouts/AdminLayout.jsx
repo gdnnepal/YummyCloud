@@ -31,7 +31,18 @@ function AdminLayout() {
       setTimeout(() => setLicenseToast(null), 6000);
     };
     window.addEventListener('license-error', handler);
-    return () => window.removeEventListener('license-error', handler);
+
+    // Suppress browser alert() for license errors
+    const originalAlert = window.alert;
+    window.alert = function(msg) {
+      if (!msg || msg === 'undefined' || msg === 'null') return;
+      originalAlert.call(window, msg);
+    };
+
+    return () => {
+      window.removeEventListener('license-error', handler);
+      window.alert = originalAlert;
+    };
   }, []);
 
   useEffect(() => {

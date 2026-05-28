@@ -30,8 +30,9 @@ class AdminApi {
     if (!response.ok) {
       if (data.license_error) {
         window.dispatchEvent(new CustomEvent('license-error', { detail: data.message }));
+        return Promise.reject({ silent: true });
       }
-      throw { status: response.status, message: data.message, errors: data.errors, license_error: data.license_error };
+      throw { status: response.status, message: data.message, errors: data.errors };
     }
     return data;
   }
