@@ -360,8 +360,8 @@ function LicensePanel() {
             {status?.valid ? 'License Active' : 'License Inactive'}
           </p>
           <p className="text-xs text-gray-500 mt-0.5">{status?.message}</p>
-          {status?.expires_at && <p className="text-xs text-gray-400 mt-0.5">Expires: {status.expires_at}</p>}
-          {status?.plan && <p className="text-xs text-gray-400">Plan: {status.plan}</p>}
+          {status?.expires_at && <p className="text-xs text-gray-400 mt-0.5">Expires: {new Date(status.expires_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>}
+          {status?.plan && <p className="text-xs text-gray-400">Plan: {status.plan.charAt(0).toUpperCase() + status.plan.slice(1)}</p>}
         </div>
       </div>
 
