@@ -129,7 +129,7 @@ Route::middleware('auth:sanctum')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth:sanctum', \App\Http\Middleware\VerifyLicense::class])->prefix('admin')->group(function () {
+Route::middleware(['auth:sanctum', 'verify.license'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard']);
     Route::get('/sales-report', [AdminController::class, 'salesReport']);
 

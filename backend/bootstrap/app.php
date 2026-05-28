@@ -13,6 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->throttleApi('60,1'); // 60 requests per minute
+        $middleware->alias([
+            'verify.license' => \App\Http\Middleware\VerifyLicense::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
