@@ -26,15 +26,19 @@ function AdminLayout() {
   const [licenseToast, setLicenseToast] = useState(null);
 
   useEffect(() => {
+    let licenseErrorActive = false;
     const handler = (e) => {
+      licenseErrorActive = true;
       setLicenseToast(e.detail || 'License inactive. Please activate in Settings > License.');
       setTimeout(() => setLicenseToast(null), 6000);
+      setTimeout(() => { licenseErrorActive = false; }, 500);
     };
     window.addEventListener('license-error', handler);
 
-    // Suppress browser alert() for license errors
+    // Suppress browser alert() when license error is active
     const originalAlert = window.alert;
     window.alert = function(msg) {
+      if (licenseErrorActive) return;
       if (!msg || msg === 'undefined' || msg === 'null') return;
       originalAlert.call(window, msg);
     };
