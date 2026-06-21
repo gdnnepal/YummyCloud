@@ -207,17 +207,19 @@ function CreateOrder() {
           {/* Summary + Submit — pinned at bottom */}
           <div className="bg-white rounded-b-xl border border-gray-100 p-3 shrink-0">
             <div className="space-y-1 mb-2">
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>Subtotal</span><span>Rs. {subtotal}</span>
+              <div className="flex items-center justify-between text-xs text-gray-500 gap-2">
+                <span className="shrink-0">Subtotal</span>
+                <span className="font-medium">Rs. {subtotal}</span>
               </div>
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>Delivery Fee</span><span>Rs. {deliveryFeeNum}</span>
+              <div className="flex items-center justify-between text-xs text-gray-500 gap-2">
+                <span className="shrink-0">Delivery Fee</span>
+                <span className="font-medium">Rs. {deliveryFeeNum}</span>
               </div>
-              <div className="flex justify-between text-sm font-bold text-gray-800 border-t border-gray-100 pt-1.5">
-                <span>Total</span><span>Rs. {total}</span>
+              <div className="flex items-center justify-between text-sm font-bold text-gray-800 border-t border-gray-100 pt-1.5 gap-2">
+                <span className="shrink-0">Total</span>
+                <span>Rs. {total}</span>
               </div>
-            </div>
-            <button
+            </div>            <button
               onClick={handleSubmit}
               disabled={submitting || cart.length === 0 || !customerPhone || !address}
               className="w-full bg-primary text-white py-2.5 rounded-lg text-sm font-semibold disabled:opacity-40 hover:bg-primary/90 transition-colors inline-flex items-center justify-center gap-2"
