@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Pagination from '../components/Pagination';
 import DateInput from '../components/DateInput';
@@ -9,6 +9,7 @@ const statusColors = { pending: 'bg-yellow-100 text-yellow-700', confirmed: 'bg-
 const PER_PAGE = 10;
 
 function Orders() {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -131,9 +132,9 @@ function Orders() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {paginatedOrders.map((order) => (
-                <tr key={order.id} className={`hover:bg-gray-50 cursor-pointer ${order.status === 'pending' ? 'animate-blink-red border-l-4 border-l-red-500' : ''}`}>
+                <tr key={order.id} onClick={() => navigate(`/orders/${order.id}`)} className={`hover:bg-gray-50 cursor-pointer ${order.status === 'pending' ? 'animate-blink-red border-l-4 border-l-red-500' : ''}`}>
                   <td className="px-4 py-3">
-                    <Link to={`/orders/${order.id}`} className="font-medium text-primary">#{order.order_number}</Link>
+                    <span className="font-medium text-primary">#{order.order_number}</span>
                     <p className="text-[10px] text-gray-400">{new Date(order.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}</p>
                   </td>
                   <td className="px-4 py-3">
