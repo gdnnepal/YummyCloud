@@ -14,6 +14,7 @@ function Register() {
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [otp, setOtp] = useState('');
@@ -34,7 +35,7 @@ function Register() {
     setError('');
 
     try {
-      await api.register(name, phone, password);
+      await api.register(name, phone, password, email);
       setStep(2);
     } catch (err) {
       setError(err.message || 'Registration failed.');
@@ -132,6 +133,17 @@ function Register() {
                     maxLength={10}
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5 block">Email <span className="text-gray-400 font-normal normal-case">(optional — for order notifications)</span></label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="w-full border-2 border-gray-100 rounded-2xl px-4 py-3.5 text-sm outline-none focus:border-primary transition-colors bg-gray-50/50 font-medium text-gray-800 placeholder-gray-400"
+                />
               </div>
 
               <div>

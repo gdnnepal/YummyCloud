@@ -18,6 +18,7 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'required|string|size:10',
+            'email' => 'nullable|email|max:255|unique:users,email',
             'password' => 'required|string|min:6',
         ]);
 
@@ -31,6 +32,7 @@ class AuthController extends Controller
         if ($existingUser && !$existingUser->is_verified) {
             $existingUser->update([
                 'name' => $request->name,
+                'email' => $request->email,
                 'password' => $request->password,
             ]);
             $user = $existingUser;
@@ -38,6 +40,7 @@ class AuthController extends Controller
             $user = User::create([
                 'name' => $request->name,
                 'phone' => $request->phone,
+                'email' => $request->email,
                 'password' => $request->password,
                 'is_verified' => false,
             ]);
@@ -198,7 +201,7 @@ class AuthController extends Controller
     public function profile(Request $request)
     {
         return response()->json([
-            'user' => $request->user()->only(['id', 'name', 'phone', 'role']),
+            'user' => $request->user()->only(['id', 'name', 'phone', 'email', 'role']),
         ]);
     }
 
@@ -206,13 +209,14 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|nullable|email|max:255|unique:users,email,' . $request->user()->id,
         ]);
 
-        $request->user()->update($request->only('name'));
+        $request->user()->update($request->only('name', 'email'));
 
         return response()->json([
             'message' => 'Profile updated.',
-            'user' => $request->user()->only(['id', 'name', 'phone', 'role']),
+            'user' => $request->user()->fresh()->only(['id', 'name', 'phone', 'email', 'role']),
         ]);
     }
 

@@ -80,10 +80,10 @@ class ApiService {
     });
   }
 
-  register(name, phone, password) {
+  register(name, phone, password, email = null) {
     return this.request('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ name, phone, password }),
+      body: JSON.stringify({ name, phone, password, ...(email && { email }) }),
     });
   }
 
