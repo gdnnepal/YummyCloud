@@ -28,13 +28,18 @@
     .footer { background: #f5f5f5; padding: 18px 24px; text-align: center; }
     .footer p { margin: 0; font-size: 12px; color: #aaa; line-height: 1.6; }
     .footer a { color: #e23744; text-decoration: none; }
+    .summary-row span:last-child { white-space: nowrap; padding-left: 16px; }
   </style>
 </head>
+@php
+  $appName = \App\Models\Setting::get('kitchen_name', config('app.name'));
+  $contactPhone = \App\Models\Setting::get('contact_phone', '');
+@endphp
 <body>
   <div class="wrapper">
     <div class="header">
       <h1>🎉 Order Confirmed!</h1>
-      <p>Thank you for ordering from {{ \App\Models\Setting::get('kitchen_name', config('app.name')) }}</p>
+      <p>Thank you for ordering from {{ $appName }}</p>
     </div>
     <div class="body">
       <p style="font-size:15px;color:#333;margin:0 0 20px;">Hi <strong>{{ $order->user->name }}</strong>, your order has been placed successfully!</p>
@@ -58,22 +63,22 @@
           <tr>
             <td>{{ $item->name }}</td>
             <td class="qty" style="text-align:center">{{ $item->quantity }}</td>
-            <td class="price">Rs. {{ number_format($item->total, 0) }}</td>
+            <td class="price">Rs.&nbsp;{{ number_format($item->total, 0) }}</td>
           </tr>
           @endforeach
         </tbody>
       </table>
 
       <div class="summary">
-        <div class="summary-row"><span>Subtotal</span><span>Rs. {{ number_format($order->subtotal, 0) }}</span></div>
+        <div class="summary-row"><span>Subtotal</span><span>Rs.&nbsp;{{ number_format($order->subtotal, 0) }}</span></div>
         @if($order->discount > 0)
-        <div class="summary-row"><span>Discount</span><span style="color:#22c55e">- Rs. {{ number_format($order->discount, 0) }}</span></div>
+        <div class="summary-row"><span>Discount</span><span style="color:#22c55e">-&nbsp;Rs.&nbsp;{{ number_format($order->discount, 0) }}</span></div>
         @endif
         @if($order->wallet_deduction > 0)
-        <div class="summary-row"><span>Wallet Used</span><span style="color:#22c55e">- Rs. {{ number_format($order->wallet_deduction, 0) }}</span></div>
+        <div class="summary-row"><span>Wallet Used</span><span style="color:#22c55e">-&nbsp;Rs.&nbsp;{{ number_format($order->wallet_deduction, 0) }}</span></div>
         @endif
-        <div class="summary-row"><span>Delivery Fee</span><span>Rs. {{ number_format($order->delivery_fee, 0) }}</span></div>
-        <div class="summary-row total"><span>Total</span><span>Rs. {{ number_format($order->total, 0) }}</span></div>
+        <div class="summary-row"><span>Delivery Fee</span><span>Rs.&nbsp;{{ number_format($order->delivery_fee, 0) }}</span></div>
+        <div class="summary-row total"><span>Total</span><span>Rs.&nbsp;{{ number_format($order->total, 0) }}</span></div>
       </div>
 
       <p class="section-title">Delivery Address</p>
@@ -84,16 +89,17 @@
         Method: <span class="badge">{{ strtoupper($order->payment_method) }}</span>
       </div>
 
-      @if($order->note)
-      <p class="section-title">Note</p>
-      <div class="address-box">{{ $order->note }}</div>
-      @endif
-
       <p style="font-size:13px;color:#888;text-align:center;margin:0;">Estimated delivery in <strong style="color:#333">~30 minutes</strong></p>
     </div>
     <div class="footer">
-      <p>Questions? Contact us at <a href="https://{{ request()->getHost() }}">{{ \App\Models\Setting::get('kitchen_name', config('app.name')) }}</a></p>
-      <p style="margin-top:6px;">© {{ date('Y') }} {{ \App\Models\Setting::get('kitchen_name', config('app.name')) }}. All rights reserved.</p>
+      <p>Questions? Call us at
+        @if($contactPhone)
+          <a href="tel:{{ $contactPhone }}">{{ $contactPhone }}</a>
+        @else
+          <a href="https://yummytummy.app">{{ $appName }}</a>
+        @endif
+      </p>
+      <p style="margin-top:6px;">© {{ date('Y') }} {{ $appName }}. All rights reserved.</p>
     </div>
   </div>
 </body>

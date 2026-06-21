@@ -250,6 +250,8 @@ class AdminController extends Controller
             'items.*.quantity' => 'required|integer|min:1',
             'payment_method' => 'required|in:cod,qr',
             'note' => 'nullable|string|max:500',
+            'delivery_fee' => 'nullable|numeric|min:0',
+            'customer_email' => 'nullable|email|max:255',
         ]);
 
         // Find or create customer
@@ -258,11 +260,17 @@ class AdminController extends Controller
             $user = User::create([
                 'name' => $request->customer_name,
                 'phone' => $request->customer_phone,
+                'email' => $request->customer_email ?: null,
                 'password' => bcrypt('password123'),
                 'role' => 'customer',
                 'is_verified' => true,
             ]);
             \App\Models\Wallet::create(['user_id' => $user->id, 'balance' => 0]);
+        } else {
+            // Update email if provided and not already set
+            if ($request->customer_email && !$user->email) {
+                $user->update(['email' => $request->customer_email]);
+            }
         }
 
         // Calculate totals
@@ -281,7 +289,11 @@ class AdminController extends Controller
             ];
         }
 
-        $deliveryFee = (float) \App\Models\Setting::get('delivery_fee', 0);
+        // Use manually entered delivery fee if provided, else fall back to setting
+        $deliveryFee = $request->has('delivery_fee') && $request->delivery_fee !== null
+            ? (float) $request->delivery_fee
+            : (float) \App\Models\Setting::get('delivery_fee', 0);
+
         $total = $subtotal + $deliveryFee;
 
         $order = Order::create([
@@ -296,7 +308,7 @@ class AdminController extends Controller
             'payment_method' => $request->payment_method,
             'payment_status' => 'pending',
             'address' => $request->address,
-            'note' => $request->note ?: 'Order placed by admin (phone call)',
+            'note' => $request->note ?: null,
             'estimated_delivery_at' => now()->addMinutes(30),
         ]);
 
@@ -380,7 +392,7 @@ class AdminController extends Controller
             }])
             ->withSum('orders', 'total')
             ->orderByDesc('created_at')
-            ->get(['id', 'name', 'phone', 'is_verified', 'is_blocked', 'created_at']);
+            ->get(['id', 'name', 'phone', 'email', 'is_verified', 'is_blocked', 'created_at']);
         return response()->json(['users' => $users]);
     }
 

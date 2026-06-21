@@ -13,11 +13,13 @@ function CreateOrder() {
 
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
   const [address, setAddress] = useState('');
   const [customerLat, setCustomerLat] = useState('');
   const [customerLng, setCustomerLng] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [note, setNote] = useState('');
+  const [deliveryFee, setDeliveryFee] = useState('0');
   const [cart, setCart] = useState([]);
   const [customerSearch, setCustomerSearch] = useState('');
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
@@ -44,6 +46,7 @@ function CreateOrder() {
   const selectCustomer = (c) => {
     setCustomerName(c.name);
     setCustomerPhone(c.phone);
+    setCustomerEmail(c.email || '');
     setCustomerSearch('');
     setShowCustomerDropdown(false);
   };
@@ -66,6 +69,8 @@ function CreateOrder() {
   };
 
   const subtotal = cart.reduce((sum, c) => sum + c.price * c.quantity, 0);
+  const deliveryFeeNum = parseFloat(deliveryFee) || 0;
+  const total = subtotal + deliveryFeeNum;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -78,9 +83,11 @@ function CreateOrder() {
       const payload = {
         customer_name: customerName,
         customer_phone: customerPhone,
+        customer_email: customerEmail || undefined,
         address,
         payment_method: paymentMethod,
         note,
+        delivery_fee: deliveryFeeNum,
         items: cart.map((c) => ({ id: c.id, quantity: c.quantity })),
       };
       if (customerLat) payload.customer_lat = customerLat;
@@ -131,18 +138,20 @@ function CreateOrder() {
               <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Name *" className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" required />
               <input type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="Phone *" className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" required />
             </div>
+            <input type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} placeholder="Email (optional — for order confirmation)" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-2 outline-none focus:border-primary" />
             <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Delivery address *" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-2 outline-none focus:border-primary" required />
             <div className="grid grid-cols-2 gap-2 mb-2">
               <input type="text" value={customerLat} onChange={(e) => setCustomerLat(e.target.value)} placeholder="Latitude (optional)" className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
               <input type="text" value={customerLng} onChange={(e) => setCustomerLng(e.target.value)} placeholder="Longitude (optional)" className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2 mb-2">
               <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-white">
                 <option value="cod">COD</option>
                 <option value="qr">QR Payment</option>
               </select>
-              <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note (optional)" className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+              <input type="number" min="0" value={deliveryFee} onChange={(e) => setDeliveryFee(e.target.value)} placeholder="Delivery fee" className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
             </div>
+            <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note (optional)" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
           </div>
 
           {/* Cart - scrollable */}
@@ -172,8 +181,14 @@ function CreateOrder() {
 
           {/* Fixed Submit */}
           <div className="bg-white rounded-xl border border-gray-100 p-3 mt-3 shrink-0">
-            <div className="flex justify-between text-sm font-bold mb-2">
-              <span>Subtotal</span><span>Rs. {subtotal}</span>
+            <div className="flex justify-between text-sm mb-1">
+              <span className="text-gray-500">Subtotal</span><span className="font-medium">Rs. {subtotal}</span>
+            </div>
+            <div className="flex justify-between text-sm mb-2">
+              <span className="text-gray-500">Delivery Fee</span><span className="font-medium">Rs. {deliveryFeeNum}</span>
+            </div>
+            <div className="flex justify-between text-sm font-bold border-t border-gray-100 pt-2 mb-2">
+              <span>Total</span><span>Rs. {total}</span>
             </div>
             <button
               onClick={handleSubmit}
