@@ -157,6 +157,7 @@ Route::middleware(['auth:sanctum', 'verify.license'])->prefix('admin')->group(fu
     Route::put('/menu-items/{id}/toggle', [AdminController::class, 'toggleMenuItem']);
 
     Route::get('/users', [AdminController::class, 'users']);
+    Route::put('/users/{id}', [AdminController::class, 'updateUser']);
     Route::get('/users/{id}/wallet', [AdminController::class, 'getUserWallet']);
     Route::post('/users/{id}/wallet', [AdminController::class, 'adjustWallet']);
     Route::put('/users/{id}/toggle-block', [AdminController::class, 'toggleBlockUser']);

@@ -393,7 +393,34 @@ class AdminController extends Controller
             ->withSum('orders', 'total')
             ->orderByDesc('created_at')
             ->get(['id', 'name', 'phone', 'email', 'is_verified', 'is_blocked', 'created_at']);
-        return response()->json(['users' => $users]);
+        return response()->json(['users' => $users->map(function ($u) {
+            $u->addresses = \App\Models\Address::where('user_id', $u->id)->get(['id', 'label', 'address', 'is_default']);
+            return $u;
+        })]);
+    }
+
+    public function updateUser(Request $request, $id)
+    {
+        $user = User::where('role', 'customer')->findOrFail($id);
+
+        $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => 'nullable|email|max:255|unique:users,email,' . $id,
+        ]);
+
+        $user->update($request->only('name', 'email'));
+
+        // Update addresses if provided
+        if ($request->has('addresses') && is_array($request->addresses)) {
+            foreach ($request->addresses as $addr) {
+                if (!empty($addr['id'])) {
+                    \App\Models\Address::where('id', $addr['id'])->where('user_id', $id)
+                        ->update(['label' => $addr['label'], 'address' => $addr['address']]);
+                }
+            }
+        }
+
+        return response()->json(['message' => 'Customer updated.', 'user' => $user->fresh()]);
     }
 
     public function toggleBlockUser(Request $request, $id)
