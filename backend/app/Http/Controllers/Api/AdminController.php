@@ -311,6 +311,16 @@ class AdminController extends Controller
             'created_at' => now(),
         ]);
 
+        // Send order confirmation email if customer has email
+        try {
+            if ($user->email) {
+                \Illuminate\Support\Facades\Mail::to($user->email)
+                    ->send(new \App\Mail\OrderConfirmation($order->load('items', 'user')));
+            }
+        } catch (\Exception $e) {
+            \Log::error('Admin order confirmation email failed: ' . $e->getMessage());
+        }
+
         return response()->json(['message' => 'Order created.', 'order' => $order->load('items')], 201);
     }
 
