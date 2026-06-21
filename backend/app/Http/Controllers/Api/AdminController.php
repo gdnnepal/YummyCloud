@@ -186,6 +186,16 @@ class AdminController extends Controller
             );
         }
 
+        // Send order confirmation email when status set to confirmed
+        if ($request->status === 'confirmed' && $order->user && $order->user->email) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($order->user->email)
+                    ->send(new \App\Mail\OrderConfirmation($order->load('items', 'user')));
+            } catch (\Exception $e) {
+                \Log::error('Order confirmation email failed: ' . $e->getMessage());
+            }
+        }
+
         return response()->json(['message' => 'Status updated.', 'order' => $order]);
     }
 
@@ -333,8 +343,7 @@ class AdminController extends Controller
             \Log::error('Admin order confirmation email failed: ' . $e->getMessage());
         }
 
-        return response()->json(['message' => 'Order created.', 'order' => $order->load('items')], 201);
-    }
+        return response()->json(['message' => 'Order created.', 'order' => $order->load('items')], 201);    }
 
     // Categories
     public function categories() { return response()->json(['categories' => Category::orderBy('sort_order')->get()]); }

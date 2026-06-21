@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Mail\OrderConfirmation;
 use App\Models\Coupon;
 use App\Models\MenuItem;
 use App\Models\Order;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
 {
@@ -231,16 +229,6 @@ class OrderController extends Controller
         ]);
 
         $order->load('items');
-
-        // Send order confirmation email if customer has email
-        try {
-            $user = $request->user();
-            if ($user->email) {
-                Mail::to($user->email)->send(new OrderConfirmation($order->load('items', 'user')));
-            }
-        } catch (\Exception $e) {
-            \Log::error('Order confirmation email failed: ' . $e->getMessage());
-        }
 
         return response()->json([
             'message' => 'Order placed successfully.',
