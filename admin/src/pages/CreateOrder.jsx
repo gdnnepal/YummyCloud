@@ -104,12 +104,12 @@ function CreateOrder() {
   if (loading) return <div className="animate-pulse bg-white rounded-xl h-64" />;
 
   return (
-    <div className="h-[calc(100vh-8rem)]">
+    <div>
       <h1 className="text-xl font-bold text-gray-800 mb-4">Create Order</h1>
 
-      <div className="grid lg:grid-cols-5 gap-4 h-[calc(100%-3rem)]">
-        {/* Left - Customer & Cart (fixed height, scrollable) */}
-        <div className="lg:col-span-2 flex flex-col h-full overflow-hidden">
+      <div className="grid lg:grid-cols-5 gap-4">
+        {/* Left - Customer & Cart */}
+        <div className="lg:col-span-2 flex flex-col gap-3">
           {/* Customer Details */}
           <div className="bg-white rounded-xl border border-gray-100 p-4 mb-3 shrink-0">
             <h3 className="text-sm font-semibold text-gray-800 mb-3">Customer</h3>
@@ -155,7 +155,7 @@ function CreateOrder() {
           </div>
 
           {/* Cart - scrollable */}
-          <div className="bg-white rounded-xl border border-gray-100 p-4 flex-1 overflow-y-auto min-h-0">
+          <div className="bg-white rounded-xl border border-gray-100 p-4">
             <h3 className="text-sm font-semibold text-gray-800 mb-2">Cart ({cart.length} items)</h3>
             {cart.length === 0 ? (
               <p className="text-sm text-gray-400 text-center py-6">Add items from menu →</p>
@@ -180,7 +180,7 @@ function CreateOrder() {
           </div>
 
           {/* Fixed Submit */}
-          <div className="bg-white rounded-xl border border-gray-100 p-3 mt-3 shrink-0">
+          <div className="bg-white rounded-xl border border-gray-100 p-3 shrink-0">
             <div className="flex justify-between text-sm mb-1">
               <span className="text-gray-500">Subtotal</span><span className="font-medium">Rs. {subtotal}</span>
             </div>
@@ -202,7 +202,7 @@ function CreateOrder() {
         </div>
 
         {/* Right - Menu (POS style) */}
-        <div className="lg:col-span-3 bg-white rounded-xl border border-gray-100 flex flex-col h-full overflow-hidden">
+        <div className="lg:col-span-3 bg-white rounded-xl border border-gray-100 flex flex-col" style={{minHeight: '600px'}}>
           <div className="p-4 border-b border-gray-100 shrink-0">
             <h3 className="text-sm font-semibold text-gray-800 mb-2">Menu</h3>
             <input
@@ -213,7 +213,7 @@ function CreateOrder() {
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary"
             />
           </div>
-          <div className="flex-1 overflow-y-auto p-2">
+          <div className="flex-1 overflow-y-auto p-2" style={{maxHeight: '600px'}}>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {filteredMenu.map((item) => {
                 const inCart = cart.find(c => c.id === item.id);
