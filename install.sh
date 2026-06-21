@@ -33,9 +33,9 @@ if [ -d "$REPO_DIR/.git" ]; then
     cd "$REPO_DIR" && git checkout -- . && git pull
 elif [ -d "$REPO_DIR" ]; then
     rm -rf "$REPO_DIR"
-    cd "$HOME_DIR" && git clone https://github.com/justbishwash/YummyCloud.git YummyCloud
+    cd "$HOME_DIR" && git clone https://github.com/gdnnepal/YummyCloud.git YummyCloud
 else
-    cd "$HOME_DIR" && git clone https://github.com/justbishwash/YummyCloud.git YummyCloud
+    cd "$HOME_DIR" && git clone https://github.com/gdnnepal/YummyCloud.git YummyCloud
 fi
 
 if [ ! -d "$BACKEND_DIR" ]; then
