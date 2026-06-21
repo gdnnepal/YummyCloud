@@ -1,7 +1,7 @@
 {
-  "name": "CloudKitchen",
-  "short_name": "CloudKitchen",
-  "description": "Order delicious food from CloudKitchen",
+  "name": "Yummy Tummy",
+  "short_name": "Yummy Tummy",
+  "description": "Order delicious food from Yummy Tummy",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -10,9 +10,15 @@
   "categories": ["food", "shopping"],
   "icons": [
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/fav.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/fav.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],
