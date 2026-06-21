@@ -76,13 +76,16 @@ function Users() {
     <div>
       <h1 className="text-xl font-bold text-gray-800 mb-4">Customers</h1>
       <div className="mb-4">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          placeholder="Search by name or phone..."
-          className="w-full max-w-sm border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary"
-        />
+        <div className="relative w-full max-w-sm">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            placeholder="Search by name or phone..."
+            className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 bg-white"
+          />
+        </div>
       </div>
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
         {loading ? <div className="p-8 text-center text-gray-400">Loading...</div> : (

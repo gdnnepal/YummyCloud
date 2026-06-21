@@ -11,6 +11,7 @@ function MenuItems() {
   const [form, setForm] = useState({ name: '', name_ne: '', price: '', category_id: '', is_available: true, is_featured: false, is_reward: false, image: null });
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     Promise.all([api.getMenuItems(), api.getCategories()])
@@ -65,6 +66,11 @@ function MenuItems() {
 
   const openEdit = (item) => { setEditItem(item); setForm({ name: item.name, name_ne: item.name_ne || '', price: item.price, category_id: item.category_id, is_available: item.is_available, is_featured: item.is_featured, is_reward: item.is_reward || false, image: null }); setShowForm(true); };
 
+  const filteredItems = items.filter((i) =>
+    i.name.toLowerCase().includes(search.toLowerCase()) ||
+    (i.category?.name || '').toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -72,6 +78,18 @@ function MenuItems() {
         <button onClick={() => { resetForm(); setShowForm(true); }} className="flex items-center gap-1 bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium">
           <HiOutlinePlus className="w-4 h-4" /> Add Item
         </button>
+      </div>
+      <div className="mb-4">
+        <div className="relative w-full max-w-sm">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by name or category..."
+            className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 bg-white"
+          />
+        </div>
       </div>
 
       {/* Form Modal */}
@@ -142,7 +160,7 @@ function MenuItems() {
               <tr><th className="px-4 py-3 text-left">Name</th><th className="px-4 py-3">Price</th><th className="px-4 py-3">Category</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Actions</th></tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {items.map((item) => (
+              {filteredItems.map((item) => (
                 <tr key={item.id}>
                   <td className="px-4 py-3 font-medium">{item.name}</td>
                   <td className="px-4 py-3 text-center">Rs. {Number(item.price)}</td>
