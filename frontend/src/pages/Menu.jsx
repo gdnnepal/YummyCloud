@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { HiOutlineMagnifyingGlass, HiOutlineGift, HiOutlineTrophy, HiOutlineXMark } from 'react-icons/hi2';
+import { HiOutlineMagnifyingGlass, HiOutlineGift, HiOutlineTrophy, HiOutlineXMark, HiOutlineFunnel } from 'react-icons/hi2';
 import TopNav from '../components/TopNav';
 import useCartStore from '../store/useCartStore';
 import useAuthStore from '../store/useAuthStore';
@@ -14,6 +14,8 @@ function Menu() {
   const initialCategory = searchParams.get('category') || 'all';
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('default'); // 'default' | 'price_asc' | 'price_desc'
+  const [showSortMenu, setShowSortMenu] = useState(false);
   const [categories, setCategories] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,13 +55,20 @@ function Menu() {
     fetchMenu();
   }, [activeCategory]);
 
-  const filteredItems = searchQuery
-    ? menuItems.filter(
-        (item) =>
-          item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (item.name_ne && item.name_ne.includes(searchQuery))
-      )
-    : menuItems;
+  const filteredItems = (() => {
+    let items = searchQuery
+      ? menuItems.filter(
+          (item) =>
+            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (item.name_ne && item.name_ne.includes(searchQuery))
+        )
+      : [...menuItems];
+
+    if (sortBy === 'price_asc') items.sort((a, b) => Number(a.price) - Number(b.price));
+    if (sortBy === 'price_desc') items.sort((a, b) => Number(b.price) - Number(a.price));
+
+    return items;
+  })();
 
   const handleAddToCart = (item) => {
     addItem({
@@ -78,23 +87,62 @@ function Menu() {
         showBack={true}
       />
 
-      {/* Search */}
+      {/* Search + Sort */}
       <div className="px-4 pt-3 pb-2 bg-white">
-        <div className="flex items-center gap-3 bg-gray-50 rounded-2xl px-4 py-3 border border-gray-100">
-          <HiOutlineMagnifyingGlass className="w-5 h-5 text-gray-400 shrink-0" />
-          <input
-            type="text"
-            placeholder="Search dishes..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-transparent outline-none text-sm flex-1 text-gray-700 placeholder-gray-400"
-          />
-          {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="shrink-0">
-              <HiOutlineXMark className="w-4 h-4 text-gray-400" />
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3 bg-gray-50 rounded-2xl px-4 py-3 border border-gray-100 flex-1">
+            <HiOutlineMagnifyingGlass className="w-5 h-5 text-gray-400 shrink-0" />
+            <input
+              type="text"
+              placeholder="Search dishes..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-transparent outline-none text-sm flex-1 text-gray-700 placeholder-gray-400"
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery('')} className="shrink-0">
+                <HiOutlineXMark className="w-4 h-4 text-gray-400" />
+              </button>
+            )}
+          </div>
+          {/* Sort Button */}
+          <div className="relative">
+            <button
+              onClick={() => setShowSortMenu((v) => !v)}
+              className={`w-11 h-11 rounded-2xl border flex items-center justify-center transition-all ${sortBy !== 'default' ? 'bg-primary text-white border-primary' : 'bg-gray-50 text-gray-500 border-gray-100'}`}
+            >
+              <HiOutlineFunnel className="w-5 h-5" />
             </button>
-          )}
+            {showSortMenu && (
+              <div className="absolute right-0 top-13 mt-1 bg-white rounded-2xl shadow-lg border border-gray-100 z-50 w-44 overflow-hidden">
+                {[
+                  { key: 'default', label: 'Default' },
+                  { key: 'price_asc', label: 'Price: Low to High' },
+                  { key: 'price_desc', label: 'Price: High to Low' },
+                ].map((opt) => (
+                  <button
+                    key={opt.key}
+                    onClick={() => { setSortBy(opt.key); setShowSortMenu(false); }}
+                    className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors ${sortBy === opt.key ? 'text-primary bg-primary/5' : 'text-gray-700 active:bg-gray-50'}`}
+                  >
+                    {sortBy === opt.key && <span className="mr-2">✓</span>}{opt.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
+        {/* Active filter pill */}
+        {sortBy !== 'default' && (
+          <div className="flex items-center gap-2 mt-2">
+            <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1.5">
+              {sortBy === 'price_asc' ? 'Price: Low to High' : 'Price: High to Low'}
+              <button onClick={() => setSortBy('default')}>
+                <HiOutlineXMark className="w-3.5 h-3.5" />
+              </button>
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Category Tabs */}
