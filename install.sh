@@ -20,6 +20,12 @@ read -p "Admin Name: " ADMIN_NAME
 read -p "Admin Phone (10 digits): " ADMIN_PHONE
 read -sp "Admin Password: " ADMIN_PASS
 echo ""
+read -p "SMTP Host [mail.yourdomain.com]: " MAIL_HOST
+read -p "SMTP Port [587]: " MAIL_PORT
+MAIL_PORT=${MAIL_PORT:-587}
+read -p "SMTP Username (email): " MAIL_USER
+read -sp "SMTP Password: " MAIL_PASS
+echo ""
 read -p "License Key: " LICENSE_KEY
 echo ""
 
@@ -75,12 +81,12 @@ SMS_CAMPAIGN=API
 SMS_ROUTE_ID=SI_Alert
 
 MAIL_MAILER=smtp
-MAIL_HOST=mail.yummytummy.app
-MAIL_PORT=587
-MAIL_USERNAME=notification@yummytummy.app
-MAIL_PASSWORD=t2rsDxjZvpNE6WhBwGUH
+MAIL_HOST=$MAIL_HOST
+MAIL_PORT=$MAIL_PORT
+MAIL_USERNAME=$MAIL_USER
+MAIL_PASSWORD=$MAIL_PASS
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=notification@yummytummy.app
+MAIL_FROM_ADDRESS=$MAIL_USER
 MAIL_FROM_NAME="\$KITCHEN_NAME"
 
 ONESIGNAL_APP_ID=
