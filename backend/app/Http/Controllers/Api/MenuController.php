@@ -32,7 +32,7 @@ class MenuController extends Controller
             $query->where('is_featured', true);
         }
 
-        $items = $query->orderBy('sort_order')->get();
+        $items = $query->orderByDesc('created_at')->get();
 
         return response()->json(['items' => $items]);
     }

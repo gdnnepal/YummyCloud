@@ -116,7 +116,7 @@ function Menu() {
             {showSortMenu && (
               <div className="absolute right-0 top-13 mt-1 bg-white rounded-2xl shadow-lg border border-gray-100 z-50 w-44 overflow-hidden">
                 {[
-                  { key: 'default', label: 'Default' },
+                  { key: 'default', label: 'Newest First' },
                   { key: 'price_asc', label: 'Price: Low to High' },
                   { key: 'price_desc', label: 'Price: High to Low' },
                 ].map((opt) => (
