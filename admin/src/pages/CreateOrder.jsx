@@ -9,7 +9,7 @@ function CreateOrder() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [popup, setPopup] = useState(null); // { type: 'success'|'error', message: '' }
+  const [popup, setPopup] = useState(null);
 
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -97,22 +97,30 @@ function CreateOrder() {
         body: JSON.stringify(payload),
       });
       setPopup({ type: 'success', message: 'Order created successfully!', orderId: res.order.id });
-    } catch (err) { setPopup({ type: 'error', message: err.message || 'Failed to create order.' }); }
-    finally { setSubmitting(false); }
+    } catch (err) {
+      setPopup({ type: 'error', message: err.message || 'Failed to create order.' });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) return <div className="animate-pulse bg-white rounded-xl h-64" />;
 
   return (
-    <div>
-      <h1 className="text-xl font-bold text-gray-800 mb-4">Create Order</h1>
+    // Full viewport height minus the admin header (~4rem)
+    <div className="flex flex-col" style={{ height: 'calc(100vh - 4rem)' }}>
+      <h1 className="text-xl font-bold text-gray-800 mb-3 shrink-0">Create Order</h1>
 
-      <div className="grid lg:grid-cols-5 gap-4">
-        {/* Left - Customer & Cart */}
-        <div className="lg:col-span-2 flex flex-col gap-3">
-          {/* Customer Details */}
-          <div className="bg-white rounded-xl border border-gray-100 p-4 mb-3 shrink-0">
-            <h3 className="text-sm font-semibold text-gray-800 mb-3">Customer</h3>
+      <div className="flex gap-4 flex-1 min-h-0">
+
+        {/* ── LEFT PANEL ── fixed, no scroll */}
+        <div className="w-80 shrink-0 flex flex-col gap-0 min-h-0">
+
+          {/* Customer form — fixed */}
+          <div className="bg-white rounded-t-xl border border-gray-100 p-3 shrink-0">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Customer</p>
+
+            {/* Search existing */}
             <div className="relative mb-2">
               <input
                 type="text"
@@ -121,57 +129,74 @@ function CreateOrder() {
                 onFocus={() => setShowCustomerDropdown(true)}
                 onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
                 placeholder="Search existing customer..."
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-primary"
               />
               {showCustomerDropdown && customerSearch && (
-                <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-32 overflow-y-auto">
+                <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-32 overflow-y-auto">
                   {filteredCustomers.slice(0, 5).map((c) => (
-                    <button key={c.id} type="button" onMouseDown={() => selectCustomer(c)} className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex justify-between">
-                      <span>{c.name}</span><span className="text-gray-400 text-xs">{c.phone}</span>
+                    <button key={c.id} type="button" onMouseDown={() => selectCustomer(c)}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex justify-between">
+                      <span>{c.name}</span>
+                      <span className="text-gray-400">{c.phone}</span>
                     </button>
                   ))}
                   {filteredCustomers.length === 0 && <p className="px-3 py-2 text-xs text-gray-400">No match</p>}
                 </div>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-2 mb-2">
-              <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Name *" className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" required />
-              <input type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="Phone *" className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" required />
+
+            <div className="grid grid-cols-2 gap-1.5 mb-1.5">
+              <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)}
+                placeholder="Name *" className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-primary" />
+              <input type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                placeholder="Phone *" className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-primary" />
             </div>
-            <input type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} placeholder="Email (optional — for order confirmation)" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-2 outline-none focus:border-primary" />
-            <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Delivery address *" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-2 outline-none focus:border-primary" required />
-            <div className="grid grid-cols-2 gap-2 mb-2">
-              <input type="text" value={customerLat} onChange={(e) => setCustomerLat(e.target.value)} placeholder="Latitude (optional)" className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
-              <input type="text" value={customerLng} onChange={(e) => setCustomerLng(e.target.value)} placeholder="Longitude (optional)" className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
-            </div>
-            <div className="grid grid-cols-2 gap-2 mb-2">
-              <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-white">
+            <input type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)}
+              placeholder="Email (optional)" className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs mb-1.5 outline-none focus:border-primary" />
+            <input type="text" value={address} onChange={(e) => setAddress(e.target.value)}
+              placeholder="Delivery address *" className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs mb-1.5 outline-none focus:border-primary" />
+            <div className="grid grid-cols-2 gap-1.5 mb-1.5">
+              <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}
+                className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-primary bg-white">
                 <option value="cod">COD</option>
                 <option value="qr">QR Payment</option>
               </select>
-              <input type="number" min="0" value={deliveryFee} onChange={(e) => setDeliveryFee(e.target.value)} placeholder="Delivery fee" className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+              <input type="number" min="0" value={deliveryFee} onChange={(e) => setDeliveryFee(e.target.value)}
+                placeholder="Delivery fee" className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-primary" />
             </div>
-            <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note (optional)" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
+            <input type="text" value={note} onChange={(e) => setNote(e.target.value)}
+              placeholder="Note (optional)" className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-primary" />
           </div>
 
-          {/* Cart - scrollable */}
-          <div className="bg-white rounded-xl border border-gray-100 p-4">
-            <h3 className="text-sm font-semibold text-gray-800 mb-2">Cart ({cart.length} items)</h3>
+          {/* Cart — scrollable, fills remaining space */}
+          <div className="bg-white border-x border-gray-100 flex-1 overflow-y-auto min-h-0 px-3 py-2">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">
+              Cart {cart.length > 0 && <span className="text-primary">({cart.length})</span>}
+            </p>
             {cart.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-6">Add items from menu →</p>
+              <p className="text-xs text-gray-400 text-center py-8">Add items from the menu →</p>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {cart.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0">
+                  <div key={item.id} className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-800 truncate">{item.name}</p>
-                      <p className="text-xs text-gray-400">Rs. {item.price} × {item.quantity} = Rs. {item.price * item.quantity}</p>
+                      <p className="text-xs font-medium text-gray-800 truncate">{item.name}</p>
+                      <p className="text-[10px] text-gray-400">Rs.{item.price} × {item.quantity} = Rs.{item.price * item.quantity}</p>
                     </div>
-                    <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                      <button type="button" onClick={() => updateQty(item.id, -1)} className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center"><HiOutlineMinus className="w-3 h-3" /></button>
-                      <span className="text-sm font-medium w-4 text-center">{item.quantity}</span>
-                      <button type="button" onClick={() => updateQty(item.id, 1)} className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center"><HiOutlinePlus className="w-3 h-3" /></button>
-                      <button type="button" onClick={() => removeFromCart(item.id)} className="w-6 h-6 rounded bg-red-50 flex items-center justify-center ml-1"><HiOutlineTrash className="w-3 h-3 text-red-500" /></button>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button type="button" onClick={() => updateQty(item.id, -1)}
+                        className="w-5 h-5 rounded bg-gray-100 flex items-center justify-center">
+                        <HiOutlineMinus className="w-2.5 h-2.5" />
+                      </button>
+                      <span className="text-xs font-medium w-4 text-center">{item.quantity}</span>
+                      <button type="button" onClick={() => updateQty(item.id, 1)}
+                        className="w-5 h-5 rounded bg-gray-100 flex items-center justify-center">
+                        <HiOutlinePlus className="w-2.5 h-2.5" />
+                      </button>
+                      <button type="button" onClick={() => removeFromCart(item.id)}
+                        className="w-5 h-5 rounded bg-red-50 flex items-center justify-center ml-0.5">
+                        <HiOutlineTrash className="w-2.5 h-2.5 text-red-500" />
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -179,21 +204,23 @@ function CreateOrder() {
             )}
           </div>
 
-          {/* Fixed Submit */}
-          <div className="bg-white rounded-xl border border-gray-100 p-3 shrink-0">
-            <div className="flex justify-between text-sm mb-1">
-              <span className="text-gray-500">Subtotal</span><span className="font-medium">Rs. {subtotal}</span>
-            </div>
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-500">Delivery Fee</span><span className="font-medium">Rs. {deliveryFeeNum}</span>
-            </div>
-            <div className="flex justify-between text-sm font-bold border-t border-gray-100 pt-2 mb-2">
-              <span>Total</span><span>Rs. {total}</span>
+          {/* Summary + Submit — pinned at bottom */}
+          <div className="bg-white rounded-b-xl border border-gray-100 p-3 shrink-0">
+            <div className="space-y-1 mb-2">
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>Subtotal</span><span>Rs. {subtotal}</span>
+              </div>
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>Delivery Fee</span><span>Rs. {deliveryFeeNum}</span>
+              </div>
+              <div className="flex justify-between text-sm font-bold text-gray-800 border-t border-gray-100 pt-1.5">
+                <span>Total</span><span>Rs. {total}</span>
+              </div>
             </div>
             <button
               onClick={handleSubmit}
               disabled={submitting || cart.length === 0 || !customerPhone || !address}
-              className="w-full bg-primary text-white py-2.5 rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-primary/90 transition-colors inline-flex items-center justify-center gap-2"
+              className="w-full bg-primary text-white py-2.5 rounded-lg text-sm font-semibold disabled:opacity-40 hover:bg-primary/90 transition-colors inline-flex items-center justify-center gap-2"
             >
               {submitting && <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
               {submitting ? 'Creating...' : 'Create Order'}
@@ -201,10 +228,10 @@ function CreateOrder() {
           </div>
         </div>
 
-        {/* Right - Menu (POS style) */}
-        <div className="lg:col-span-3 bg-white rounded-xl border border-gray-100 flex flex-col" style={{minHeight: '600px'}}>
-          <div className="p-4 border-b border-gray-100 shrink-0">
-            <h3 className="text-sm font-semibold text-gray-800 mb-2">Menu</h3>
+        {/* ── RIGHT PANEL — Menu, scrollable ── */}
+        <div className="flex-1 bg-white rounded-xl border border-gray-100 flex flex-col min-h-0">
+          <div className="p-3 border-b border-gray-100 shrink-0">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Menu</p>
             <input
               type="text"
               value={menuSearch}
@@ -213,8 +240,8 @@ function CreateOrder() {
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary"
             />
           </div>
-          <div className="flex-1 overflow-y-auto p-2" style={{maxHeight: '600px'}}>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div className="flex-1 overflow-y-auto p-2 min-h-0">
+            <div className="grid grid-cols-2 xl:grid-cols-3 gap-2">
               {filteredMenu.map((item) => {
                 const inCart = cart.find(c => c.id === item.id);
                 return (
@@ -223,13 +250,22 @@ function CreateOrder() {
                     type="button"
                     onClick={() => addToCart(item)}
                     disabled={!item.is_available}
-                    className={`text-left p-3 rounded-lg border transition-all ${!item.is_available ? 'opacity-40 border-gray-100' : inCart ? 'border-primary bg-primary/5' : 'border-gray-100 hover:border-gray-300'}`}
+                    className={`text-left p-3 rounded-lg border transition-all ${
+                      !item.is_available
+                        ? 'opacity-40 cursor-not-allowed border-gray-100'
+                        : inCart
+                        ? 'border-primary bg-primary/5 shadow-sm'
+                        : 'border-gray-100 hover:border-gray-300 hover:shadow-sm'
+                    }`}
                   >
                     <p className="text-sm font-medium text-gray-800 truncate">{item.name}</p>
-                    <p className="text-[10px] text-gray-400 truncate">{item.category?.name}</p>
-                    <div className="flex items-center justify-between mt-1.5">
+                    <p className="text-[10px] text-gray-400 truncate mb-1">{item.category?.name}</p>
+                    <div className="flex items-center justify-between">
                       <span className="text-sm font-bold text-gray-800">Rs. {item.price}</span>
-                      {inCart && <span className="text-[10px] bg-primary text-white px-1.5 py-0.5 rounded-full font-medium">{inCart.quantity}</span>}
+                      {inCart
+                        ? <span className="text-[10px] bg-primary text-white px-1.5 py-0.5 rounded-full font-semibold">{inCart.quantity}</span>
+                        : <span className="text-[10px] text-gray-400">tap to add</span>
+                      }
                     </div>
                   </button>
                 );
@@ -239,27 +275,21 @@ function CreateOrder() {
         </div>
       </div>
 
-      {/* Popup Notification */}
+      {/* Popup */}
       {popup && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/50" onClick={() => { if (popup.type !== 'success') setPopup(null); }} />
-          <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm text-center animate-[fade-in_0.2s_ease-out]">
+          <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm text-center">
             <div className={`w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 ${popup.type === 'success' ? 'bg-green-50' : 'bg-red-50'}`}>
-              {popup.type === 'success' ? (
-                <HiOutlineCheckCircle className="w-7 h-7 text-green-500" />
-              ) : (
-                <HiOutlineExclamationTriangle className="w-7 h-7 text-red-500" />
-              )}
+              {popup.type === 'success'
+                ? <HiOutlineCheckCircle className="w-7 h-7 text-green-500" />
+                : <HiOutlineExclamationTriangle className="w-7 h-7 text-red-500" />
+              }
             </div>
             <h3 className="text-lg font-bold text-gray-800">{popup.type === 'success' ? 'Success' : 'Error'}</h3>
             <p className="text-sm text-gray-500 mt-2">{popup.message}</p>
             <button
-              onClick={() => {
-                if (popup.type === 'success' && popup.orderId) {
-                  navigate(`/orders/${popup.orderId}`);
-                }
-                setPopup(null);
-              }}
+              onClick={() => { if (popup.type === 'success' && popup.orderId) navigate(`/orders/${popup.orderId}`); setPopup(null); }}
               className={`w-full mt-5 py-2.5 rounded-xl text-sm font-medium text-white ${popup.type === 'success' ? 'bg-green-500' : 'bg-primary'}`}
             >
               {popup.type === 'success' ? 'View Order' : 'OK'}
