@@ -114,11 +114,11 @@ function CreateOrder() {
       <div className="flex gap-4 flex-1 min-h-0">
 
         {/* ── LEFT PANEL ── fixed, no scroll */}
-        <div className="w-80 shrink-0 flex flex-col gap-0 min-h-0">
+        <div className="w-96 shrink-0 flex flex-col gap-0 min-h-0">
 
           {/* Customer form — fixed */}
-          <div className="bg-white rounded-t-xl border border-gray-100 p-3 shrink-0">
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Customer</p>
+          <div className="bg-white rounded-t-xl border border-gray-100 p-4 shrink-0">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Customer</p>
 
             {/* Search existing */}
             <div className="relative mb-2">
@@ -129,15 +129,15 @@ function CreateOrder() {
                 onFocus={() => setShowCustomerDropdown(true)}
                 onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
                 placeholder="Search existing customer..."
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-primary"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary"
               />
               {showCustomerDropdown && customerSearch && (
                 <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-32 overflow-y-auto">
                   {filteredCustomers.slice(0, 5).map((c) => (
                     <button key={c.id} type="button" onMouseDown={() => selectCustomer(c)}
-                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex justify-between">
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex justify-between">
                       <span>{c.name}</span>
-                      <span className="text-gray-400">{c.phone}</span>
+                      <span className="text-gray-400 text-xs">{c.phone}</span>
                     </button>
                   ))}
                   {filteredCustomers.length === 0 && <p className="px-3 py-2 text-xs text-gray-400">No match</p>}
@@ -145,27 +145,27 @@ function CreateOrder() {
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-1.5 mb-1.5">
+            <div className="grid grid-cols-2 gap-2 mb-2">
               <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)}
-                placeholder="Name *" className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-primary" />
+                placeholder="Name *" className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
               <input type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                placeholder="Phone *" className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-primary" />
+                placeholder="Phone *" className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
             </div>
             <input type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)}
-              placeholder="Email (optional)" className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs mb-1.5 outline-none focus:border-primary" />
+              placeholder="Email (optional)" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-2 outline-none focus:border-primary" />
             <input type="text" value={address} onChange={(e) => setAddress(e.target.value)}
-              placeholder="Delivery address *" className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs mb-1.5 outline-none focus:border-primary" />
-            <div className="grid grid-cols-2 gap-1.5 mb-1.5">
+              placeholder="Delivery address *" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-2 outline-none focus:border-primary" />
+            <div className="grid grid-cols-2 gap-2 mb-2">
               <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}
-                className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-primary bg-white">
+                className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-white">
                 <option value="cod">COD</option>
                 <option value="qr">QR Payment</option>
               </select>
               <input type="number" min="0" value={deliveryFee} onChange={(e) => setDeliveryFee(e.target.value)}
-                placeholder="Delivery fee" className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-primary" />
+                placeholder="Delivery fee" className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
             </div>
             <input type="text" value={note} onChange={(e) => setNote(e.target.value)}
-              placeholder="Note (optional)" className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-primary" />
+              placeholder="Note (optional)" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary" />
           </div>
 
           {/* Cart — scrollable, fills remaining space */}
